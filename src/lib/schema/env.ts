@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const EnvSchema = z.object({
-  NEXT_PUBLIC_API_BASE_URL: z.string().url(),
-  NEXT_PUBLIC_SUBGRAPH_URL: z.string().url().optional(),
+  NEXT_PUBLIC_API_BASE_URL: z.string(),
+  NEXT_PUBLIC_SUBGRAPH_URL: z.string().optional(),
   NEXT_PUBLIC_PRIVY_APP_ID: z.string(),
 });
 

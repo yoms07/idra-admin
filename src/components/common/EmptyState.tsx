@@ -7,6 +7,7 @@ type EmptyStateProps = {
   actionLabel?: string;
   onAction?: () => void;
   icon?: ReactNode;
+  action?: ReactNode;
 };
 
 export function EmptyState({
@@ -15,6 +16,7 @@ export function EmptyState({
   actionLabel,
   onAction,
   icon,
+  action,
 }: EmptyStateProps) {
   return (
     <div className="border rounded-md p-8 text-center grid gap-3 place-items-center">
@@ -23,7 +25,8 @@ export function EmptyState({
       {description && (
         <p className="text-sm text-muted-foreground max-w-md">{description}</p>
       )}
-      {actionLabel && onAction && (
+      {action && action}
+      {actionLabel && onAction && !action && (
         <Button onClick={onAction}>{actionLabel}</Button>
       )}
     </div>
