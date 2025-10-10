@@ -89,6 +89,9 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      qrcode.react:
+        specifier: ^4.2.0
+        version: 4.2.0(react@19.1.0)
       react:
         specifier: 19.1.0
         version: 19.1.0
@@ -5647,6 +5650,11 @@ packages:
   qr@0.5.2:
     resolution: {integrity: sha512-91M3sVlA7xCFpkJtYX5xzVH8tDo4rNZ7jr8v+1CRgPVkZ4D+Vl9y8rtZWJ/YkEUM6U/h0FAu5W/JAK7iowOteA==}
     engines: {node: '>= 20.19.0'}
+
+  qrcode.react@4.2.0:
+    resolution: {integrity: sha512-QpgqWi8rD9DsS9EP3z7BT+5lY5SFhsqGjpgW5DY/i3mK4M9DTBNz3ErMi8BWYEfI3L0d8GIbGmcdFAS1uIRGjA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   qrcode@1.5.3:
     resolution: {integrity: sha512-puyri6ApkEHYiVl4CFzo1tDkAZ+ATcnbJrJ6RiBM1Fhctdn/ix9MTE3hRph33omisEbC/2fcfemsseiKgBPKZg==}
@@ -14133,6 +14141,10 @@ snapshots:
   punycode@2.3.1: {}
 
   qr@0.5.2: {}
+
+  qrcode.react@4.2.0(react@19.1.0):
+    dependencies:
+      react: 19.1.0
 
   qrcode@1.5.3:
     dependencies:

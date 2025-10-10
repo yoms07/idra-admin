@@ -55,7 +55,7 @@ export function useMe() {
  */
 export function useIsAuthenticated() {
   const { data: user, isLoading, error } = useMe();
-
+  console.log({ user, error });
   return {
     isAuthenticated: !!user && !error,
     isLoading,

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppStore } from "@/state/stores/appStore";
+import { useAccount } from "wagmi";
+import { useCreateMint, useMintList } from "@/features/mint/hooks/useMint";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,10 +37,23 @@ const quickAmounts = [20000, 50000, 100000, 500000, 1000000];
 
 export default function MintPage() {
   const router = useRouter();
-  const { walletConnected, balance, addTransaction } = useAppStore();
+  const { balance, addTransaction } = useAppStore();
+  const { address, isConnected } = useAccount();
+  const { mutate: createMint, isPending: isCreating } = useCreateMint();
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
+  const [qrData, setQrData] = useState<string | undefined>(undefined);
+  const [mintId, setMintId] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+  const {
+    data: mintList,
+    isLoading: isLoadingMints,
+    error: mintError,
+  } = useMintList({
+    limit: 5,
+    page: 1,
+  });
+  // console.log({ mintError, mintList });
 
   const form = useForm<MintForm>({
     resolver: zodResolver(MintFormSchema),
@@ -51,15 +66,14 @@ export default function MintPage() {
 
   const idraAmount = form.watch("idraAmount");
   const idrToPay = idraAmount ? parseFloat(idraAmount) * 1 : 0; // 1:1 IDRA↔IDR for now
-  const fee = idraAmount ? parseFloat(idraAmount) * 0.02 : 0; // 2% fee (applied on IDR to pay)
-  const totalAmount = idraAmount ? idrToPay + fee : 0;
+  const totalAmount = idraAmount ? idrToPay : 0;
 
   const handleQuickAmount = (amount: number) => {
     form.setValue("idraAmount", amount.toString());
   };
 
   const onSubmit = async (data: MintForm) => {
-    if (!walletConnected) {
+    if (!isConnected || !address) {
       setError("Please connect your wallet first");
       return;
     }
@@ -68,23 +82,35 @@ export default function MintPage() {
     setError(null);
 
     try {
-      // TODO: Implement actual payment processing
-      // For now, simulate payment processing
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Create pending transaction
-      const transaction = {
-        id: Date.now().toString(),
-        type: "mint" as const,
-        status: "pending" as const,
-        amount: idraAmount || "0",
-        amountUSD: (idrToPay || "0").toString(),
-        paymentId: `pay_${Date.now()}`,
-        createdAt: new Date(),
-      };
-
-      addTransaction(transaction);
-      setShowPayment(true);
+      // Call API to create mint request
+      createMint(
+        {
+          mintAddress: address,
+          amountIdr: (idrToPay as any).toString(),
+          paymentMethod: data.paymentMethod,
+          chainId: 84532,
+        },
+        {
+          onSuccess: (res) => {
+            setQrData(res.paymentInstructions.qrData);
+            setMintId(res.id);
+            // Optionally record a pending transaction locally
+            addTransaction({
+              id: res.id,
+              type: "mint",
+              status: "pending",
+              amount: idraAmount || "0",
+              amountUSD: (idrToPay || "0").toString(),
+              paymentId: res.paymentReference,
+              createdAt: new Date(res.createdAt),
+            } as any);
+            setShowPayment(true);
+          },
+          onError: () => {
+            setError("Failed to create mint request. Please try again.");
+          },
+        }
+      );
     } catch (err) {
       setError("Payment processing failed. Please try again.");
     } finally {
@@ -97,7 +123,7 @@ export default function MintPage() {
     router.push("/dashboard");
   };
 
-  if (!walletConnected) {
+  if (!isConnected) {
     return (
       <MainLayout>
         <div className="p-6">
@@ -112,7 +138,7 @@ export default function MintPage() {
                   </p>
                 </div>
                 <Button asChild className="w-full">
-                  <a href="/connect-wallet">Connect Wallet</a>
+                  <a href="/login">Connect Wallet</a>
                 </Button>
               </div>
             </CardContent>
@@ -128,6 +154,8 @@ export default function MintPage() {
         amountIdr={(idrToPay as any).toString()}
         amountIdra={idraAmount || "0"}
         paymentMethod={form.watch("paymentMethod") as any}
+        qrData={qrData}
+        mintId={mintId}
         onDone={() => router.push("/history")}
         onMintMore={() => setShowPayment(false)}
       />
@@ -277,12 +305,6 @@ export default function MintPage() {
                             )}
                           </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span>Fee (2%)</span>
-                          <span>
-                            {formatIDR(parseFloat((fee || "0").toString()))}
-                          </span>
-                        </div>
                         <div className="flex justify-between font-medium">
                           <span>Total</span>
                           <span>
@@ -332,13 +354,50 @@ export default function MintPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="text-center text-muted-foreground py-8">
-                    <DollarSign className="h-8 w-8 mx-auto mb-2" />
-                    <p>No recent mints</p>
-                    <p className="text-sm">
-                      Your minting history will appear here
-                    </p>
-                  </div>
+                  {isLoadingMints && (
+                    <div className="text-center text-muted-foreground py-8">
+                      <Loader className="h-6 w-6 mx-auto mb-2" />
+                      <p>Loading recent mints...</p>
+                    </div>
+                  )}
+                  {!isLoadingMints &&
+                    (!mintList || mintList.items.length === 0) && (
+                      <div className="text-center text-muted-foreground py-8">
+                        <DollarSign className="h-8 w-8 mx-auto mb-2" />
+                        <p>No recent mints</p>
+                        <p className="text-sm">
+                          Your minting history will appear here
+                        </p>
+                      </div>
+                    )}
+                  {!isLoadingMints && mintList && mintList.items.length > 0 && (
+                    <div className="space-y-3">
+                      {mintList.items.map((mint) => (
+                        <div
+                          key={mint.id}
+                          className="flex items-center justify-between p-3 rounded-lg border bg-muted/30"
+                        >
+                          <div>
+                            <div className="font-medium">
+                              {mint.paymentMethod.toUpperCase()} - Rp
+                              {formatIDR(parseFloat(mint.amountIdr))}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {new Date(mint.createdAt).toLocaleString()} •
+                              Status: {mint.status} • Payment:{" "}
+                              {mint.paymentStatus}
+                            </div>
+                          </div>
+                          <div
+                            className="text-sm font-mono truncate max-w-[120px]"
+                            title={mint.paymentReference}
+                          >
+                            {mint.paymentReference}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

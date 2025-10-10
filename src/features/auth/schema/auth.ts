@@ -43,8 +43,8 @@ export const VerifyResponseSchema = baseResponse(VerifyDataSchema);
 export const MeDataSchema = z.object({
   id: z.string(),
   walletAddress: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  name: z.string().nullable(),
+  email: z.string().nullable(),
 });
 export const MeResponseSchema = baseResponse(MeDataSchema);
 

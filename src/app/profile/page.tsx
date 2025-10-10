@@ -31,16 +31,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  useBankAccounts,
+  useCreateBankAccount,
+  useSupportedBanks,
+  useDeleteBankAccount,
+} from "@/features/bank-accounts/hooks/useBankAccounts";
+import { Trash2 } from "lucide-react";
 
 export default function ProfilePage() {
-  const {
-    user,
-    bankAccounts,
-    addBankAccount,
-    setUser,
-    setDefaultBankAccount,
-    removeBankAccount,
-  } = useAppStore();
+  const { user, setUser } = useAppStore();
+
+  // Bank accounts data via API
+  const { data: accounts, isLoading: isLoadingAccounts } = useBankAccounts();
+  const { data: supportedBanks, isLoading: isLoadingBanks } =
+    useSupportedBanks();
+  const { mutate: createAccount, isPending: isCreatingAccount } =
+    useCreateBankAccount();
+  const { mutate: deleteAccount, isPending: isDeleting } =
+    useDeleteBankAccount();
 
   const [name, setName] = useState(user?.name || "");
   const [email] = useState(user?.email || "");
@@ -59,7 +68,7 @@ export default function ProfilePage() {
   };
 
   const [accountHolderName, setAccountHolderName] = useState("");
-  const [bankName, setBankName] = useState("");
+  const [bankName, setBankName] = useState(""); // holds bankCode
   const [accountNumber, setAccountNumber] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isAddingAccount, setIsAddingAccount] = useState(false);
@@ -85,14 +94,20 @@ export default function ProfilePage() {
     if (!accountHolderName || !bankName || !accountNumber) return;
     setIsAddingAccount(true);
     try {
-      addBankAccount({
-        id: Date.now().toString(),
-        accountHolderName,
-        bankName,
-        accountNumber,
-        isDefault: bankAccounts.length === 0,
-        createdAt: new Date(),
-      } as any);
+      await new Promise<void>((resolve, reject) => {
+        createAccount(
+          {
+            accountHolderName,
+            bankName, // send bank code expected by API
+            accountNumber,
+            isDefault: false,
+          },
+          {
+            onSuccess: () => resolve(),
+            onError: () => reject(new Error("failed")),
+          }
+        );
+      });
       setAccountHolderName("");
       setBankName("");
       setAccountNumber("");
@@ -177,41 +192,39 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              {bankAccounts.length === 0 ? (
+              {isLoadingAccounts ? (
+                <div className="text-sm text-muted-foreground">Loading...</div>
+              ) : !accounts || accounts.length === 0 ? (
                 <div className="text-sm text-muted-foreground">
                   No bank accounts added yet.
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {bankAccounts.map((acc) => (
+                  {accounts.map((acc) => (
                     <div
                       key={acc.id}
                       className="flex items-center justify-between rounded-md border p-3"
                     >
                       <div className="min-w-0">
                         <div className="font-medium truncate">
-                          {acc.bankName} • {acc.accountNumber}
+                          {acc.bankName} • ****{acc.accountNumberLast4}
                         </div>
                         <div className="text-xs text-muted-foreground truncate">
                           {acc.accountHolderName}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {!acc.isDefault && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setDefaultBankAccount(acc.id)}
-                          >
-                            Set Default
-                          </Button>
-                        )}
+                        <div className="text-xs text-muted-foreground">
+                          {acc.isDefault ? "Default" : ""}
+                        </div>
                         <Button
                           variant="outline"
-                          size="sm"
-                          onClick={() => removeBankAccount(acc.id)}
+                          size="icon"
+                          onClick={() => deleteAccount(acc.id)}
+                          disabled={isDeleting}
+                          aria-label="Delete bank account"
                         >
-                          Remove
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -249,14 +262,18 @@ export default function ProfilePage() {
               <Label htmlFor="bank">Bank Name</Label>
               <Select value={bankName} onValueChange={setBankName}>
                 <SelectTrigger id="bank" className="w-full">
-                  <SelectValue placeholder="Select a bank" />
+                  <SelectValue
+                    placeholder={
+                      isLoadingBanks ? "Loading..." : "Select a bank"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="BCA">BCA</SelectItem>
-                  <SelectItem value="BRI">BRI</SelectItem>
-                  <SelectItem value="BNI">BNI</SelectItem>
-                  <SelectItem value="Mandiri">Mandiri</SelectItem>
-                  <SelectItem value="Permata">Permata</SelectItem>
+                  {supportedBanks?.map((b) => (
+                    <SelectItem key={b.bankCode} value={b.bankCode}>
+                      {b.bankName}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -277,12 +294,13 @@ export default function ProfilePage() {
               onClick={handleAddBankAccount}
               disabled={
                 isAddingAccount ||
+                isCreatingAccount ||
                 !accountHolderName ||
                 !bankName ||
                 !accountNumber
               }
             >
-              {isAddingAccount ? "Adding..." : "Add"}
+              {isAddingAccount || isCreatingAccount ? "Adding..." : "Add"}
             </Button>
           </DialogFooter>
         </DialogContent>

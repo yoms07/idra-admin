@@ -10,8 +10,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader } from "@/components/common/Loader";
 import { CheckCircle, Clock, QrCode, Receipt } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
+import { useMintById } from "@/features/mint/hooks/useMint";
 
 interface PaymentFlowProps {
   amountIdr: string;
@@ -19,6 +20,8 @@ interface PaymentFlowProps {
   paymentMethod: "qris" | "va_bri" | "va_bca" | "va_bni";
   onDone: () => void;
   onMintMore: () => void;
+  qrData?: string;
+  mintId?: string;
 }
 
 type Step = "instructions" | "minting" | "success";
@@ -29,24 +32,16 @@ export function PaymentFlow({
   paymentMethod,
   onDone,
   onMintMore,
+  qrData,
+  mintId,
 }: PaymentFlowProps) {
   const [step, setStep] = useState<Step>("instructions");
   const [isChecking, setIsChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<number | null>(null);
+  const { data: mint, refetch } = useMintById(mintId);
 
-  const virtualAccount = useMemo(() => {
-    switch (paymentMethod) {
-      case "va_bri":
-        return "002 7777 08 1234 5678 90";
-      case "va_bca":
-        return "014 7777 08 1234 5678 90";
-      case "va_bni":
-        return "009 7777 08 1234 5678 90";
-      default:
-        return "7777 08 1234 5678 90";
-    }
-  }, [paymentMethod]);
+  const virtualAccount = mint?.paymentInstructions?.accountNumber;
 
   useEffect(() => {
     return () => {
@@ -56,21 +51,54 @@ export function PaymentFlow({
     };
   }, []);
 
+  // Set up periodic refetch while component is mounted
+  useEffect(() => {
+    if (!mintId) return;
+    if (intervalRef.current) {
+      window.clearInterval(intervalRef.current);
+    }
+    intervalRef.current = window.setInterval(() => {
+      refetch();
+    }, 2000);
+    return () => {
+      if (intervalRef.current) {
+        window.clearInterval(intervalRef.current);
+      }
+    };
+  }, [mintId, refetch]);
+
+  useEffect(() => {
+    if (!mint) return;
+    // payment status handling
+    if (mint.paymentStatus === "paid" && step === "instructions") {
+      setStep("minting");
+    }
+    if (mint.paymentStatus === "failed") {
+      setError("Payment failed. Please try again.");
+      setIsChecking(false);
+    }
+    if (mint.paymentStatus === "expired") {
+      setError("Payment expired. Please create a new request.");
+      setIsChecking(false);
+    }
+
+    // mint status handling
+    if (mint.status === "completed") {
+      setStep("success");
+      setIsChecking(false);
+    }
+    if (mint.status === "failed") {
+      setError("Minting failed. Please contact support.");
+      setIsChecking(false);
+    }
+  }, [mint, step]);
+
   const startBackgroundCheck = () => {
-    // Simulate background status checks every 2s then progress to next step
-    let ticks = 0;
+    // Start polling via parent-provided mintId
     setIsChecking(true);
     setError(null);
-    intervalRef.current = window.setInterval(() => {
-      ticks += 1;
-      if (ticks >= 3) {
-        if (intervalRef.current) window.clearInterval(intervalRef.current);
-        setIsChecking(false);
-        setStep("minting");
-        // Simulate mint processing
-        window.setTimeout(() => setStep("success"), 2500);
-      }
-    }, 2000);
+    // Trigger an immediate refetch on click
+    refetch();
   };
 
   return (
@@ -153,7 +181,7 @@ export function PaymentFlow({
                         variant="outline"
                         size="sm"
                         onClick={() =>
-                          navigator.clipboard.writeText(virtualAccount)
+                          navigator.clipboard.writeText(virtualAccount!)
                         }
                       >
                         Copy
@@ -172,7 +200,15 @@ export function PaymentFlow({
               ) : (
                 <div className="mt-4 rounded-lg bg-background border p-6 text-center">
                   <div className="inline-flex items-center justify-center rounded-md border p-6">
-                    <QrCode className="h-16 w-16" />
+                    {qrData ? (
+                      <QRCodeCanvas
+                        value={qrData}
+                        size={180}
+                        includeMargin={true}
+                      />
+                    ) : (
+                      <QrCode className="h-16 w-16" />
+                    )}
                   </div>
                   <div className="text-sm text-muted-foreground mt-3">
                     Scan this QR with your bank app
