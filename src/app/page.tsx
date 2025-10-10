@@ -2,11 +2,11 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAppStore } from "@/state/stores/appStore";
+import { useIsAuthenticated } from "@/features/auth";
 
 export default function Home() {
   const router = useRouter();
-  const { isAuthenticated } = useAppStore();
+  const { isAuthenticated } = useIsAuthenticated();
 
   useEffect(() => {
     if (isAuthenticated) {

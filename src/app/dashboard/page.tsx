@@ -24,8 +24,7 @@ import Link from "next/link";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { balance, balanceUSD, setBalance, setRecentTransactions } =
-    useAppStore();
+  const {} = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated } = useIsAuthenticated();
   const { isConnected } = useAccount();
@@ -40,40 +39,7 @@ export default function DashboardPage() {
         // Simulate loading dashboard data
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        // Mock data for now
-        setBalance("1250.50", "1250.50");
-
-        const mockTransactions = [
-          {
-            id: "1",
-            type: "mint" as const,
-            status: "completed" as const,
-            amount: "100.00",
-            amountUSD: "100.00",
-            txHash: "0x1234567890abcdef",
-            createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-          },
-          {
-            id: "2",
-            type: "send" as const,
-            status: "completed" as const,
-            amount: "50.00",
-            amountUSD: "50.00",
-            to: "0x9876543210fedcba",
-            txHash: "0xabcdef1234567890",
-            createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
-          },
-          {
-            id: "3",
-            type: "mint" as const,
-            status: "pending" as const,
-            amount: "200.00",
-            amountUSD: "200.00",
-            createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-          },
-        ];
-
-        setRecentTransactions(mockTransactions);
+        // TODO: Load balances and transactions from backend
       } catch (error) {
         console.error("Failed to load dashboard data:", error);
       } finally {
@@ -84,7 +50,7 @@ export default function DashboardPage() {
     if (isAuthenticated) {
       loadDashboardData();
     }
-  }, [isAuthenticated, setBalance, setRecentTransactions]);
+  }, [isAuthenticated]);
 
   if (!isAuthenticated) {
     return null;
@@ -115,8 +81,8 @@ export default function DashboardPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <StatCard
             title="Total Balance"
-            value={`${parseFloat(balance).toFixed(2)} IDRA`}
-            subtitle={`Rp${parseFloat(balanceUSD).toFixed(2)} IDR`}
+            value={`—`}
+            subtitle={`—`}
             icon={DollarSign}
             isLoading={isLoading}
           />

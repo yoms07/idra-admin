@@ -37,7 +37,7 @@ const quickAmounts = [20000, 50000, 100000, 500000, 1000000];
 
 export default function MintPage() {
   const router = useRouter();
-  const { balance, addTransaction } = useAppStore();
+  const {} = useAppStore();
   const { address, isConnected } = useAccount();
   const { mutate: createMint, isPending: isCreating } = useCreateMint();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -94,16 +94,6 @@ export default function MintPage() {
           onSuccess: (res) => {
             setQrData(res.paymentInstructions.qrData);
             setMintId(res.id);
-            // Optionally record a pending transaction locally
-            addTransaction({
-              id: res.id,
-              type: "mint",
-              status: "pending",
-              amount: idraAmount || "0",
-              amountUSD: (idrToPay || "0").toString(),
-              paymentId: res.paymentReference,
-              createdAt: new Date(res.createdAt),
-            } as any);
             setShowPayment(true);
           },
           onError: () => {

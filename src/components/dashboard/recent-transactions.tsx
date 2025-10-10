@@ -66,7 +66,7 @@ interface RecentTransactionsProps {
 export function RecentTransactions({
   isLoading = false,
 }: RecentTransactionsProps) {
-  const { recentTransactions } = useAppStore();
+  const recentTransactions: Transaction[] = [];
 
   if (isLoading) {
     return (
@@ -98,7 +98,7 @@ export function RecentTransactions({
         </CardHeader>
         <CardContent>
           <EmptyState
-            icon={ArrowUpRight}
+            icon={<ArrowUpRight className="h-4 w-4" />}
             title="No transactions yet"
             description="Your recent transactions will appear here"
             action={

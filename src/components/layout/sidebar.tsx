@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAppStore } from "@/state/stores/appStore";
+import { useMe } from "@/features/auth/hooks/authHook";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -27,7 +28,8 @@ const navigation = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { user, reset } = useAppStore();
+  const { reset } = useAppStore();
+  const { data: user } = useMe();
 
   const handleDisconnect = () => {
     reset();
@@ -93,17 +95,17 @@ export function AppSidebar() {
           {user && (
             <div className="flex items-center gap-3 px-2 py-2">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={undefined} alt={user.walletAddress} />
                 <AvatarFallback>
-                  {user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
+                  {user.walletAddress.slice(2, 3)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium truncate">
-                  {user.name || user.email}
+                  {user.walletAddress}
                 </div>
                 <div className="text-xs text-muted-foreground truncate">
-                  {user.email}
+                  &nbsp;
                 </div>
               </div>
             </div>

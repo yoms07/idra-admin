@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAppStore } from "@/state/stores/appStore";
+import { useAccount } from "wagmi";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,8 +30,9 @@ import {
 
 export default function SendPage() {
   const router = useRouter();
-  const { walletConnected, balance, balanceUSD, addTransaction } =
-    useAppStore();
+  const { isConnected } = useAccount();
+  const balance = "0";
+  const balanceUSD = "0";
   const [isProcessing, setIsProcessing] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +62,7 @@ export default function SendPage() {
   };
 
   const onSubmit = async (data: SendForm) => {
-    if (!walletConnected) {
+    if (!isConnected) {
       setError("Please connect your wallet first");
       return;
     }
@@ -98,7 +99,6 @@ export default function SendPage() {
         createdAt: new Date(),
       };
 
-      addTransaction(transaction);
       setShowConfirmation(true);
     } catch (err) {
       setError("Transaction failed. Please try again.");
@@ -111,7 +111,7 @@ export default function SendPage() {
     router.push("/dashboard");
   };
 
-  if (!walletConnected) {
+  if (!isConnected) {
     return (
       <MainLayout>
         <div className="p-6">
@@ -126,7 +126,7 @@ export default function SendPage() {
                   </p>
                 </div>
                 <Button asChild className="w-full">
-                  <a href="/connect-wallet">Connect Wallet</a>
+                  <a href="/login">Connect Wallet</a>
                 </Button>
               </div>
             </CardContent>

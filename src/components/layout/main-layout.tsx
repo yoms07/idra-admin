@@ -4,6 +4,7 @@ import { AppSidebar } from "./sidebar";
 import { MobileNav } from "./mobile-nav";
 import Link from "next/link";
 import { useAppStore } from "@/state/stores/appStore";
+import { useMe } from "@/features/auth/hooks/authHook";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -24,7 +25,8 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
-  const { user, reset, notifications } = useAppStore();
+  const { reset, notifications } = useAppStore();
+  const { data: user } = useMe();
 
   const handleDisconnect = () => {
     reset();
@@ -83,11 +85,9 @@ export function MainLayout({ children }: MainLayoutProps) {
                     aria-label="Open profile menu"
                   >
                     <Avatar className="size-9 border-primary border-1">
-                      <AvatarImage src={user?.avatar} alt={user?.name} />
+                      <AvatarImage src={undefined} alt={user?.walletAddress} />
                       <AvatarFallback>
-                        {user?.name?.charAt(0) ||
-                          user?.email?.charAt(0)?.toUpperCase() ||
-                          "U"}
+                        {user?.walletAddress?.slice(2, 3)?.toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                   </Button>

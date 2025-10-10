@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAppStore } from "@/state/stores/appStore";
+import { useAccount } from "wagmi";
+import { useBankAccounts } from "@/features/bank-accounts/hooks/useBankAccounts";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,14 +35,10 @@ const percentageButtons = [25, 50, 75];
 
 export default function RedeemPage() {
   const router = useRouter();
-  const {
-    walletConnected,
-    balance,
-    balanceUSD,
-    bankAccounts,
-    addBankAccount,
-    addTransaction,
-  } = useAppStore();
+  const { isConnected } = useAccount();
+  const { data: bankAccounts = [] } = useBankAccounts();
+  const balance = "0";
+  const balanceUSD = "0";
   const [isProcessing, setIsProcessing] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +55,7 @@ export default function RedeemPage() {
   const mscAmount = form.watch("mscAmount");
   const usdAmount = mscAmount ? (parseFloat(mscAmount) * 1).toFixed(2) : "0"; // 1:1 ratio for now
   const selectedBankAccount = bankAccounts.find(
-    (acc) => acc.id === form.watch("bankAccountId")
+    (acc: any) => acc.id === form.watch("bankAccountId")
   );
 
   const handlePercentage = (percentage: number) => {
@@ -71,7 +68,7 @@ export default function RedeemPage() {
   };
 
   const onSubmit = async (data: RedeemForm) => {
-    if (!walletConnected) {
+    if (!isConnected) {
       setError("Please connect your wallet first");
       return;
     }
@@ -103,8 +100,6 @@ export default function RedeemPage() {
         amountUSD: usdAmount,
         createdAt: new Date(),
       };
-
-      addTransaction(transaction);
       setShowConfirmation(true);
     } catch (err) {
       setError("Redemption failed. Please try again.");
@@ -117,7 +112,7 @@ export default function RedeemPage() {
     router.push("/dashboard");
   };
 
-  if (!walletConnected) {
+  if (!isConnected) {
     return (
       <MainLayout>
         <div className="p-6">
@@ -132,7 +127,7 @@ export default function RedeemPage() {
                   </p>
                 </div>
                 <Button asChild className="w-full">
-                  <a href="/connect-wallet">Connect Wallet</a>
+                  <a href="/login">Connect Wallet</a>
                 </Button>
               </div>
             </CardContent>
@@ -340,7 +335,7 @@ export default function RedeemPage() {
                               </div>
                               <div className="text-sm text-muted-foreground">
                                 {account.bankName} • ****
-                                {account.accountNumber.slice(-4)}
+                                {account.accountNumberLast4}
                               </div>
                             </div>
                             {account.isDefault && (

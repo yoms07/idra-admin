@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAppStore } from "@/state/stores/appStore";
+// Legacy page; wallet connection is handled on /login via Xellar Kit
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,28 +23,13 @@ import {
 
 export default function ConnectWalletPage() {
   const router = useRouter();
-  const { setWalletAddress, setWalletConnected } = useAppStore();
+  // No-op: handled via login page
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleExternalWallet = async () => {
     setIsLoading(true);
     setError(null);
-
-    try {
-      // TODO: Implement external wallet connection (MetaMask, WalletConnect)
-      // For now, simulate successful connection
-      const mockAddress = "0x1234567890123456789012345678901234567890";
-
-      setWalletAddress(mockAddress);
-      setWalletConnected(true);
-
-      router.push("/dashboard");
-    } catch (err) {
-      setError("Failed to connect external wallet. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleEmbeddedWallet = async () => {
@@ -52,13 +37,6 @@ export default function ConnectWalletPage() {
     setError(null);
 
     try {
-      // TODO: Implement embedded wallet creation with Xellar Kit
-      // For now, simulate successful embedded wallet creation
-      const mockAddress = "0x9876543210987654321098765432109876543210";
-
-      setWalletAddress(mockAddress);
-      setWalletConnected(true);
-
       router.push("/dashboard");
     } catch (err) {
       setError("Failed to create embedded wallet. Please try again.");

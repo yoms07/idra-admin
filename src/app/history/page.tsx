@@ -102,7 +102,7 @@ const formatDate = (date: Date) => {
 };
 
 export default function HistoryPage() {
-  const { recentTransactions } = useAppStore();
+  const recentTransactions: any[] = [];
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<TransactionType | "all">(
     "all"
