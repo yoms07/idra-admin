@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAppStore } from "@/state/stores/appStore";
-import { Button } from "@/components/ui/button";
+import { ConnectDialogStandAlone } from "@xellar/kit";
+import { useAccount } from "wagmi";
+import { useIsAuthenticated, useSiweAuthentication } from "@/features/auth";
 import {
   Card,
   CardContent,
@@ -13,91 +14,73 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader } from "@/components/common/Loader";
-import { Wallet, Mail, AlertCircle } from "lucide-react";
+import { Wallet, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setUser, setAuthenticated, setWalletAddress, setWalletConnected } =
-    useAppStore();
-  const [isLoading, setIsLoading] = useState(false);
+  const { address, isConnected } = useAccount();
+  const {
+    signInWithEthereum,
+    isGettingNonce,
+    isVerifying,
+    isSigning,
+    errorMessage,
+  } = useSiweAuthentication();
+  const {
+    isAuthenticated,
+    isLoading: isCheckingAuth,
+    user,
+  } = useIsAuthenticated();
+
   const [error, setError] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
 
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // TODO: Implement Google OAuth with Xellar Kit
-      // For now, simulate successful login
-      const mockUser = {
-        id: "1",
-        email: "user@example.com",
-        name: "John Doe",
-        avatar: "https://github.com/shadcn.png",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      setUser(mockUser);
-      setAuthenticated(true);
-
-      // Check if wallet is connected
-      const hasWallet = false; // TODO: Check actual wallet connection
-
-      if (hasWallet) {
-        router.push("/dashboard");
-      } else {
-        router.push("/connect-wallet");
-      }
-    } catch (err) {
-      setError("Failed to login with Google. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleWalletConnect = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // TODO: Implement wallet connection with Xellar Kit
-      // For now, simulate successful wallet connection
-      const mockAddress = "0x1234567890123456789012345678901234567890";
-
-      setWalletAddress(mockAddress);
-      setWalletConnected(true);
-
-      // Create a mock user for wallet-only login
-      const mockUser = {
-        id: "1",
-        email: "wallet@example.com",
-        name: "Wallet User",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      setUser(mockUser);
-      setAuthenticated(true);
-
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
       router.push("/dashboard");
-    } catch (err) {
-      setError("Failed to connect wallet. Please try again.");
-    } finally {
-      setIsLoading(false);
     }
+  }, [isAuthenticated, user, router]);
+
+  // Do NOT auto-authenticate on connection; user must click the button
+
+  const handleWalletAuthentication = async () => {
+    if (!address) return;
+    setIsConnecting(true);
+    setError(null);
+    const err = await signInWithEthereum(address);
+    if (err) {
+      setError(err);
+    } else {
+      router.push("/dashboard");
+    }
+    setIsConnecting(false);
   };
+
+  // Show loading state while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader className="h-8 w-8" />
+          <p className="text-muted-foreground">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 h-12 w-12 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-xl">M</span>
+            <span className="text-primary-foreground font-bold text-xl">
+              ID
+            </span>
           </div>
-          <CardTitle className="text-2xl">Welcome to MSC Dashboard</CardTitle>
+          <CardTitle className="text-2xl">Welcome to IDRA Dashboard</CardTitle>
           <CardDescription>
-            Sign in to manage your stablecoin transactions
+            Connect your wallet to manage your IDRA transactions
           </CardDescription>
         </CardHeader>
 
@@ -109,50 +92,54 @@ export default function LoginPage() {
             </Alert>
           )}
 
-          <div className="space-y-3">
-            <Button
-              onClick={handleGoogleLogin}
-              disabled={isLoading}
-              className="w-full"
-              size="lg"
-            >
-              {isLoading ? (
-                <Loader className="mr-2 h-4 w-4" />
-              ) : (
-                <Mail className="mr-2 h-4 w-4" />
-              )}
-              Continue with Google
-            </Button>
+          <div className="space-y-4 items-center flex flex-col">
+            {!isConnected && <ConnectDialogStandAlone />}
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+            {isConnected && address && (
+              <div className="p-4 bg-muted rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <Wallet className="h-4 w-4 text-green-500" />
+                  <span className="text-sm font-medium">Wallet Connected</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 font-mono">
+                  {address.slice(0, 6)}...{address.slice(-4)}
+                </p>
+                {!isAuthenticated && (
+                  <button
+                    onClick={handleWalletAuthentication}
+                    className="mt-3 px-4 py-2 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                    disabled={isGettingNonce || isVerifying || isConnecting}
+                  >
+                    {isGettingNonce
+                      ? "Getting Nonce..."
+                      : isVerifying
+                        ? "Verifying..."
+                        : isConnecting
+                          ? "Signing..."
+                          : "Sign in with Ethereum"}
+                  </button>
+                )}
+                {(isConnecting ||
+                  isGettingNonce ||
+                  isVerifying ||
+                  isSigning) && (
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Loader className="h-3 w-3" />
+                    <span className="text-xs text-muted-foreground">
+                      {isGettingNonce && "Getting authentication nonce..."}
+                      {isVerifying && "Verifying signature..."}
+                      {isSigning && "Requesting signature..."}
+                      {isConnecting && "Authenticating..."}
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or
-                </span>
-              </div>
-            </div>
-
-            <Button
-              onClick={handleWalletConnect}
-              disabled={isLoading}
-              variant="outline"
-              className="w-full"
-              size="lg"
-            >
-              {isLoading ? (
-                <Loader className="mr-2 h-4 w-4" />
-              ) : (
-                <Wallet className="mr-2 h-4 w-4" />
-              )}
-              Connect Wallet
-            </Button>
+            )}
           </div>
 
           <div className="text-center text-sm text-muted-foreground">
-            By continuing, you agree to our Terms of Service and Privacy Policy
+            By connecting your wallet, you agree to our Terms of Service and
+            Privacy Policy
           </div>
         </CardContent>
       </Card>

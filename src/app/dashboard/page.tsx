@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/state/stores/appStore";
+import { useIsAuthenticated } from "@/features/auth";
+import { useAccount } from "wagmi";
 import { MainLayout } from "@/components/layout/main-layout";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
@@ -22,23 +24,11 @@ import Link from "next/link";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const {
-    isAuthenticated,
-    walletConnected,
-    balance,
-    balanceUSD,
-    setBalance,
-    setRecentTransactions,
-  } = useAppStore();
+  const { balance, balanceUSD, setBalance, setRecentTransactions } =
+    useAppStore();
   const [isLoading, setIsLoading] = useState(true);
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
-  }, [isAuthenticated, router]);
+  const { isAuthenticated } = useIsAuthenticated();
+  const { isConnected } = useAccount();
 
   // Load dashboard data
   useEffect(() => {
@@ -156,7 +146,7 @@ export default function DashboardPage() {
               <Button
                 asChild
                 className="h-20 flex-col space-y-2"
-                disabled={!walletConnected}
+                disabled={!isConnected}
               >
                 <Link href="/mint">
                   <Plus className="h-6 w-6" />
@@ -167,7 +157,7 @@ export default function DashboardPage() {
                 asChild
                 variant="outline"
                 className="h-20 flex-col space-y-2"
-                disabled={!walletConnected}
+                disabled={!isConnected}
               >
                 <Link href="/redeem">
                   <Minus className="h-6 w-6" />
@@ -178,7 +168,7 @@ export default function DashboardPage() {
                 asChild
                 variant="outline"
                 className="h-20 flex-col space-y-2"
-                disabled={!walletConnected}
+                disabled={!isConnected}
               >
                 <Link href="/send">
                   <Send className="h-6 w-6" />
@@ -204,7 +194,7 @@ export default function DashboardPage() {
         <RecentTransactions isLoading={isLoading} />
 
         {/* Wallet Connection Prompt */}
-        {!walletConnected && (
+        {!isConnected && (
           <Card className="border-destructive/20 bg-destructive/5">
             <CardContent className="pt-6">
               <div className="flex items-center space-x-4">

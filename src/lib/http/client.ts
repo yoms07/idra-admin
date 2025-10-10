@@ -6,7 +6,14 @@ export const http = axios.create({
 });
 
 http.interceptors.request.use((config) => {
-  // attach auth if available later
+  // Get auth token from localStorage or wherever it's stored
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
   return config;
 });
 

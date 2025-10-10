@@ -10,9 +10,7 @@ import type {
 interface AppState {
   // User state
   user: User | null;
-  isAuthenticated: boolean;
-  walletAddress: string | null;
-  walletConnected: boolean;
+  // wallet state moved to wagmi hooks
 
   // Balance state
   balance: string;
@@ -31,9 +29,6 @@ interface AppState {
 
   // Actions
   setUser: (user: User | null) => void;
-  setAuthenticated: (isAuthenticated: boolean) => void;
-  setWalletAddress: (address: string | null) => void;
-  setWalletConnected: (connected: boolean) => void;
   setBalance: (msc: string, usd: string) => void;
   addTransaction: (transaction: Transaction) => void;
   updateTransaction: (id: string, updates: Partial<Transaction>) => void;
@@ -49,9 +44,6 @@ interface AppState {
 
 const initialState = {
   user: null,
-  isAuthenticated: false,
-  walletAddress: null,
-  walletConnected: false,
   balance: "0",
   balanceUSD: "0",
   pendingTransactions: [],
@@ -66,13 +58,7 @@ export const useAppStore = create<AppState>()(
     (set, get) => ({
       ...initialState,
 
-      setUser: (user) => set({ user, isAuthenticated: !!user }),
-
-      setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
-
-      setWalletAddress: (walletAddress) => set({ walletAddress }),
-
-      setWalletConnected: (walletConnected) => set({ walletConnected }),
+      setUser: (user) => set({ user }),
 
       setBalance: (balance, balanceUSD) => set({ balance, balanceUSD }),
 
@@ -143,9 +129,6 @@ export const useAppStore = create<AppState>()(
       name: "app-storage",
       partialize: (state) => ({
         user: state.user,
-        isAuthenticated: state.isAuthenticated,
-        walletAddress: state.walletAddress,
-        walletConnected: state.walletConnected,
         bankAccounts: state.bankAccounts,
       }),
     }
