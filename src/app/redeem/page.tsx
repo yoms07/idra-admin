@@ -4,8 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { useBankAccounts } from "@/features/bank-accounts/hooks/useBankAccounts";
+import { useIDRABalance } from "@/features/balance/hooks/useBalance";
+import {
+  useCreateRedeem,
+  useRedeemList,
+} from "@/features/redeem/hooks/useRedeem";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,10 +40,18 @@ const percentageButtons = [25, 50, 75];
 
 export default function RedeemPage() {
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
+  const chainId = useChainId();
   const { data: bankAccounts = [] } = useBankAccounts();
-  const balance = "0";
-  const balanceUSD = "0";
+  const { formatted: balanceFormatted } = useIDRABalance();
+  const balance = balanceFormatted || "0";
+  const balanceUSD = balance; // 1:1 placeholder for now
+  const { mutate: createRedeem, isPending: isCreatingRedeem } =
+    useCreateRedeem();
+  const { data: redeemList, isLoading: isLoadingRedeems } = useRedeemList({
+    page: 1,
+    limit: 5,
+  });
   const [isProcessing, setIsProcessing] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +81,7 @@ export default function RedeemPage() {
   };
 
   const onSubmit = async (data: RedeemForm) => {
+    console.log({ data });
     if (!isConnected) {
       setError("Please connect your wallet first");
       return;
@@ -87,20 +101,30 @@ export default function RedeemPage() {
     setError(null);
 
     try {
-      // TODO: Implement actual burn transaction and redemption request
-      // For now, simulate processing
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // API expects amountIdr as digits-only string (no decimals)
+      const amountIdrStr = Math.round(parseFloat(mscAmount || "0")).toString();
 
-      // Create pending transaction
-      const transaction = {
-        id: Date.now().toString(),
-        type: "redeem" as const,
-        status: "pending" as const,
-        amount: data.mscAmount,
-        amountUSD: usdAmount,
-        createdAt: new Date(),
-      };
-      setShowConfirmation(true);
+      createRedeem(
+        {
+          fromAddress: address as `0x${string}`,
+          amountIdr: amountIdrStr,
+          recipient: {
+            bankCode: selectedBankAccount.bankName,
+            bankName: selectedBankAccount.bankName,
+            accountName: selectedBankAccount.accountHolderName,
+            // NOTE: Only last4 is stored locally; backend expects full accountNumber
+            accountNumber: `****${selectedBankAccount.accountNumberLast4}`,
+          },
+          chainId,
+        },
+        {
+          onSuccess: () => {
+            setError(null);
+            setShowConfirmation(true);
+          },
+          onError: () => setError("Redemption failed. Please try again."),
+        }
+      );
     } catch (err) {
       setError("Redemption failed. Please try again.");
     } finally {
@@ -406,9 +430,14 @@ export default function RedeemPage() {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={isProcessing || !mscAmount || !selectedBankAccount}
+                  disabled={
+                    isProcessing ||
+                    isCreatingRedeem ||
+                    !mscAmount ||
+                    !selectedBankAccount
+                  }
                 >
-                  {isProcessing ? (
+                  {isProcessing || isCreatingRedeem ? (
                     <>
                       <Loader className="mr-2 h-4 w-4" />
                       Processing...
@@ -431,13 +460,46 @@ export default function RedeemPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="text-center text-muted-foreground py-8">
-                  <Minus className="h-8 w-8 mx-auto mb-2" />
-                  <p>No recent redemptions</p>
-                  <p className="text-sm">
-                    Your redemption history will appear here
-                  </p>
-                </div>
+                {isLoadingRedeems ? (
+                  <div className="text-center text-muted-foreground py-8">
+                    <Loader className="h-6 w-6 mx-auto mb-2" />
+                    <p>Loading recent redemptions...</p>
+                  </div>
+                ) : !redeemList || redeemList.items.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-8">
+                    <Minus className="h-8 w-8 mx-auto mb-2" />
+                    <p>No recent redemptions</p>
+                    <p className="text-sm">
+                      Your redemption history will appear here
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {redeemList.items.map((rd) => (
+                      <div
+                        key={rd.id}
+                        className="flex items-center justify-between p-3 rounded-lg border bg-muted/30"
+                      >
+                        <div>
+                          <div className="font-medium">
+                            Rp{parseFloat(rd.amountIdr).toLocaleString()} •{" "}
+                            {rd.recipientBank.bankName}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(rd.createdAt).toLocaleString()} • Status:{" "}
+                            {rd.status}
+                          </div>
+                        </div>
+                        <div
+                          className="text-xs font-mono truncate max-w-[140px]"
+                          title={rd.disbursementId || "—"}
+                        >
+                          {rd.disbursementId || "—"}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

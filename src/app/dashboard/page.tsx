@@ -10,6 +10,7 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useIDRABalance } from "@/features/balance/hooks/useBalance";
 import {
   DollarSign,
   TrendingUp,
@@ -28,6 +29,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated } = useIsAuthenticated();
   const { isConnected } = useAccount();
+  const { formatted: idraBalance } = useIDRABalance();
 
   // Load dashboard data
   useEffect(() => {
@@ -81,8 +83,8 @@ export default function DashboardPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <StatCard
             title="Total Balance"
-            value={`—`}
-            subtitle={`—`}
+            value={`${parseFloat(idraBalance || "0").toFixed(2)} IDRA`}
+            subtitle={`Rp${parseFloat(idraBalance || "0").toFixed(2)} IDR`}
             icon={DollarSign}
             isLoading={isLoading}
           />

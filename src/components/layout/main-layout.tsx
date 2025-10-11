@@ -19,6 +19,7 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useXellarAccount, useProfileModal } from "@xellar/kit";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -26,6 +27,7 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const { reset, notifications } = useAppStore();
+  const { open: openProfileModal } = useProfileModal();
   const { data: user } = useMe();
 
   const handleDisconnect = () => {
@@ -43,6 +45,7 @@ export function MainLayout({ children }: MainLayoutProps) {
             <SidebarTrigger className="-ml-1" />
             <div className="flex-1" />
             <div className="flex items-center gap-2">
+              <Button onClick={() => openProfileModal()}>Switch Chain</Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button

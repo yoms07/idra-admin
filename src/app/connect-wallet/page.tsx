@@ -23,7 +23,6 @@ import {
 
 export default function ConnectWalletPage() {
   const router = useRouter();
-  // No-op: handled via login page
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
