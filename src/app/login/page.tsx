@@ -112,16 +112,23 @@ const LoginPage = () => {
                 <p className="text-xs text-muted-foreground mt-1 font-mono">
                   {address.slice(0, 6)}...{address.slice(-4)}
                 </p>
-                <div className="flex items-center mt-3 gap-3">
+                <div className="flex flex-col items-center mt-3 gap-3">
                   {!isAuthenticated && (
                     <Button
+                      className="w-full"
                       onClick={handleWalletAuthentication}
                       disabled={isGettingNonce || isVerifying || isConnecting}
                     >
                       {mainButtonText()}
                     </Button>
                   )}
-                  <Button onClick={() => disconnect()}>Change Wallet</Button>
+                  <Button
+                    onClick={() => disconnect()}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    Change Wallet
+                  </Button>
                 </div>
                 {(isConnecting ||
                   isGettingNonce ||

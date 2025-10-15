@@ -42,12 +42,12 @@ export function useMe() {
 
 export function useIsAuthenticated() {
   const { data: user, isLoading, error } = useMe();
-  const { address } = useAccount();
+  const { address, isConnecting: isWalletConnecting } = useAccount();
   const isAuthenticated =
     !!user && !error && isTheSameAddress(user.walletAddress, address || "");
   return {
     isAuthenticated,
-    isLoading,
+    isLoading: isLoading || isWalletConnecting,
     user: isAuthenticated ? user : undefined,
   };
 }

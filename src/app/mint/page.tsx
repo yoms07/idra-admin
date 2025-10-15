@@ -27,9 +27,9 @@ import { PaymentMethodItem } from "./PaymentMethodItem";
 import { RecentMints } from "./recent-mints";
 import { MintFormSchema, type MintForm } from "@/lib/schema";
 import { DollarSign, Building2, AlertCircle, QrCode } from "lucide-react";
-import { formatIDR } from "@/lib/utils";
+import { formatIDR, formatIDRA } from "@/lib/utils";
 import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
-import { useIsAuthenticated, useMe } from "@/features/auth";
+import { useMe } from "@/features/auth";
 
 const quickAmounts = [20000, 50000, 100000, 500000, 1000000];
 
@@ -232,7 +232,7 @@ function MintPage() {
                       onValueChange={(value) =>
                         form.setValue(
                           "paymentMethod",
-                          value as "qris" | "va_bri" | "va_bca" | "va_bni"
+                          value as "qris" | "va_bri" | "va_bni" | "va_permata"
                         )
                       }
                       className="grid gap-3 sm:grid-cols-2 items-stretch"
@@ -247,12 +247,6 @@ function MintPage() {
                         value="va_bri"
                         title="Virtual Account BRI"
                         description="Pay via BRI virtual account"
-                        icon={<Building2 className="h-5 w-5" />}
-                      />
-                      <PaymentMethodItem
-                        value="va_bca"
-                        title="Virtual Account BCA"
-                        description="Pay via BCA virtual account"
                         icon={<Building2 className="h-5 w-5" />}
                       />
                       <PaymentMethodItem
@@ -271,23 +265,15 @@ function MintPage() {
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
                           <span>You pay</span>
-                          <span>
-                            {formatIDR(
-                              parseFloat((idrToPay || "0").toString())
-                            )}
-                          </span>
+                          <span>{formatIDR(idrToPay)}</span>
                         </div>
                         <div className="flex justify-between font-medium">
                           <span>Total</span>
-                          <span>
-                            {formatIDR(
-                              parseFloat((totalAmount || "0").toString())
-                            )}
-                          </span>
+                          <span>{formatIDR(totalAmount)}</span>
                         </div>
                         <div className="flex justify-between text-muted-foreground">
                           <span>You'll receive</span>
-                          <span>{idraAmount} IDRA</span>
+                          <span>{formatIDRA(idraAmount)}</span>
                         </div>
                       </div>
                     </div>

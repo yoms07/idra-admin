@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, Clock, QrCode, Receipt } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useMintById } from "@/features/mint/hooks/useMint";
+import { formatIDR, formatIDRA } from "@/lib/utils";
 
 interface PaymentFlowProps {
   amountIdr: string;
@@ -96,7 +97,7 @@ export function PaymentFlow({
           <>
             <CardTitle>Complete Your Payment</CardTitle>
             <CardDescription>
-              Pay Rp{amountIdr} IDR to receive {amountIdra} IDRA
+              Pay {formatIDR(amountIdr)} to receive {formatIDRA(amountIdra)}
             </CardDescription>
           </>
         )}
@@ -104,14 +105,16 @@ export function PaymentFlow({
           <>
             <CardTitle>Minting In Progress</CardTitle>
             <CardDescription>
-              We're minting {amountIdra} IDRA to your wallet
+              We're minting {formatIDRA(amountIdra)} to your wallet
             </CardDescription>
           </>
         )}
         {step === "success" && (
           <>
             <CardTitle>Payment Successful</CardTitle>
-            <CardDescription>You received {amountIdra} IDRA</CardDescription>
+            <CardDescription>
+              You received {formatIDRA(amountIdra)}
+            </CardDescription>
           </>
         )}
       </CardHeader>
@@ -147,11 +150,11 @@ export function PaymentFlow({
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="rounded-lg bg-background border p-3 text-center">
                   <div className="text-xs text-muted-foreground">Amount</div>
-                  <div className="font-semibold">Rp{amountIdr}</div>
+                  <div className="font-semibold">{formatIDR(amountIdr)}</div>
                 </div>
                 <div className="rounded-lg bg-background border p-3 text-center">
                   <div className="text-xs text-muted-foreground">You get</div>
-                  <div className="font-semibold">{amountIdra} IDRA</div>
+                  <div className="font-semibold">{formatIDRA(amountIdra)}</div>
                 </div>
               </div>
               {paymentMethod !== "qris" ? (
@@ -181,7 +184,7 @@ export function PaymentFlow({
                       Open your banking app and choose Virtual Account payment
                     </li>
                     <li>Enter the VA number exactly as shown</li>
-                    <li>Confirm the amount: Rp{amountIdr}</li>
+                    <li>Confirm the amount: {formatIDR(amountIdr)}</li>
                     <li>Complete the payment within 10 minutes</li>
                   </ul>
                 </>
@@ -251,7 +254,7 @@ export function PaymentFlow({
             <div className="text-center space-y-1">
               <div className="font-medium">Payment confirmed</div>
               <div className="text-sm text-muted-foreground">
-                {amountIdra} IDRA has been minted
+                {formatIDRA(amountIdra)} has been minted
               </div>
             </div>
             <div className="flex gap-2">

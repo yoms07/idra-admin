@@ -27,6 +27,7 @@ import { RedeemConfirmation } from "./confirmation";
 import { RecentRedemptions } from "./recent-redemptions";
 import { RedeemFormSchema, type RedeemForm } from "@/lib/schema";
 import { Building2, AlertCircle, Clock, AlertTriangle } from "lucide-react";
+import { formatIDRA, formatIDR } from "@/lib/utils";
 
 const percentageButtons = [25, 50, 75];
 
@@ -54,7 +55,6 @@ export default function RedeemPage() {
   });
 
   const idraAmount = form.watch("idraAmount");
-  const usdAmount = idraAmount ? (parseFloat(idraAmount) * 1).toFixed(2) : "0"; // 1:1 ratio for now
   const selectedBankAccount = bankAccounts.find(
     (acc: any) => acc.id === form.watch("bankAccountId")
   );
@@ -145,7 +145,7 @@ export default function RedeemPage() {
         <div className="p-6">
           <RedeemConfirmation
             idraAmount={idraAmount || "0"}
-            usdAmount={usdAmount}
+            usdAmount={idraAmount}
             selectedBankAccount={
               selectedBankAccount || { accountHolderName: "", bankName: "" }
             }
@@ -196,12 +196,7 @@ export default function RedeemPage() {
                       Available Balance
                     </span>
                     <div className="text-right">
-                      <div className="font-bold">
-                        {parseFloat(balance).toFixed(2)} IDRA
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Rp{parseFloat(balanceUSD).toFixed(2)} IDR
-                      </div>
+                      <div className="font-bold">{formatIDRA(balance)}</div>
                     </div>
                   </div>
                 </div>
@@ -259,9 +254,10 @@ export default function RedeemPage() {
                 {idraAmount && (
                   <div className="p-3 bg-muted rounded-lg">
                     <div className="flex text-sm gap-1">
-                      <span>You will receive</span>
-                      <span className="font-medium">Rp{usdAmount}</span>
-                      <span>sent to your bank account</span>
+                      <span className="text-center">
+                        You will receive {formatIDR(idraAmount)} sent to your
+                        bank account
+                      </span>
                     </div>
                   </div>
                 )}
@@ -347,11 +343,11 @@ export default function RedeemPage() {
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span>Amount to redeem</span>
-                        <span>{idraAmount} MSC</span>
+                        <span>{formatIDRA(idraAmount)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>IDR Value</span>
-                        <span>Rp{usdAmount}</span>
+                        <span>{formatIDR(idraAmount)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Bank Account</span>

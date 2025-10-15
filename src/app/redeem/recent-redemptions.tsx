@@ -9,7 +9,40 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useRedeemList } from "@/features/redeem/hooks/useRedeem";
+import { RedeemData } from "@/features/redeem/schema/redeem";
+import { formatIDR } from "@/lib/utils";
+import { PaymentStatusBadge } from "@/components/common/payment-status-badge";
 import { Minus } from "lucide-react";
+
+const RecentRedemptionCard = ({
+  redemption: rd,
+}: {
+  redemption: RedeemData;
+}) => {
+  return (
+    <div
+      key={rd.id}
+      className="flex items-center justify-between p-3 rounded-lg border bg-muted/30 space-y-2"
+    >
+      <div className="space-y-2">
+        <div className="font-medium">
+          {rd.recipientBank.bankName.toUpperCase()} -{" "}
+          {formatIDR(parseFloat(rd.amountIdr))}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          <PaymentStatusBadge status={rd.status} /> -{" "}
+          {new Date(rd.createdAt).toLocaleString()}
+        </div>
+        <div
+          className="text-xs text-muted-foreground font-mono truncate"
+          title={rd.disbursementId || "—"}
+        >
+          {rd.disbursementId || "—"}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export function RecentRedemptions() {
   const { data: redeemList, isLoading: isLoadingRedeems } = useRedeemList({
@@ -41,27 +74,7 @@ export function RecentRedemptions() {
           ) : (
             <div className="space-y-3">
               {redeemList.items.map((rd) => (
-                <div
-                  key={rd.id}
-                  className="flex items-center justify-between p-3 rounded-lg border bg-muted/30"
-                >
-                  <div>
-                    <div className="font-medium">
-                      Rp{parseFloat(rd.amountIdr).toLocaleString()} •{" "}
-                      {rd.recipientBank.bankName}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(rd.createdAt).toLocaleString()} • Status:{" "}
-                      {rd.status}
-                    </div>
-                  </div>
-                  <div
-                    className="text-xs font-mono truncate max-w-[140px]"
-                    title={rd.disbursementId || "—"}
-                  >
-                    {rd.disbursementId || "—"}
-                  </div>
-                </div>
+                <RecentRedemptionCard key={rd.id} redemption={rd} />
               ))}
             </div>
           )}

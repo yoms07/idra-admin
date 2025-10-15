@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { baseResponse } from "@/features/auth/schema/auth";
 
-export const MintMethodSchema = z.enum(["qris", "va_bri", "va_bca", "va_bni"]);
+export const MintMethodSchema = z.enum([
+  "qris",
+  "va_bri",
+  "va_permata",
+  "va_bni",
+]);
 
 // Mint status and payment status enums
 export const MintStatusSchema = z.enum([
@@ -13,7 +18,7 @@ export const MintStatusSchema = z.enum([
 
 export const PaymentStatusSchema = z.enum([
   "completed",
-  "paid", // old value, should not used it anymore
+  "paid", // old value
   "waiting_payment",
   "failed",
   "expired",
@@ -71,7 +76,7 @@ const QRISMintDataSchema = BaseMintSchema.extend({
 });
 
 const VAMintDataSchema = BaseMintSchema.extend({
-  paymentMethod: z.enum(["va_bri", "va_bca", "va_bni"]),
+  paymentMethod: z.enum(["va_bri", "va_permata", "va_bni"]),
   paymentInstructions: VAPaymentInstructionsSchema,
 });
 
@@ -85,3 +90,4 @@ export type MintMethod = z.infer<typeof MintMethodSchema>;
 export type CreateMintRequest = z.infer<typeof CreateMintRequestSchema>;
 export type MintData = z.infer<typeof MintDataSchema>;
 export type Pagination = z.infer<typeof PaginationSchema>;
+export type PaymentStatus = z.infer<typeof PaymentStatusSchema>;

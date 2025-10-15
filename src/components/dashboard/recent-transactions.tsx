@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { useAppStore } from "@/state/stores/appStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/EmptyState";
+import { useTransactionList } from "@/features/transactions";
+import { formatIDRA, formatIDR } from "@/lib/utils";
 import {
   ArrowUpRight,
   ArrowDownLeft,
@@ -16,38 +16,23 @@ import {
   ExternalLink,
   Eye,
 } from "lucide-react";
-import type { Transaction, TransactionType } from "@/lib/schema";
+import type {
+  TransactionType,
+  TransactionStatus,
+} from "@/features/transactions/schema/transaction";
+import { MintSymbol } from "../icons/mint-symbol";
+import { RedeemSymbol } from "../icons/redeem-symbol";
+import { PaymentStatusBadge } from "../common/payment-status-badge";
 
 const getTransactionIcon = (type: TransactionType) => {
   switch (type) {
     case "mint":
-      return Plus;
+      return MintSymbol;
     case "redeem":
-      return Minus;
-    case "send":
-      return ArrowUpRight;
-    case "receive":
-      return ArrowDownLeft;
+      return RedeemSymbol;
     default:
       return ArrowUpRight;
   }
-};
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "completed":
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-    case "pending":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-    case "failed":
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-    default:
-      return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
-  }
-};
-
-const formatAmount = (amount: string) => {
-  return parseFloat(amount).toFixed(2);
 };
 
 const formatDate = (date: Date) => {
@@ -66,9 +51,15 @@ interface RecentTransactionsProps {
 export function RecentTransactions({
   isLoading = false,
 }: RecentTransactionsProps) {
-  const recentTransactions: Transaction[] = [];
+  const { data: transactionData, isLoading: apiLoading } = useTransactionList({
+    limit: 5,
+    page: 1,
+  });
 
-  if (isLoading) {
+  const recentTransactions = transactionData?.data || [];
+  const isActuallyLoading = isLoading || apiLoading;
+
+  if (isActuallyLoading) {
     return (
       <Card>
         <CardHeader>
@@ -120,7 +111,7 @@ export function RecentTransactions({
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Recent Transactions</CardTitle>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/history">
+          <Link href="/transactions">
             <Eye className="mr-2 h-4 w-4" />
             View All
           </Link>
@@ -130,7 +121,7 @@ export function RecentTransactions({
         {recentTransactions.slice(0, 5).map((transaction) => {
           const Icon = getTransactionIcon(transaction.type);
           const isOutgoing =
-            transaction.type === "send" || transaction.type === "redeem";
+            transaction.type === "transfer" || transaction.type === "redeem";
 
           return (
             <div key={transaction.id} className="flex items-center space-x-4">
@@ -152,28 +143,20 @@ export function RecentTransactions({
                       }`}
                     >
                       {isOutgoing ? "-" : "+"}
-                      {formatAmount(transaction.amount)} IDRA
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Rp{formatAmount(transaction.amountUSD)} IDR
+                      {formatIDRA(transaction.amountIdr)}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between mt-1">
                   <div className="flex items-center space-x-2">
-                    <Badge
-                      variant="secondary"
-                      className={`text-xs ${getStatusColor(transaction.status)}`}
-                    >
-                      {transaction.status}
-                    </Badge>
+                    <PaymentStatusBadge status={transaction.status} />
                     <span className="text-xs text-muted-foreground">
                       {formatDate(transaction.createdAt)}
                     </span>
                   </div>
 
-                  {transaction.txHash && (
+                  {transaction.transactionHash && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -181,7 +164,7 @@ export function RecentTransactions({
                       asChild
                     >
                       <a
-                        href={`https://etherscan.io/tx/${transaction.txHash}`}
+                        href={`https://etherscan.io/tx/${transaction.transactionHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >

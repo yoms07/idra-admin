@@ -11,6 +11,34 @@ import {
 import { useMintList } from "@/features/mint/hooks/useMint";
 import { formatIDR } from "@/lib/utils";
 import { DollarSign } from "lucide-react";
+import { MintData } from "@/features/mint/schema/mint";
+import { PaymentStatusBadge } from "@/components/common/payment-status-badge";
+
+const RecentMintCard = ({ mint }: { mint: MintData }) => {
+  return (
+    <div
+      key={mint.id}
+      className="flex items-center justify-between p-3 rounded-lg border bg-muted/30 space-y-2"
+    >
+      <div className="space-y-2">
+        <div className="font-medium">
+          {mint.paymentMethod.toUpperCase()} -{" "}
+          {formatIDR(parseFloat(mint.amount || "0"))}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          <PaymentStatusBadge status={mint.paymentStatus} /> -{" "}
+          {new Date(mint.createdAt).toLocaleString()}
+        </div>
+        <div
+          className="text-xs text-muted-foreground font-mono truncate"
+          title={mint.paymentReference}
+        >
+          {mint.paymentReference}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export function RecentMints() {
   const { data: mintList, isLoading: isLoadingMints } = useMintList({
@@ -44,28 +72,7 @@ export function RecentMints() {
           {!isLoadingMints && mintList && mintList.items.length > 0 && (
             <div className="space-y-3">
               {mintList.items.map((mint) => (
-                <div
-                  key={mint.id}
-                  className="flex items-center justify-between p-3 rounded-lg border bg-muted/30"
-                >
-                  <div>
-                    <div className="font-medium">
-                      {mint.paymentMethod.toUpperCase()} - Rp
-                      {formatIDR(parseFloat(mint.amount || "0"))}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(mint.createdAt).toLocaleString()} • Status:{" "}
-                      {mint.status} • Payment: {mint.paymentStatus} • Fee:{" "}
-                      {mint.fee}
-                    </div>
-                  </div>
-                  <div
-                    className="text-sm font-mono truncate max-w-[120px]"
-                    title={mint.paymentReference}
-                  >
-                    {mint.paymentReference}
-                  </div>
-                </div>
+                <RecentMintCard key={mint.id} mint={mint} />
               ))}
             </div>
           )}

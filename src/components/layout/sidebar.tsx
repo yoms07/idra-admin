@@ -3,12 +3,9 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAppStore } from "@/state/stores/appStore";
-import { useMe } from "@/features/auth/hooks/authHook";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -16,26 +13,21 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Home, Plus, Minus, Send, History, LogOut } from "lucide-react";
+import { Home, Send, Clock } from "lucide-react";
+import { MintSymbol } from "../icons/mint-symbol";
+import { RedeemSymbol } from "../icons/redeem-symbol";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "Mint", href: "/mint", icon: Plus },
-  { name: "Redeem", href: "/redeem", icon: Minus },
-  { name: "Send", href: "/send", icon: Send },
-  { name: "History", href: "/history", icon: History },
+  { name: "Dashboard", href: "/dashboard", icon: <Home /> },
+  { name: "Mint", href: "/mint", icon: <MintSymbol /> },
+  { name: "Redeem", href: "/redeem", icon: <RedeemSymbol /> },
+  { name: "Send", href: "/send", icon: <Send /> },
+  { name: "History", href: "/transactions", icon: <Clock /> },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { reset } = useAppStore();
-  const { data: user } = useMe();
-
-  const handleDisconnect = () => {
-    reset();
-    // Redirect to login page
-    window.location.href = "/login";
-  };
 
   return (
     <Sidebar>
@@ -69,7 +61,7 @@ export function AppSidebar() {
                       tooltip={item.name}
                     >
                       <Link href={item.href} className="flex gap-1 hover:gap-2">
-                        <item.icon className="h-4 w-4" />
+                        {item.icon}
                         <span className="">{item.name}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -80,43 +72,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter>
-        <div className="space-y-2">
-          {/* User Info */}
-          {user && (
-            <div className="flex items-center gap-3 px-2 py-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={undefined} alt={user.walletAddress} />
-                <AvatarFallback>
-                  {user.walletAddress.slice(2, 3)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">
-                  {user.walletAddress}
-                </div>
-                <div className="text-xs text-muted-foreground truncate">
-                  &nbsp;
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Disconnect Button */}
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={handleDisconnect}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Disconnect</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </div>
-      </SidebarFooter>
     </Sidebar>
   );
 }

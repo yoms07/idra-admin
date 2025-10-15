@@ -66,7 +66,7 @@ export const NotificationSchema = z.object({
 // Form validation schemas
 export const MintFormSchema = z.object({
   idraAmount: z.string().min(1, "Amount is required"),
-  paymentMethod: z.enum(["qris", "va_bri", "va_bca", "va_bni"]),
+  paymentMethod: z.enum(["qris", "va_bri", "va_bni", "va_permata"]),
   walletAddress: z
     .string()
     .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid wallet address"),

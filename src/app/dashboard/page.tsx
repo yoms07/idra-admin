@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAppStore } from "@/state/stores/appStore";
 import { useIsAuthenticated } from "@/features/auth";
 import { useAccount } from "wagmi";
@@ -11,6 +9,7 @@ import { RecentTransactions } from "@/components/dashboard/recent-transactions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useIDRABalance } from "@/features/balance/hooks/useBalance";
+import { useTransactionStats } from "@/features/transactions";
 import {
   DollarSign,
   TrendingUp,
@@ -23,48 +22,23 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
+import { formatIDR, formatIDRA } from "@/lib/utils";
+import { RedeemSymbol } from "@/components/icons/redeem-symbol";
+import { MintSymbol } from "@/components/icons/mint-symbol";
 
 function DashboardPage() {
-  const {} = useAppStore();
-  const [isLoading, setIsLoading] = useState(true);
-  const { isAuthenticated } = useIsAuthenticated();
   const { isConnected } = useAccount();
   const { formatted: idraBalance } = useIDRABalance();
+  const { data: stats, isLoading: statsLoading } = useTransactionStats();
 
-  // Load dashboard data
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      setIsLoading(true);
-
-      try {
-        // TODO: Replace with actual API calls
-        // Simulate loading dashboard data
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // TODO: Load balances and transactions from backend
-      } catch (error) {
-        console.error("Failed to load dashboard data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (isAuthenticated) {
-      loadDashboardData();
-    }
-  }, [isAuthenticated]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  const totalMinted = "1500.00"; // TODO: Calculate from transactions
-  const totalRedeemed = "250.00"; // TODO: Calculate from transactions
+  const totalMinted = stats?.data?.byType?.mint?.amount || 0;
+  const totalRedeemed = stats?.data?.byType?.redeem?.amount || 0;
+  const totalTransactions = stats?.data?.total || 0;
+  const totalAmount = stats?.data?.totalAmount || 0;
 
   return (
     <MainLayout>
       <div className="p-6 space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -72,39 +46,39 @@ function DashboardPage() {
               Welcome back! Here's your IDRA overview.
             </p>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="icon">
-              <Bell className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Balance"
-            value={`${parseFloat(idraBalance || "0").toFixed(2)} IDRA`}
-            subtitle={`Rp${parseFloat(idraBalance || "0").toFixed(2)} IDR`}
+            value={formatIDRA(idraBalance || "0")}
+            subtitle={formatIDR(idraBalance || "0")}
             icon={DollarSign}
-            isLoading={isLoading}
+            isLoading={statsLoading}
           />
           <StatCard
             title="Total Minted"
-            value={`${totalMinted} IDRA`}
-            subtitle="All time"
+            value={formatIDRA(totalMinted)}
+            subtitle={`${stats?.data?.byType?.mint?.total || 0} transactions`}
             icon={TrendingUp}
-            isLoading={isLoading}
+            isLoading={statsLoading}
           />
           <StatCard
             title="Total Redeemed"
-            value={`${totalRedeemed} IDRA`}
-            subtitle="All time"
+            value={formatIDR(totalRedeemed)}
+            subtitle={`${stats?.data?.byType?.redeem?.total || 0} transactions`}
             icon={TrendingDown}
-            isLoading={isLoading}
+            isLoading={statsLoading}
+          />
+          <StatCard
+            title="Total Transactions"
+            value={totalTransactions.toString()}
+            subtitle={`${formatIDRA(totalAmount)} total value`}
+            icon={DollarSign}
+            isLoading={statsLoading}
           />
         </div>
 
-        {/* Quick Actions */}
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
@@ -117,7 +91,7 @@ function DashboardPage() {
                 disabled={!isConnected}
               >
                 <Link href="/mint">
-                  <Plus className="h-6 w-6" />
+                  <MintSymbol className="h-6 w-6" />
                   <span>Mint</span>
                 </Link>
               </Button>
@@ -128,7 +102,7 @@ function DashboardPage() {
                 disabled={!isConnected}
               >
                 <Link href="/redeem">
-                  <Minus className="h-6 w-6" />
+                  <RedeemSymbol className="h-6 w-6" />
                   <span>Redeem</span>
                 </Link>
               </Button>
@@ -149,19 +123,14 @@ function DashboardPage() {
                 disabled
               >
                 <ArrowRight className="h-6 w-6" />
-                <span>Bridge</span>
-                <span className="text-xs text-muted-foreground">
-                  Coming Soon
-                </span>
+                <span>Bridge (Coming Soon)</span>
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Recent Transactions */}
-        <RecentTransactions isLoading={isLoading} />
+        <RecentTransactions isLoading={statsLoading} />
 
-        {/* Wallet Connection Prompt */}
         {!isConnected && (
           <Card className="border-destructive/20 bg-destructive/5">
             <CardContent className="pt-6">
