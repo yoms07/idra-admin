@@ -71,7 +71,6 @@ export function TransactionList({
         ? undefined
         : (filters.status as TransactionStatus),
   });
-  console.error(error);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({
@@ -152,8 +151,8 @@ export function TransactionList({
     <div className="space-y-4">
       {/* Filters */}
       {showFilters && (
-        <div className="flex flex-col sm:flex-row gap-4 p-4 bg-muted/30 rounded-lg">
-          <div className="flex-1">
+        <div className="flex flex-col sm:flex-row gap-4 p-0 bg-muted/30 rounded-lg">
+          <div className="flex-1 w-full">
             <Input
               placeholder="Search transactions..."
               value={filters.search}

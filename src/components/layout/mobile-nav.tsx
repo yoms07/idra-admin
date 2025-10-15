@@ -5,14 +5,16 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/state/stores/appStore";
 import { Badge } from "@/components/ui/badge";
-import { Home, Plus, Minus, Send, History, Bell } from "lucide-react";
+import { Home, Plus, Minus, Send, History, Bell, Clock } from "lucide-react";
+import { RedeemSymbol } from "../icons/redeem-symbol";
+import { MintSymbol } from "../icons/mint-symbol";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "Mint", href: "/mint", icon: Plus },
-  { name: "Redeem", href: "/redeem", icon: Minus },
+  { name: "Mint", href: "/mint", icon: MintSymbol },
+  { name: "Redeem", href: "/redeem", icon: RedeemSymbol },
   { name: "Send", href: "/send", icon: Send },
-  { name: "History", href: "/history", icon: History },
+  { name: "History", href: "/transactions", icon: Clock },
 ];
 
 export function MobileNav() {

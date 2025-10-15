@@ -1,7 +1,5 @@
 "use client";
 
-import { useAppStore } from "@/state/stores/appStore";
-import { useIsAuthenticated } from "@/features/auth";
 import { useAccount } from "wagmi";
 import { MainLayout } from "@/components/layout/main-layout";
 import { StatCard } from "@/components/dashboard/stat-card";

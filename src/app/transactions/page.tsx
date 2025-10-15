@@ -1,7 +1,6 @@
 "use client";
 
 import { MainLayout } from "@/components/layout/main-layout";
-import { TransactionStats } from "@/features/transactions/components/transaction-stats";
 import { TransactionList } from "@/features/transactions/components/transaction-list";
 import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
 
@@ -20,9 +19,6 @@ function TransactionsPage() {
             View and manage all your transaction history
           </p>
         </div>
-
-        {/* Statistics */}
-        <TransactionStats />
 
         {/* Transaction List */}
         <div className="space-y-4">

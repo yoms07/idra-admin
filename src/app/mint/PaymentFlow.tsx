@@ -45,12 +45,6 @@ export function PaymentFlow({
 
   useEffect(() => {
     if (!mint) return;
-    // payment status handling
-    console.log({
-      paymentStatus: mint.paymentStatus,
-      status: mint.paymentStatus,
-      step,
-    });
     if (mint.paymentStatus === "completed" && step === "instructions") {
       setStep("minting");
     }

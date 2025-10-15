@@ -1,6 +1,33 @@
 import { z } from "zod";
 import { baseResponse } from "@/features/auth/schema/auth";
 
+export enum MintStatus {
+  PENDING = "pending",
+  PROCESSING = "processing",
+  COMPLETED = "completed",
+  FAILED = "failed",
+}
+
+export enum PaymentStatus {
+  WAITING_PAYMENT = "waiting_payment",
+  COMPLETED = "completed",
+  FAILED = "failed",
+  EXPIRED = "expired",
+}
+
+export enum PaymentMethod {
+  QRIS = "qris",
+  VA_BNI = "va_bni",
+  VA_BRI = "va_bri",
+}
+
+export enum Currency {
+  IDR = "IDR",
+  IDRA = "IDRA",
+  USD = "USD",
+  USDT = "USDT",
+}
+
 export const MintMethodSchema = z.enum([
   "qris",
   "va_bri",
@@ -32,21 +59,51 @@ export const PaginationSchema = z.object({
   totalPages: z.number(),
 });
 
-export const CreateMintRequestSchema = z.object({
-  mintAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
-  amountIdr: z.string().regex(/^\d+$/),
-  paymentMethod: MintMethodSchema,
-  chainId: z.number(),
-});
+export const CreateMintRequestSchema = z
+  .object({
+    mintAddress: z.string(),
+    originalAmount: z.string(),
+    inputCurrency: z.enum(Currency).default(Currency.IDR),
+    mintCurrency: z.enum(Currency).default(Currency.IDRA),
+    paymentMethod: z.enum(PaymentMethod),
+    chainId: z.number(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.inputCurrency !== Currency.IDR) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Only support IDR as input currency",
+      });
+    }
+    if (data.mintCurrency !== Currency.IDRA) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Only support IDRA as mint currency",
+      });
+    }
+    return;
+  });
 
 const BaseMintSchema = z.object({
   id: z.string(),
   userId: z.string().optional(),
-  amount: z.string().optional(),
+  // currencies and rates
+  inputCurrency: z.enum(Currency),
+  outputCurrency: z.enum(Currency),
+  mintCurrency: z.enum(Currency),
+  fxRate: z.string(),
+  // amounts and fees
+  inputAmount: z.string(),
+  outputAmount: z.string(),
+  mintAmount: z.string(),
+  pgFee: z.string(),
+  platformFee: z.string(),
+  originalAmount: z.string(),
+
   paymentReference: z.string(),
   expiresAt: z.string(),
-  status: MintStatusSchema,
-  paymentStatus: PaymentStatusSchema,
+  status: z.enum(MintStatus),
+  paymentStatus: z.enum(PaymentStatus),
   createdAt: z.string(),
   updatedAt: z.string().optional(),
   mintAddress: z.string().optional(),
@@ -55,7 +112,6 @@ const BaseMintSchema = z.object({
   adminUserId: z.string().nullable().optional(),
   chainId: z.number().optional(),
   transactionHash: z.string().nullable().optional(),
-  fee: z.string().optional(),
 });
 
 export const QRISPaymentInstructionsSchema = z.object({
@@ -71,12 +127,12 @@ export const VAPaymentInstructionsSchema = z.object({
 });
 
 const QRISMintDataSchema = BaseMintSchema.extend({
-  paymentMethod: z.literal("qris"),
+  paymentMethod: z.literal(PaymentMethod.QRIS),
   paymentInstructions: QRISPaymentInstructionsSchema,
 });
 
 const VAMintDataSchema = BaseMintSchema.extend({
-  paymentMethod: z.enum(["va_bri", "va_permata", "va_bni"]),
+  paymentMethod: z.enum([PaymentMethod.VA_BNI, PaymentMethod.VA_BRI]),
   paymentInstructions: VAPaymentInstructionsSchema,
 });
 
@@ -90,4 +146,3 @@ export type MintMethod = z.infer<typeof MintMethodSchema>;
 export type CreateMintRequest = z.infer<typeof CreateMintRequestSchema>;
 export type MintData = z.infer<typeof MintDataSchema>;
 export type Pagination = z.infer<typeof PaginationSchema>;
-export type PaymentStatus = z.infer<typeof PaymentStatusSchema>;

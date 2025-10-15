@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppStore } from "@/state/stores/appStore";
 import { useAccount } from "wagmi";
-import { useCreateMint } from "@/features/mint/hooks/useMint";
+import { useCreateMint, useEstimateMint } from "@/features/mint/hooks/useMint";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,12 +30,18 @@ import { DollarSign, Building2, AlertCircle, QrCode } from "lucide-react";
 import { formatIDR, formatIDRA } from "@/lib/utils";
 import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
 import { useMe } from "@/features/auth";
+import {
+  CreateMintRequest,
+  Currency,
+  PaymentMethod,
+} from "@/features/mint/schema/mint";
+import { add } from "date-fns";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const quickAmounts = [20000, 50000, 100000, 500000, 1000000];
 
 function MintPage() {
   const router = useRouter();
-  const {} = useAppStore();
   const { address, isConnected } = useAccount();
   const { mutate: createMint } = useCreateMint();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -49,14 +55,33 @@ function MintPage() {
     resolver: zodResolver(MintFormSchema),
     defaultValues: {
       idraAmount: "",
-      paymentMethod: "qris",
+      paymentMethod: PaymentMethod.QRIS,
       walletAddress: user?.walletAddress,
     },
   });
 
   const idraAmount = form.watch("idraAmount");
-  const idrToPay = idraAmount ? parseFloat(idraAmount) * 1 : 0; // 1:1 IDRA↔IDR for now
-  const totalAmount = idraAmount ? idrToPay : 0;
+  const paymentMethod = form.watch("paymentMethod");
+  const debouncedIdraAmount = useDebounce(idraAmount, 400);
+  const debouncedPaymentMethod = useDebounce(paymentMethod, 400);
+  const debouncedAddress = useDebounce(address, 400);
+
+  const estimateInput: CreateMintRequest | undefined =
+    debouncedAddress && debouncedIdraAmount && debouncedPaymentMethod
+      ? {
+          mintAddress: debouncedAddress,
+          inputCurrency: Currency.IDR,
+          mintCurrency: Currency.IDRA,
+          originalAmount: debouncedIdraAmount.toString(),
+          paymentMethod: debouncedPaymentMethod,
+          chainId: 84532,
+        }
+      : undefined;
+
+  // console.debug({ estimateInput, address, idraAmount, paymentMethod });
+
+  const { data: estimate, isFetching: isEstimating } =
+    useEstimateMint(estimateInput);
 
   const handleQuickAmount = (amount: number) => {
     form.setValue("idraAmount", amount.toString());
@@ -73,22 +98,28 @@ function MintPage() {
 
     try {
       // Call API to create mint request
+      if (isEstimating) {
+        return;
+      }
       createMint(
         {
           mintAddress: address,
-          amountIdr: (idrToPay as any).toString(),
+          inputCurrency: Currency.IDR,
+          mintCurrency: Currency.IDRA,
+          originalAmount: idraAmount.toString(),
           paymentMethod: data.paymentMethod,
           chainId: 84532,
         },
         {
           onSuccess: (res) => {
-            if (res.paymentMethod === "qris") {
+            if (res.paymentMethod === PaymentMethod.QRIS) {
               setQrData(res.paymentInstructions.qrData);
             }
             setMintId(res.id);
             setShowPayment(true);
           },
           onError: (e) => {
+            console.log(e);
             setError("Failed to create mint request. Please try again.");
           },
         }
@@ -98,11 +129,6 @@ function MintPage() {
     } finally {
       setIsProcessing(false);
     }
-  };
-
-  const handlePaymentSuccess = () => {
-    // TODO: Update transaction status to completed
-    router.push("/dashboard");
   };
 
   if (!isConnected) {
@@ -123,8 +149,8 @@ function MintPage() {
   const renderPaymentFlow = showPayment ? (
     <div className="p-6">
       <PaymentFlow
-        amountIdr={(idrToPay as any).toString()}
-        amountIdra={idraAmount || "0"}
+        amountIdr={estimate?.inputAmount || "0"}
+        amountIdra={estimate?.mintAmount || "0"}
         paymentMethod={form.watch("paymentMethod") as any}
         qrData={qrData}
         mintId={mintId}
@@ -230,10 +256,7 @@ function MintPage() {
                     <RadioGroup
                       value={form.watch("paymentMethod")}
                       onValueChange={(value) =>
-                        form.setValue(
-                          "paymentMethod",
-                          value as "qris" | "va_bri" | "va_bni" | "va_permata"
-                        )
+                        form.setValue("paymentMethod", value as PaymentMethod)
                       }
                       className="grid gap-3 sm:grid-cols-2 items-stretch"
                     >
@@ -263,18 +286,45 @@ function MintPage() {
                     <div className="space-y-2 p-4 bg-muted rounded-lg">
                       <h4 className="font-medium">Transaction Summary</h4>
                       <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span>You pay</span>
-                          <span>{formatIDR(idrToPay)}</span>
-                        </div>
-                        <div className="flex justify-between font-medium">
-                          <span>Total</span>
-                          <span>{formatIDR(totalAmount)}</span>
-                        </div>
-                        <div className="flex justify-between text-muted-foreground">
-                          <span>You'll receive</span>
-                          <span>{formatIDRA(idraAmount)}</span>
-                        </div>
+                        {estimate ? (
+                          <>
+                            <div className="flex justify-between">
+                              <span>You pay</span>
+                              <span>{formatIDR(estimate.inputAmount)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>PG fee</span>
+                              <span>{formatIDR(estimate.pgFee)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Platform fee</span>
+                              <span>{formatIDR(estimate.platformFee)}</span>
+                            </div>
+                            <div className="flex justify-between font-medium">
+                              <span>Total</span>
+                              <span>{formatIDR(estimate.inputAmount)}</span>
+                            </div>
+                            <div className="flex justify-between text-muted-foreground">
+                              <span>You'll receive</span>
+                              <span>{formatIDRA(estimate.mintAmount)}</span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex justify-between">
+                              <span>You pay</span>
+                              <span>{formatIDR(idraAmount)}</span>
+                            </div>
+                            <div className="flex justify-between font-medium">
+                              <span>Total</span>
+                              <span>{formatIDR(idraAmount)}</span>
+                            </div>
+                            <div className="flex justify-between text-muted-foreground">
+                              <span>You'll receive</span>
+                              <span>{formatIDRA(idraAmount)}</span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   )}

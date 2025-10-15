@@ -23,7 +23,7 @@ const RecentMintCard = ({ mint }: { mint: MintData }) => {
       <div className="space-y-2">
         <div className="font-medium">
           {mint.paymentMethod.toUpperCase()} -{" "}
-          {formatIDR(parseFloat(mint.amount || "0"))}
+          {formatIDR(parseFloat(mint.originalAmount || "0"))}
         </div>
         <div className="text-xs text-muted-foreground">
           <PaymentStatusBadge status={mint.paymentStatus} /> -{" "}

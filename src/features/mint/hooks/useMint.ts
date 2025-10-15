@@ -33,3 +33,17 @@ export function useMintList(params?: {
     queryFn: () => mintService.listMint(params),
   });
 }
+
+export function useEstimateMint(input?: CreateMintRequest) {
+  return useQuery({
+    queryKey: mintKeys.estimate(input),
+    queryFn: () => mintService.estimate(input as CreateMintRequest),
+    enabled: Boolean(
+      input &&
+        input.mintAddress &&
+        input.paymentMethod &&
+        input.chainId &&
+        input.originalAmount
+    ),
+  });
+}

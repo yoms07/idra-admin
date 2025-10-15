@@ -9,4 +9,6 @@ export const mintKeys = {
   }) => [...mintKeys.lists(), params ?? {}] as const,
   details: () => [...mintKeys.all, "detail"] as const,
   detail: (id: string) => [...mintKeys.details(), { id }] as const,
+  estimates: () => [...mintKeys.all, "estimate"] as const,
+  estimate: (body?: unknown) => [...mintKeys.estimates(), body ?? {}] as const,
 };

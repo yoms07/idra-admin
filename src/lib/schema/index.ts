@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PaymentMethod as MintPaymentMethod } from "@/features/mint/schema/mint";
 
 // User schema
 export const UserSchema = z.object({
@@ -66,7 +67,7 @@ export const NotificationSchema = z.object({
 // Form validation schemas
 export const MintFormSchema = z.object({
   idraAmount: z.string().min(1, "Amount is required"),
-  paymentMethod: z.enum(["qris", "va_bri", "va_bni", "va_permata"]),
+  paymentMethod: z.enum(MintPaymentMethod),
   walletAddress: z
     .string()
     .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid wallet address"),
