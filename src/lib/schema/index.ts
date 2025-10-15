@@ -73,14 +73,14 @@ export const MintFormSchema = z.object({
 });
 
 export const RedeemFormSchema = z.object({
-  mscAmount: z.string().min(1, "Amount is required"),
+  idraAmount: z.string().min(1, "Amount is required"),
   bankAccountId: z.string().min(1, "Bank account is required"),
   saveBankDetails: z.boolean().optional().default(false),
 });
 
 export const SendFormSchema = z.object({
   recipientAddress: z.string().min(42, "Invalid wallet address"),
-  mscAmount: z.string().min(1, "Amount is required"),
+  idraAmount: z.string().min(1, "Amount is required"),
   note: z.string().optional(),
 });
 
@@ -94,7 +94,7 @@ export const BankAccountFormSchema = z.object({
 
 // API response schemas
 export const BalanceResponseSchema = z.object({
-  msc: z.string(),
+  idra: z.string(),
   usd: z.string(),
 });
 

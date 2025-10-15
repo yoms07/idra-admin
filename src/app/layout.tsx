@@ -29,8 +29,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Providers: Web3, React Query */}
-        {/* Using client providers nested here */}
         <Providers>{children}</Providers>
         <Toaster richColors position="top-right" />
       </body>

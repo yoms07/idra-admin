@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppStore } from "@/state/stores/appStore";
 import { useAccount } from "wagmi";
-import { useCreateMint, useMintList } from "@/features/mint/hooks/useMint";
+import { useCreateMint } from "@/features/mint/hooks/useMint";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,49 +18,39 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup } from "@/components/ui/radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader } from "@/components/common/Loader";
+import { WalletNotConnected } from "@/components/common/wallet-not-connected";
 import { PaymentFlow } from "./PaymentFlow";
 import { PaymentMethodItem } from "./PaymentMethodItem";
+import { RecentMints } from "./recent-mints";
 import { MintFormSchema, type MintForm } from "@/lib/schema";
-import {
-  DollarSign,
-  CreditCard,
-  Building2,
-  AlertCircle,
-  QrCode,
-} from "lucide-react";
+import { DollarSign, Building2, AlertCircle, QrCode } from "lucide-react";
 import { formatIDR } from "@/lib/utils";
+import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
+import { useIsAuthenticated, useMe } from "@/features/auth";
 
 const quickAmounts = [20000, 50000, 100000, 500000, 1000000];
 
-export default function MintPage() {
+function MintPage() {
   const router = useRouter();
   const {} = useAppStore();
   const { address, isConnected } = useAccount();
-  const { mutate: createMint, isPending: isCreating } = useCreateMint();
+  const { mutate: createMint } = useCreateMint();
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [qrData, setQrData] = useState<string | undefined>(undefined);
   const [mintId, setMintId] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
-  const {
-    data: mintList,
-    isLoading: isLoadingMints,
-    error: mintError,
-  } = useMintList({
-    limit: 5,
-    page: 1,
-  });
-  // console.log({ mintError, mintList });
+  const { data: user } = useMe();
 
   const form = useForm<MintForm>({
     resolver: zodResolver(MintFormSchema),
     defaultValues: {
       idraAmount: "",
       paymentMethod: "qris",
-      walletAddress: "",
+      walletAddress: user?.walletAddress,
     },
   });
 
@@ -92,11 +82,13 @@ export default function MintPage() {
         },
         {
           onSuccess: (res) => {
-            setQrData(res.paymentInstructions.qrData);
+            if (res.paymentMethod === "qris") {
+              setQrData(res.paymentInstructions.qrData);
+            }
             setMintId(res.id);
             setShowPayment(true);
           },
-          onError: () => {
+          onError: (e) => {
             setError("Failed to create mint request. Please try again.");
           },
         }
@@ -117,22 +109,12 @@ export default function MintPage() {
     return (
       <MainLayout>
         <div className="p-6">
-          <Card className="max-w-md mx-auto">
-            <CardContent className="pt-6">
-              <div className="text-center space-y-4">
-                <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground" />
-                <div>
-                  <h2 className="text-xl font-semibold">Wallet Required</h2>
-                  <p className="text-muted-foreground">
-                    Please connect your wallet to mint IDRA tokens.
-                  </p>
-                </div>
-                <Button asChild className="w-full">
-                  <a href="/login">Connect Wallet</a>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <WalletNotConnected
+            title="Wallet Required"
+            description="Please connect your wallet to mint IDRA tokens."
+            actionText="Connect Wallet"
+            actionHref="/login"
+          />
         </div>
       </MainLayout>
     );
@@ -334,66 +316,18 @@ export default function MintPage() {
               </CardContent>
             </Card>
 
-            {/* Recent Mints */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Mints</CardTitle>
-                <CardDescription>
-                  Your recent minting transactions
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {isLoadingMints && (
-                    <div className="text-center text-muted-foreground py-8">
-                      <Loader className="h-6 w-6 mx-auto mb-2" />
-                      <p>Loading recent mints...</p>
-                    </div>
-                  )}
-                  {!isLoadingMints &&
-                    (!mintList || mintList.items.length === 0) && (
-                      <div className="text-center text-muted-foreground py-8">
-                        <DollarSign className="h-8 w-8 mx-auto mb-2" />
-                        <p>No recent mints</p>
-                        <p className="text-sm">
-                          Your minting history will appear here
-                        </p>
-                      </div>
-                    )}
-                  {!isLoadingMints && mintList && mintList.items.length > 0 && (
-                    <div className="space-y-3">
-                      {mintList.items.map((mint) => (
-                        <div
-                          key={mint.id}
-                          className="flex items-center justify-between p-3 rounded-lg border bg-muted/30"
-                        >
-                          <div>
-                            <div className="font-medium">
-                              {mint.paymentMethod.toUpperCase()} - Rp
-                              {formatIDR(parseFloat(mint.amountIdr))}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {new Date(mint.createdAt).toLocaleString()} •
-                              Status: {mint.status} • Payment:{" "}
-                              {mint.paymentStatus}
-                            </div>
-                          </div>
-                          <div
-                            className="text-sm font-mono truncate max-w-[120px]"
-                            title={mint.paymentReference}
-                          >
-                            {mint.paymentReference}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <RecentMints />
           </div>
         )}
       </div>
     </MainLayout>
+  );
+}
+
+export default function () {
+  return (
+    <RequireAuthentication>
+      <MintPage />
+    </RequireAuthentication>
   );
 }

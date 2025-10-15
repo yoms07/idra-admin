@@ -37,14 +37,6 @@ export function AppSidebar() {
     window.location.href = "/login";
   };
 
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
-  const formatBalance = (balance: string) => {
-    return parseFloat(balance).toFixed(2);
-  };
-
   return (
     <Sidebar>
       <SidebarHeader>

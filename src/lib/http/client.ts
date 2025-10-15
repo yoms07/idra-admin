@@ -1,4 +1,8 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import { authKeys } from "@/features/auth/queryKeys";
+import { useQueryClient } from "@tanstack/react-query";
+import { qc } from "@/state/query/queryClient";
+import { setUserToNull } from "@/features/auth";
 
 export const http = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -6,7 +10,6 @@ export const http = axios.create({
 });
 
 http.interceptors.request.use((config) => {
-  // Get auth token from localStorage or wherever it's stored
   const token =
     typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
 
@@ -19,8 +22,15 @@ http.interceptors.request.use((config) => {
 
 http.interceptors.response.use(
   (res) => res,
-  (error: AxiosError) => {
-    // normalize errors
+  async (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("auth_token");
+        console.log("invalidate begin");
+        await setUserToNull();
+        console.log("invalidate success");
+      }
+    }
     return Promise.reject(error);
   }
 );

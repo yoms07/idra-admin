@@ -12,8 +12,9 @@ export const MintStatusSchema = z.enum([
 ]);
 
 export const PaymentStatusSchema = z.enum([
+  "completed",
+  "paid", // old value, should not used it anymore
   "waiting_payment",
-  "paid",
   "failed",
   "expired",
 ]);
@@ -33,21 +34,11 @@ export const CreateMintRequestSchema = z.object({
   chainId: z.number(),
 });
 
-export const PaymentInstructionsSchema = z.object({
-  bankCode: z.string().optional(),
-  bankName: z.string().optional(),
-  qrData: z.string().optional(),
-  accountNumber: z.string().optional(),
-});
-
-export const MintDataSchema = z.object({
+const BaseMintSchema = z.object({
   id: z.string(),
   userId: z.string().optional(),
   amount: z.string().optional(),
-  amountIdr: z.string(),
-  paymentMethod: MintMethodSchema,
   paymentReference: z.string(),
-  paymentInstructions: PaymentInstructionsSchema,
   expiresAt: z.string(),
   status: MintStatusSchema,
   paymentStatus: PaymentStatusSchema,
@@ -62,6 +53,32 @@ export const MintDataSchema = z.object({
   fee: z.string().optional(),
 });
 
+export const QRISPaymentInstructionsSchema = z.object({
+  bankCode: z.string().optional(),
+  bankName: z.string().optional(),
+  qrData: z.string().optional(),
+  accountNumber: z.string().optional(),
+});
+export const VAPaymentInstructionsSchema = z.object({
+  bankCode: z.string().optional(),
+  bankName: z.string().optional(),
+  accountNumber: z.string().optional(),
+});
+
+const QRISMintDataSchema = BaseMintSchema.extend({
+  paymentMethod: z.literal("qris"),
+  paymentInstructions: QRISPaymentInstructionsSchema,
+});
+
+const VAMintDataSchema = BaseMintSchema.extend({
+  paymentMethod: z.enum(["va_bri", "va_bca", "va_bni"]),
+  paymentInstructions: VAPaymentInstructionsSchema,
+});
+
+export const MintDataSchema = z.discriminatedUnion("paymentMethod", [
+  QRISMintDataSchema,
+  VAMintDataSchema,
+]);
 export const MintResponseSchema = baseResponse(MintDataSchema);
 
 export type MintMethod = z.infer<typeof MintMethodSchema>;

@@ -7,10 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAccount, useChainId } from "wagmi";
 import { useBankAccounts } from "@/features/bank-accounts/hooks/useBankAccounts";
 import { useIDRABalance } from "@/features/balance/hooks/useBalance";
-import {
-  useCreateRedeem,
-  useRedeemList,
-} from "@/features/redeem/hooks/useRedeem";
+import { useCreateRedeem } from "@/features/redeem/hooks/useRedeem";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,16 +22,11 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader } from "@/components/common/Loader";
+import { WalletNotConnected } from "@/components/common/wallet-not-connected";
+import { RedeemConfirmation } from "./confirmation";
+import { RecentRedemptions } from "./recent-redemptions";
 import { RedeemFormSchema, type RedeemForm } from "@/lib/schema";
-import {
-  Minus,
-  DollarSign,
-  Building2,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  AlertTriangle,
-} from "lucide-react";
+import { Building2, AlertCircle, Clock, AlertTriangle } from "lucide-react";
 
 const percentageButtons = [25, 50, 75];
 
@@ -48,10 +40,6 @@ export default function RedeemPage() {
   const balanceUSD = balance; // 1:1 placeholder for now
   const { mutate: createRedeem, isPending: isCreatingRedeem } =
     useCreateRedeem();
-  const { data: redeemList, isLoading: isLoadingRedeems } = useRedeemList({
-    page: 1,
-    limit: 5,
-  });
   const [isProcessing, setIsProcessing] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,25 +47,25 @@ export default function RedeemPage() {
   const form = useForm({
     resolver: zodResolver(RedeemFormSchema),
     defaultValues: {
-      mscAmount: "",
+      idraAmount: "",
       bankAccountId: "",
       saveBankDetails: false,
     },
   });
 
-  const mscAmount = form.watch("mscAmount");
-  const usdAmount = mscAmount ? (parseFloat(mscAmount) * 1).toFixed(2) : "0"; // 1:1 ratio for now
+  const idraAmount = form.watch("idraAmount");
+  const usdAmount = idraAmount ? (parseFloat(idraAmount) * 1).toFixed(2) : "0"; // 1:1 ratio for now
   const selectedBankAccount = bankAccounts.find(
     (acc: any) => acc.id === form.watch("bankAccountId")
   );
 
   const handlePercentage = (percentage: number) => {
     const amount = ((parseFloat(balance) * percentage) / 100).toFixed(2);
-    form.setValue("mscAmount", amount);
+    form.setValue("idraAmount", amount);
   };
 
   const handleMax = () => {
-    form.setValue("mscAmount", balance);
+    form.setValue("idraAmount", balance);
   };
 
   const onSubmit = async (data: RedeemForm) => {
@@ -87,7 +75,7 @@ export default function RedeemPage() {
       return;
     }
 
-    if (parseFloat(data.mscAmount) > parseFloat(balance)) {
+    if (parseFloat(data.idraAmount) > parseFloat(balance)) {
       setError("Insufficient balance");
       return;
     }
@@ -102,7 +90,7 @@ export default function RedeemPage() {
 
     try {
       // API expects amountIdr as digits-only string (no decimals)
-      const amountIdrStr = Math.round(parseFloat(mscAmount || "0")).toString();
+      const amountIdrStr = Math.round(parseFloat(idraAmount || "0")).toString();
 
       createRedeem(
         {
@@ -140,22 +128,12 @@ export default function RedeemPage() {
     return (
       <MainLayout>
         <div className="p-6">
-          <Card className="max-w-md mx-auto">
-            <CardContent className="pt-6">
-              <div className="text-center space-y-4">
-                <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground" />
-                <div>
-                  <h2 className="text-xl font-semibold">Wallet Required</h2>
-                  <p className="text-muted-foreground">
-                    Please connect your wallet to redeem IDRA tokens.
-                  </p>
-                </div>
-                <Button asChild className="w-full">
-                  <a href="/login">Connect Wallet</a>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <WalletNotConnected
+            title="Wallet Required"
+            description="Please connect your wallet to redeem IDRA tokens."
+            actionText="Connect Wallet"
+            actionHref="/login"
+          />
         </div>
       </MainLayout>
     );
@@ -165,54 +143,14 @@ export default function RedeemPage() {
     return (
       <MainLayout>
         <div className="p-6">
-          <Card className="max-w-md mx-auto">
-            <CardHeader className="text-center">
-              <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-green-600" />
-              </div>
-              <CardTitle>Redemption Initiated</CardTitle>
-              <CardDescription>
-                Your IDRA tokens have been burned and redemption request
-                created.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-center space-y-2">
-                <div className="text-2xl font-bold">{mscAmount} IDRA</div>
-                <div className="text-muted-foreground">Rp{usdAmount} IDR</div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Amount</span>
-                  <span>{mscAmount} IDRA</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>USD Value</span>
-                  <span>${usdAmount}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Bank Account</span>
-                  <span className="text-right">
-                    {selectedBankAccount?.accountHolderName}
-                    <br />
-                    {selectedBankAccount?.bankName}
-                  </span>
-                </div>
-              </div>
-
-              <Alert>
-                <Clock className="h-4 w-4" />
-                <AlertDescription>
-                  Processing time: 1-3 business days
-                </AlertDescription>
-              </Alert>
-
-              <Button onClick={handleConfirmation} className="w-full">
-                Return to Dashboard
-              </Button>
-            </CardContent>
-          </Card>
+          <RedeemConfirmation
+            idraAmount={idraAmount || "0"}
+            usdAmount={usdAmount}
+            selectedBankAccount={
+              selectedBankAccount || { accountHolderName: "", bankName: "" }
+            }
+            onConfirm={handleConfirmation}
+          />
         </div>
       </MainLayout>
     );
@@ -270,9 +208,9 @@ export default function RedeemPage() {
 
                 {/* IDRA Amount Input */}
                 <div className="space-y-2">
-                  <Label htmlFor="mscAmount">You will redeem</Label>
+                  <Label htmlFor="idraAmount">You will redeem</Label>
                   <Input
-                    id="mscAmount"
+                    id="idraAmount"
                     type="number"
                     step="0.01"
                     min="0.01"
@@ -290,11 +228,11 @@ export default function RedeemPage() {
                         Max
                       </Button>
                     }
-                    {...form.register("mscAmount")}
+                    {...form.register("idraAmount")}
                   />
-                  {form.formState.errors.mscAmount && (
+                  {form.formState.errors.idraAmount && (
                     <p className="text-sm text-destructive">
-                      {form.formState.errors.mscAmount.message}
+                      {form.formState.errors.idraAmount.message}
                     </p>
                   )}
                 </div>
@@ -318,7 +256,7 @@ export default function RedeemPage() {
                 </div>
 
                 {/* IDR Equivalent */}
-                {mscAmount && (
+                {idraAmount && (
                   <div className="p-3 bg-muted rounded-lg">
                     <div className="flex text-sm gap-1">
                       <span>You will receive</span>
@@ -403,13 +341,13 @@ export default function RedeemPage() {
                 </Alert>
 
                 {/* Transaction Summary */}
-                {mscAmount && selectedBankAccount && (
+                {idraAmount && selectedBankAccount && (
                   <div className="space-y-2 p-4 bg-muted rounded-lg">
                     <h4 className="font-medium">Redemption Summary</h4>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span>Amount to redeem</span>
-                        <span>{mscAmount} MSC</span>
+                        <span>{idraAmount} MSC</span>
                       </div>
                       <div className="flex justify-between">
                         <span>IDR Value</span>
@@ -433,7 +371,7 @@ export default function RedeemPage() {
                   disabled={
                     isProcessing ||
                     isCreatingRedeem ||
-                    !mscAmount ||
+                    !idraAmount ||
                     !selectedBankAccount
                   }
                 >
@@ -451,58 +389,7 @@ export default function RedeemPage() {
           </Card>
 
           {/* Recent Redemptions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Redemptions</CardTitle>
-              <CardDescription>
-                Your recent redemption transactions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {isLoadingRedeems ? (
-                  <div className="text-center text-muted-foreground py-8">
-                    <Loader className="h-6 w-6 mx-auto mb-2" />
-                    <p>Loading recent redemptions...</p>
-                  </div>
-                ) : !redeemList || redeemList.items.length === 0 ? (
-                  <div className="text-center text-muted-foreground py-8">
-                    <Minus className="h-8 w-8 mx-auto mb-2" />
-                    <p>No recent redemptions</p>
-                    <p className="text-sm">
-                      Your redemption history will appear here
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {redeemList.items.map((rd) => (
-                      <div
-                        key={rd.id}
-                        className="flex items-center justify-between p-3 rounded-lg border bg-muted/30"
-                      >
-                        <div>
-                          <div className="font-medium">
-                            Rp{parseFloat(rd.amountIdr).toLocaleString()} •{" "}
-                            {rd.recipientBank.bankName}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {new Date(rd.createdAt).toLocaleString()} • Status:{" "}
-                            {rd.status}
-                          </div>
-                        </div>
-                        <div
-                          className="text-xs font-mono truncate max-w-[140px]"
-                          title={rd.disbursementId || "—"}
-                        >
-                          {rd.disbursementId || "—"}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <RecentRedemptions />
         </div>
       </div>
     </MainLayout>

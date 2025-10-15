@@ -38,10 +38,11 @@ import {
   useDeleteBankAccount,
 } from "@/features/bank-accounts/hooks/useBankAccounts";
 import { Trash2 } from "lucide-react";
+import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
+import { useMe } from "@/features/auth/hooks/authHook";
 
-export default function ProfilePage() {
-  const { user, setUser } = useAppStore();
-
+function ProfilePage() {
+  const { data: user } = useMe();
   // Bank accounts data via API
   const { data: accounts, isLoading: isLoadingAccounts } = useBankAccounts();
   const { data: supportedBanks, isLoading: isLoadingBanks } =
@@ -53,7 +54,7 @@ export default function ProfilePage() {
 
   const [name, setName] = useState(user?.name || "");
   const [email] = useState(user?.email || "");
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatar || "");
+  const [avatarUrl, setAvatarUrl] = useState(user?.name || "");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleAvatarClick = () => {
@@ -74,21 +75,7 @@ export default function ProfilePage() {
   const [isAddingAccount, setIsAddingAccount] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const handleSaveProfile = async () => {
-    setIsSaving(true);
-    try {
-      setUser({
-        id: user?.id || "",
-        email: email,
-        name: name,
-        avatar: avatarUrl,
-        createdAt: user?.createdAt || new Date(),
-        updatedAt: new Date(),
-      } as any);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  const handleSaveProfile = async () => {};
 
   const handleAddBankAccount = async () => {
     if (!accountHolderName || !bankName || !accountNumber) return;
@@ -306,5 +293,13 @@ export default function ProfilePage() {
         </DialogContent>
       </Dialog>
     </MainLayout>
+  );
+}
+
+export default function Page() {
+  return (
+    <RequireAuthentication>
+      <ProfilePage />
+    </RequireAuthentication>
   );
 }

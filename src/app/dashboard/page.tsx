@@ -22,9 +22,9 @@ import {
   Bell,
 } from "lucide-react";
 import Link from "next/link";
+import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
 
-export default function DashboardPage() {
-  const router = useRouter();
+function DashboardPage() {
   const {} = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated } = useIsAuthenticated();
@@ -182,5 +182,13 @@ export default function DashboardPage() {
         )}
       </div>
     </MainLayout>
+  );
+}
+
+export default function () {
+  return (
+    <RequireAuthentication>
+      <DashboardPage />
+    </RequireAuthentication>
   );
 }

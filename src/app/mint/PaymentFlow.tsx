@@ -36,66 +36,54 @@ export function PaymentFlow({
   mintId,
 }: PaymentFlowProps) {
   const [step, setStep] = useState<Step>("instructions");
-  const [isChecking, setIsChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const intervalRef = useRef<number | null>(null);
-  const { data: mint, refetch } = useMintById(mintId);
+  // Manual polling: we'll control refetch cadence and overlap ourselves
+  const { data: mint, refetch, isFetching } = useMintById(mintId);
 
   const virtualAccount = mint?.paymentInstructions?.accountNumber;
 
   useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        window.clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
-
-  // Set up periodic refetch while component is mounted
-  useEffect(() => {
-    if (!mintId) return;
-    if (intervalRef.current) {
-      window.clearInterval(intervalRef.current);
-    }
-    intervalRef.current = window.setInterval(() => {
-      refetch();
-    }, 2000);
-    return () => {
-      if (intervalRef.current) {
-        window.clearInterval(intervalRef.current);
-      }
-    };
-  }, [mintId, refetch]);
-
-  useEffect(() => {
     if (!mint) return;
     // payment status handling
-    if (mint.paymentStatus === "paid" && step === "instructions") {
+    console.log({
+      paymentStatus: mint.paymentStatus,
+      status: mint.paymentStatus,
+      step,
+    });
+    if (mint.paymentStatus === "completed" && step === "instructions") {
       setStep("minting");
     }
     if (mint.paymentStatus === "failed") {
       setError("Payment failed. Please try again.");
-      setIsChecking(false);
     }
     if (mint.paymentStatus === "expired") {
       setError("Payment expired. Please create a new request.");
-      setIsChecking(false);
     }
 
     // mint status handling
     if (mint.status === "completed") {
       setStep("success");
-      setIsChecking(false);
     }
     if (mint.status === "failed") {
       setError("Minting failed. Please contact support.");
-      setIsChecking(false);
     }
-  }, [mint, step]);
+  }, [mint?.paymentStatus, mint?.status, step]);
+
+  useEffect(() => {
+    if (!mintId) return;
+    if (mint?.status === "completed") return; // stop when done
+
+    const intervalId = setInterval(() => {
+      if (!isFetching) {
+        refetch();
+      }
+    }, 2000);
+
+    return () => clearInterval(intervalId);
+  }, [mintId, mint?.status, isFetching, refetch]);
 
   const startBackgroundCheck = () => {
     // Start polling via parent-provided mintId
-    setIsChecking(true);
     setError(null);
     // Trigger an immediate refetch on click
     refetch();

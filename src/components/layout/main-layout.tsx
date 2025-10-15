@@ -4,7 +4,7 @@ import { AppSidebar } from "./sidebar";
 import { MobileNav } from "./mobile-nav";
 import Link from "next/link";
 import { useAppStore } from "@/state/stores/appStore";
-import { useMe } from "@/features/auth/hooks/authHook";
+import { useLogout, useMe } from "@/features/auth/hooks/authHook";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -29,9 +29,11 @@ export function MainLayout({ children }: MainLayoutProps) {
   const { reset, notifications } = useAppStore();
   const { open: openProfileModal } = useProfileModal();
   const { data: user } = useMe();
+  const { mutateAsync: logout } = useLogout();
 
-  const handleDisconnect = () => {
+  const handleDisconnect = async () => {
     reset();
+    await logout();
     window.location.href = "/login";
   };
 

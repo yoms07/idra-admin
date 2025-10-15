@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectDialogStandAlone } from "@xellar/kit";
-import { useAccount } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import { useIsAuthenticated, useSiweAuthentication } from "@/features/auth";
 import {
   Card,
@@ -15,10 +15,17 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader } from "@/components/common/Loader";
 import { Wallet, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { RequireNotAuthenticated } from "@/features/auth/components/auth-wrapper";
 
-export default function LoginPage() {
+const LoginPage = () => {
   const router = useRouter();
-  const { address, isConnected } = useAccount();
+  const {
+    address,
+    isConnected: isWalletConnected,
+    isDisconnected: isWalletDisconnected,
+  } = useAccount();
+  const { disconnect } = useDisconnect();
   const {
     signInWithEthereum,
     isGettingNonce,
@@ -26,23 +33,16 @@ export default function LoginPage() {
     isSigning,
     errorMessage,
   } = useSiweAuthentication();
-  const {
-    isAuthenticated,
-    isLoading: isCheckingAuth,
-    user,
-  } = useIsAuthenticated();
+  const { isAuthenticated, isLoading: isCheckingAuth } = useIsAuthenticated();
 
   const [error, setError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      router.push("/dashboard");
-    }
-  }, [isAuthenticated, user, router]);
-
-  // Do NOT auto-authenticate on connection; user must click the button
+  // useEffect(() => {
+  //   if (isAuthenticated && user) {
+  //     router.push("/dashboard");
+  //   }
+  // }, [isAuthenticated, user, router]);
 
   const handleWalletAuthentication = async () => {
     if (!address) return;
@@ -55,6 +55,14 @@ export default function LoginPage() {
       router.push("/dashboard");
     }
     setIsConnecting(false);
+  };
+
+  const mainButtonText = () => {
+    if (isGettingNonce) return "Getting Nonce...";
+    if (isVerifying) return "Verifying...";
+    if (isSigning) return "Signing...";
+    if (isConnecting) return "Authenticating...";
+    return "Sign in with Ethereum";
   };
 
   // Show loading state while checking authentication
@@ -93,9 +101,9 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-4 items-center flex flex-col">
-            {!isConnected && <ConnectDialogStandAlone />}
+            {!isWalletConnected && <ConnectDialogStandAlone />}
 
-            {isConnected && address && (
+            {isWalletConnected && address && (
               <div className="p-4 bg-muted rounded-lg">
                 <div className="flex items-center space-x-2">
                   <Wallet className="h-4 w-4 text-green-500" />
@@ -104,21 +112,17 @@ export default function LoginPage() {
                 <p className="text-xs text-muted-foreground mt-1 font-mono">
                   {address.slice(0, 6)}...{address.slice(-4)}
                 </p>
-                {!isAuthenticated && (
-                  <button
-                    onClick={handleWalletAuthentication}
-                    className="mt-3 px-4 py-2 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
-                    disabled={isGettingNonce || isVerifying || isConnecting}
-                  >
-                    {isGettingNonce
-                      ? "Getting Nonce..."
-                      : isVerifying
-                        ? "Verifying..."
-                        : isConnecting
-                          ? "Signing..."
-                          : "Sign in with Ethereum"}
-                  </button>
-                )}
+                <div className="flex items-center mt-3 gap-3">
+                  {!isAuthenticated && (
+                    <Button
+                      onClick={handleWalletAuthentication}
+                      disabled={isGettingNonce || isVerifying || isConnecting}
+                    >
+                      {mainButtonText()}
+                    </Button>
+                  )}
+                  <Button onClick={() => disconnect()}>Change Wallet</Button>
+                </div>
                 {(isConnecting ||
                   isGettingNonce ||
                   isVerifying ||
@@ -144,5 +148,12 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+};
+export default function () {
+  return (
+    <RequireNotAuthenticated>
+      <LoginPage />
+    </RequireNotAuthenticated>
   );
 }

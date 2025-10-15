@@ -14,8 +14,7 @@ import {
 
 export const mintService = {
   async create(input: CreateMintRequest): Promise<MintData> {
-    const body = CreateMintRequestSchema.parse(input);
-    const res = await http.post("/api/mint", body);
+    const res = await http.post("/api/mint", input);
     const parsed = MintResponseSchema.parse(res.data);
     return parsed.data;
   },
@@ -35,7 +34,7 @@ export const mintService = {
       data: z.array(MintDataSchema),
       pagination: PaginationSchema,
     });
-    const parsed = ListSchema.parse(res.data);
-    return { items: parsed.data, pagination: parsed.pagination };
+    const data = ListSchema.parse(res.data);
+    return { items: data.data, pagination: data.pagination };
   },
 };

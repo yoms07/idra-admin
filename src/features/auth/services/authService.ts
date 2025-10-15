@@ -5,18 +5,13 @@ import {
   VerifyResponseSchema,
   MeResponseSchema,
   type NonceRequest,
-  type NonceResponse,
   type VerifyRequest,
-  type MeResponse,
-  type VerifyDataSchema,
   NonceData,
   NonceResponseSchema,
   VerifyData,
   MeData,
 } from "../schema/auth";
 import { http } from "@/lib/http/client";
-import { z } from "zod";
-import { baseResponse } from "../schema/auth";
 import { SiweMessage } from "siwe";
 
 export const authService = {
@@ -58,9 +53,13 @@ export const authService = {
     return parsedVerify.data;
   },
 
-  async getMe(): Promise<MeData> {
-    const res = await http.get("/api/auth/me");
-    const parsedMe = MeResponseSchema.parse(res.data);
-    return parsedMe.data;
+  async getMe(): Promise<MeData | null> {
+    try {
+      const res = await http.get("/api/auth/me");
+      const parsedMe = MeResponseSchema.parse(res.data);
+      return parsedMe.data;
+    } catch (error) {
+      return null;
+    }
   },
 };
