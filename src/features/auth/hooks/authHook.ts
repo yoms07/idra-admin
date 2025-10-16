@@ -100,8 +100,11 @@ export function useSiweAuthentication() {
       });
 
       return null;
-    } catch (err: any) {
-      const msg = err?.message || "Authentication failed. Please try again.";
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Authentication failed. Please try again.";
       setErrorMessage(msg);
       setIsSigning(false);
       return msg;
