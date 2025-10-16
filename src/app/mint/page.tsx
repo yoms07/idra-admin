@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAppStore } from "@/state/stores/appStore";
 import { useAccount, useChainId } from "wagmi";
 import { useCreateMint, useEstimateMint } from "@/features/mint/hooks/useMint";
 import { MainLayout } from "@/components/layout/main-layout";
@@ -35,7 +34,6 @@ import {
   Currency,
   PaymentMethod,
 } from "@/features/mint/schema/mint";
-import { add } from "date-fns";
 import { useDebounce } from "@/hooks/useDebounce";
 
 const quickAmounts = [20000, 50000, 100000, 500000, 1000000];
@@ -262,19 +260,19 @@ function MintPage() {
                       className="grid gap-3 sm:grid-cols-2 items-stretch"
                     >
                       <PaymentMethodItem
-                        value="qris"
+                        value={PaymentMethod.QRIS}
                         title="QRIS"
                         description="Scan with any supported bank app"
                         icon={<QrCode className="h-5 w-5" />}
                       />
                       <PaymentMethodItem
-                        value="va_bri"
+                        value={PaymentMethod.VA_BRI}
                         title="Virtual Account BRI"
                         description="Pay via BRI virtual account"
                         icon={<Building2 className="h-5 w-5" />}
                       />
                       <PaymentMethodItem
-                        value="va_bni"
+                        value={PaymentMethod.VA_BNI}
                         title="Virtual Account BNI"
                         description="Pay via BNI virtual account"
                         icon={<Building2 className="h-5 w-5" />}
