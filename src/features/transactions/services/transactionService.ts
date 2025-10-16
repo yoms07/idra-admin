@@ -14,7 +14,7 @@ export const transactionService = {
     const res = await http.get(`/api/transactions/${id}`);
     const parsed = TransactionResponseSchema.parse(res.data);
     // Convert dates from strings to Date objects
-    const transaction = parsed.data as any;
+    const transaction = parsed.data;
     return {
       ...transaction,
       createdAt: new Date(transaction.createdAt),

@@ -46,7 +46,7 @@ export interface UnifiedTransaction {
   mintedAt?: Date;
   readyToMintAt?: Date;
   expiresAt?: Date;
-  metadata?: any;
+  metadata?: object;
 }
 
 // API Response schemas
