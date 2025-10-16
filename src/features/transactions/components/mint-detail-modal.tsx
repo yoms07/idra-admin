@@ -21,7 +21,7 @@ export function MintDetailModal({
 }: MintDetailModalProps) {
   const { data, isLoading } = useMintById(mintId, undefined);
 
-  const entries = data ? Object.entries(data as Record<string, any>) : [];
+  const entries = data ? Object.entries(data) : [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
