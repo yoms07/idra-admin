@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## IDRA Dashboard
 
-## Getting Started
+Dashboard for minting and redeeming IDRA, with live estimates, transaction history, and wallet integration.
 
-First, run the development server:
+### Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Mint with QRIS/Virtual Account (BNI/BRI) and live estimate
+- Redeem to bank accounts with live estimate and confirmation
+- Transactions list with compact cards, status badges, explorer links
+- Detail modals for mint and redeem
+- Wallet connection (wagmi) and responsive UI (shadcn/ui)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Next.js (App Router), React, TypeScript
+- React Query, Zod
+- wagmi + viem
+- Tailwind + shadcn/ui
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Getting Started
 
-## Learn More
+1. Install deps: `pnpm i` (or npm/yarn)
+2. Run dev: `pnpm dev`
+3. Open `http://localhost:3000`
 
-To learn more about Next.js, take a look at the following resources:
+### Environment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Configure API base, auth, and chains in `.env`
+- Explorer support via `getExplorerTxUrl` (polygon, base-sepolia)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Architecture
 
-## Deploy on Vercel
+- Services → Hooks → Components
+- React Query for server state with stable query keys
+- Schemas under `features/<domain>/schema`, services in `services`, hooks in `hooks`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### API Contracts (high-level)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Mint
+  - Create: `MintCreateBodySchema`
+  - Estimate: returns amounts and fees
+  - Data: currencies, amounts, fees, instructions, statuses
+- Redeem
+  - Create: `RedeemCreateBodySchema`
+  - Estimate: returns amounts and fees
+  - Data: currencies, amounts, fees, bank recipient, statuses
+- Transactions
+  - `UnifiedTransaction` with `chainId`, hashes, status, timestamps
+
+### Coding Standards
+
+- Schemas and Types
+  - Define Zod schemas and TS types for every request/response
+  - Validate all network IO in services with Zod before returning
+  - Export inferred types; colocate schemas per feature
+- Services & Hooks
+  - Services parse and narrow responses; no raw `any`
+  - Hooks expose typed data, use `queryKeys`, debounce estimates
+- Error Handling
+  - Show actionable messages for validation failures
+  - Don’t silently catch; map to UI-safe errors
+- State & Caching
+  - Use React Query; avoid duplicating cache in component state
+  - Include params/body in keys for estimate queries
+- Components
+  - Keep presentational; use hooks for data fetching
+  - Use small, composable components
+- Naming & Style
+  - Descriptive names, no abbreviations, avoid `any`
+  - Tailwind utilities, dark-mode friendly classes
+
+### Deployment
+
+- Build: `pnpm build`
+- Configure production env vars (API, auth, chains)
