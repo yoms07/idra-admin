@@ -64,7 +64,7 @@ function RedeemPage() {
   const debouncedIdraAmount = useDebounce(idraAmount, 400);
   const debouncedAddress = useDebounce(address, 400);
   const selectedBankAccount = bankAccounts.find(
-    (acc: any) => acc.id === form.watch("bankAccountId")
+    (acc) => acc.id === form.watch("bankAccountId")
   );
 
   const estimateInput: RedeemCreateBody | undefined =

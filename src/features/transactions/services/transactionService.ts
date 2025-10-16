@@ -35,7 +35,7 @@ export const transactionService = {
     const res = await http.get("/api/transactions", { params });
     const parsed = TransactionListResponseSchema.parse(res.data);
     // Convert dates from strings to Date objects for each transaction
-    const transactions = parsed.data.map((transaction: any) => ({
+    const transactions = parsed.data.map((transaction) => ({
       ...transaction,
       createdAt: new Date(transaction.createdAt),
       updatedAt: new Date(transaction.updatedAt),

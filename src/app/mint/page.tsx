@@ -152,7 +152,7 @@ function MintPage() {
       <PaymentFlow
         amountIdr={estimate?.inputAmount || "0"}
         amountIdra={estimate?.mintAmount || "0"}
-        paymentMethod={form.watch("paymentMethod") as any}
+        paymentMethod={form.watch("paymentMethod")}
         qrData={qrData}
         mintId={mintId}
         onDone={() => router.push("/history")}

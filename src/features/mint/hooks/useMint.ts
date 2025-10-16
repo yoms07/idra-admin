@@ -15,7 +15,7 @@ export function useCreateMint() {
 
 export function useMintById(id?: string, fetchInterval?: number) {
   return useQuery({
-    queryKey: mintKeys.detail(id || ("" as any)),
+    queryKey: mintKeys.detail(id || ""),
     queryFn: () => mintService.getById(id as string),
     enabled: !!id,
     refetchInterval: fetchInterval,
