@@ -11,6 +11,7 @@ export enum MintStatus {
 export enum PaymentStatus {
   WAITING_PAYMENT = "waiting_payment",
   COMPLETED = "completed",
+  PAID = "paid",
   FAILED = "failed",
   EXPIRED = "expired",
 }
@@ -27,29 +28,6 @@ export enum Currency {
   USD = "USD",
   USDT = "USDT",
 }
-
-export const MintMethodSchema = z.enum([
-  "qris",
-  "va_bri",
-  "va_permata",
-  "va_bni",
-]);
-
-// Mint status and payment status enums
-export const MintStatusSchema = z.enum([
-  "pending",
-  "processing",
-  "completed",
-  "failed",
-]);
-
-export const PaymentStatusSchema = z.enum([
-  "completed",
-  "paid", // old value
-  "waiting_payment",
-  "failed",
-  "expired",
-]);
 
 // Generic pagination schema
 export const PaginationSchema = z.object({
@@ -142,7 +120,6 @@ export const MintDataSchema = z.discriminatedUnion("paymentMethod", [
 ]);
 export const MintResponseSchema = baseResponse(MintDataSchema);
 
-export type MintMethod = z.infer<typeof MintMethodSchema>;
 export type CreateMintRequest = z.infer<typeof CreateMintRequestSchema>;
 export type MintData = z.infer<typeof MintDataSchema>;
 export type Pagination = z.infer<typeof PaginationSchema>;

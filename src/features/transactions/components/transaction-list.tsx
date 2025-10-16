@@ -30,7 +30,6 @@ import {
 } from "../schema/transaction";
 
 interface TransactionListProps {
-  onViewDetails?: (id: string) => void;
   showFilters?: boolean;
   limit?: number;
 }
@@ -39,7 +38,6 @@ type TransactionTypeFilter = TransactionType | "all";
 type TransactionStatusFilter = TransactionStatus | "all";
 
 export function TransactionList({
-  onViewDetails,
   showFilters = true,
   limit = 10,
 }: TransactionListProps) {
@@ -77,14 +75,6 @@ export function TransactionList({
       ...prev,
       [key]: value,
       page: 1, // Reset to first page when filters change
-    }));
-  };
-
-  const handleSearch = (value: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      search: value,
-      page: 1,
     }));
   };
 
@@ -152,14 +142,6 @@ export function TransactionList({
       {/* Filters */}
       {showFilters && (
         <div className="flex flex-col sm:flex-row gap-4 p-0 bg-muted/30 rounded-lg">
-          <div className="flex-1 w-full">
-            <Input
-              placeholder="Search transactions..."
-              value={filters.search}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full"
-            />
-          </div>
           <div className="flex gap-2">
             <Select
               value={filters.type}
@@ -199,11 +181,7 @@ export function TransactionList({
 
       <div className="space-y-3">
         {transactions.map((transaction) => (
-          <TransactionCard
-            key={transaction.id}
-            transaction={transaction}
-            onViewDetails={onViewDetails}
-          />
+          <TransactionCard key={transaction.id} transaction={transaction} />
         ))}
       </div>
 

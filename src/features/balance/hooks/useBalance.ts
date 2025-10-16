@@ -4,6 +4,10 @@ import { useAccount, useChainId, useReadContracts } from "wagmi";
 
 const DEFAULT_IDRA_TOKEN_ADDRESS =
   "0x1406B94f5fc0Deb701e8e56Ee4d104eD0136ef85" as const;
+const addressMap: Record<number, string> = {
+  137: "0x89A9b4492C60a45968094825A2f8E1f4Cba26952",
+  84532: "0x1406B94f5fc0Deb701e8e56Ee4d104eD0136ef85",
+};
 
 type UseIDRABalanceParams = {
   chainId?: number;
@@ -16,7 +20,7 @@ export function useIDRABalance(params?: UseIDRABalanceParams) {
   const { address: accountAddress } = useAccount();
 
   const chainId = params?.chainId ?? chainIdFromHook;
-  const tokenAddress = (params?.tokenAddress ??
+  const tokenAddress = (addressMap[chainId] ??
     DEFAULT_IDRA_TOKEN_ADDRESS) as `0x${string}`;
   const walletAddress = (params?.walletAddress ?? accountAddress) as
     | `0x${string}`

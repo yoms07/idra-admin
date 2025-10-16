@@ -143,7 +143,7 @@ export function RecentTransactions({
                       }`}
                     >
                       {isOutgoing ? "-" : "+"}
-                      {formatIDRA(transaction.amountIdr)}
+                      {formatIDRA(transaction.amount)}
                     </p>
                   </div>
                 </div>
@@ -155,23 +155,6 @@ export function RecentTransactions({
                       {formatDate(transaction.createdAt)}
                     </span>
                   </div>
-
-                  {transaction.transactionHash && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0"
-                      asChild
-                    >
-                      <a
-                        href={`https://etherscan.io/tx/${transaction.transactionHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </Button>
-                  )}
                 </div>
               </div>
             </div>

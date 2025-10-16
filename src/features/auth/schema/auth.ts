@@ -10,6 +10,7 @@ export const NonceRequestSchema = z.object({
   walletAddress: z
     .string()
     .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid wallet address"),
+  chainId: z.number(),
 });
 
 // Nonce response schema

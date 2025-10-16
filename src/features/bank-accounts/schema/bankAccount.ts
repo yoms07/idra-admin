@@ -25,6 +25,7 @@ export const CreateBankAccountRequestSchema = z.object({
 export const BankAccountSchema = z.object({
   id: z.string(),
   accountHolderName: z.string(),
+  accountNumber: z.string(),
   bankName: z.string(),
   accountNumberLast4: z.string(),
   isDefault: z.boolean(),

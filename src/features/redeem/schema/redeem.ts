@@ -1,15 +1,23 @@
 import { z } from "zod";
-import { PaginationSchema } from "@/features/mint/schema/mint";
+import { PaginationSchema, Currency } from "@/features/mint/schema/mint";
 import { baseResponse } from "@/features/auth";
 
-export const RedeemStatusSchema = z.enum([
-  "pending",
-  "burning",
-  "burned",
-  "disbursing",
-  "completed",
-  "failed",
-]);
+export enum RedeemStatus {
+  PENDING = "pending",
+  BURNING = "burning",
+  BURNED = "burned",
+  DISBURSING = "disbursing",
+  COMPLETED = "completed",
+  FAILED = "failed",
+}
+
+export enum DisburseStatus {
+  PENDING = "pending",
+  REQUESTED = "requested",
+  COMPLETED = "completed",
+  EXPIRED = "expired",
+  FAILED = "failed",
+}
 
 export const DisburseStatusSchema = z.enum([
   "pending",
@@ -25,16 +33,39 @@ export const RedeemRecipientSchema = z.object({
   accountNumber: z.string(),
 });
 
-export const CreateRedeemRequestSchema = z.object({
-  fromAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
-  amountIdr: z.string().regex(/^\d+$/),
-  recipient: RedeemRecipientSchema,
-  chainId: z.number().optional(),
-});
+export const RedeemCreateBodySchema = z
+  .object({
+    fromAddress: z.string().startsWith("0x").length(42),
+    originalAmount: z.string().regex(/^\d+(\.\d+)?$/), // in IDRA (1:1)
+    inputCurrency: z.enum(Currency).default(Currency.IDRA),
+    redeemCurrency: z.enum(Currency).default(Currency.IDR),
+    chainId: z.number().int(),
+    recipient: z.object({
+      bankCode: z.string(),
+      bankName: z.string(),
+      accountName: z.string(),
+      accountNumber: z.string(),
+    }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.inputCurrency !== Currency.IDRA) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Only support IDRA as input currency",
+      });
+    }
+    if (data.redeemCurrency !== Currency.IDR) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Only support IDR as redeem currency",
+      });
+    }
+    return;
+  });
 
 export const CreateRedeemResponseDataSchema = z.object({
   id: z.string(),
-  status: RedeemStatusSchema,
+  status: z.enum(RedeemStatus),
 });
 export const CreateRedeemResponseSchema = baseResponse(
   CreateRedeemResponseDataSchema
@@ -43,17 +74,22 @@ export const CreateRedeemResponseSchema = baseResponse(
 export const RedeemDataSchema = z.object({
   id: z.string(),
   userId: z.string(),
-  amountIdr: z.string(),
+  inputCurrency: z.enum(Currency),
+  redeemCurrency: z.enum(Currency),
+  originalAmount: z.string(),
+  inputAmount: z.string(),
+  redeemAmount: z.string(),
+  pgFee: z.string(),
+  platformFee: z.string(),
   fromAddress: z.string(),
   chainId: z.number(),
   recipientBank: RedeemRecipientSchema,
   burnTxHash: z.string().nullable().optional(),
-  disbursementId: z.string().nullable().optional(),
-  disburseStatus: z.string(),
-  status: RedeemStatusSchema,
-  fee: z.string().optional(),
+  disburseStatus: z.enum(DisburseStatus),
+  status: z.enum(RedeemStatus),
   createdAt: z.string(),
   updatedAt: z.string().optional(),
+  bankAccountId: z.string().nullable().optional(),
 });
 
 export const RedeemResponseSchema = baseResponse(RedeemDataSchema);
@@ -62,9 +98,8 @@ export const RedeemListResponseSchema = z.object({
   pagination: PaginationSchema,
 });
 
-export type RedeemStatus = z.infer<typeof RedeemStatusSchema>;
 export type RedeemRecipient = z.infer<typeof RedeemRecipientSchema>;
-export type CreateRedeemRequest = z.infer<typeof CreateRedeemRequestSchema>;
+export type RedeemCreateBody = z.infer<typeof RedeemCreateBodySchema>;
 export type CreateRedeemResponseData = z.infer<
   typeof CreateRedeemResponseDataSchema
 >;

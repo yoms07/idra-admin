@@ -1,10 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { redeemService } from "../services/redeemService";
-import { type CreateRedeemRequest, type RedeemData } from "../schema/redeem";
+import { type RedeemCreateBody, type RedeemData } from "../schema/redeem";
 
 export function useCreateRedeem() {
   return useMutation({
-    mutationFn: (input: CreateRedeemRequest) => redeemService.create(input),
+    mutationFn: (input: RedeemCreateBody) => redeemService.create(input),
   });
 }
 
@@ -29,5 +29,21 @@ export function useRedeemById(id?: string, refetchIntervalMs?: number) {
     queryFn: () => redeemService.getById(id as string),
     enabled: !!id,
     refetchInterval: refetchIntervalMs,
+  });
+}
+
+export function useEstimateRedeem(input?: RedeemCreateBody) {
+  return useQuery({
+    queryKey: ["redeem", "estimate", input ?? {}],
+    queryFn: () => redeemService.estimate(input as RedeemCreateBody),
+    enabled: Boolean(
+      input &&
+        input.fromAddress &&
+        input.originalAmount &&
+        input.chainId &&
+        input.recipient &&
+        input.inputCurrency &&
+        input.redeemCurrency
+    ),
   });
 }

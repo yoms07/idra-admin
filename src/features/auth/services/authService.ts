@@ -1,3 +1,4 @@
+import { getEnv } from "@/lib/schema/env";
 import {
   NonceRequestSchema,
   NonceDataSchema,
@@ -25,12 +26,12 @@ export const authService = {
     }
 
     const siwe = new SiweMessage({
-      domain: "idra.xellar.co",
+      domain: getEnv().NEXT_PUBLIC_DOMAIN,
       address: body.walletAddress,
       statement: "Sign in with Ethereum to the app.",
-      uri: "http://localhost",
+      uri: getEnv().NEXT_PUBLIC_DOMAIN,
       version: "1",
-      chainId: 84532,
+      chainId: request.chainId,
       nonce: apiNonce,
       issuedAt: new Date().toISOString(),
     });
@@ -44,7 +45,6 @@ export const authService = {
     const body = VerifyRequestSchema.parse(request);
     const res = await http.post("/api/auth/verify", body);
     const parsedVerify = VerifyResponseSchema.parse(res.data);
-    // Persist token to localStorage (browser only)
     if (typeof window !== "undefined") {
       try {
         localStorage.setItem("auth_token", parsedVerify.data.token);

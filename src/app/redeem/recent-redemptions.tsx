@@ -27,17 +27,11 @@ const RecentRedemptionCard = ({
       <div className="space-y-2">
         <div className="font-medium">
           {rd.recipientBank.bankName.toUpperCase()} -{" "}
-          {formatIDR(parseFloat(rd.amountIdr))}
+          {formatIDR(parseFloat(rd.inputAmount))}
         </div>
         <div className="text-xs text-muted-foreground">
           <PaymentStatusBadge status={rd.status} /> -{" "}
           {new Date(rd.createdAt).toLocaleString()}
-        </div>
-        <div
-          className="text-xs text-muted-foreground font-mono truncate"
-          title={rd.disbursementId || "—"}
-        >
-          {rd.disbursementId || "—"}
         </div>
       </div>
     </div>

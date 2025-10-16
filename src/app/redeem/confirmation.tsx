@@ -10,10 +10,11 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, Clock } from "lucide-react";
+import { formatIDR, formatIDRA } from "@/lib/utils";
 
 interface RedeemConfirmationProps {
   idraAmount: string;
-  usdAmount: string;
+  idrAmount: string;
   selectedBankAccount: {
     accountHolderName: string;
     bankName: string;
@@ -23,7 +24,7 @@ interface RedeemConfirmationProps {
 
 export function RedeemConfirmation({
   idraAmount,
-  usdAmount,
+  idrAmount,
   selectedBankAccount,
   onConfirm,
 }: RedeemConfirmationProps) {
@@ -40,18 +41,13 @@ export function RedeemConfirmation({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-center space-y-2">
-          <div className="text-2xl font-bold">{idraAmount} IDRA</div>
-          <div className="text-muted-foreground">Rp{usdAmount} IDR</div>
+          <div className="text-2xl font-bold">{formatIDRA(idraAmount)} </div>
         </div>
 
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span>Amount</span>
-            <span>{idraAmount} IDRA</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span>USD Value</span>
-            <span>${usdAmount}</span>
+            <span>{formatIDR(idrAmount)} IDRA</span>
           </div>
           <div className="flex justify-between text-sm">
             <span>Bank Account</span>

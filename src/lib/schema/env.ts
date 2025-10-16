@@ -2,8 +2,10 @@ import { z } from "zod";
 
 export const EnvSchema = z.object({
   NEXT_PUBLIC_API_BASE_URL: z.string(),
-  NEXT_PUBLIC_SUBGRAPH_URL: z.string().optional(),
-  NEXT_PUBLIC_PRIVY_APP_ID: z.string(),
+  NEXT_PUBLIC_XELLAR_APP_ID: z.string(),
+  NEXT_PUBLIC_WALLET_CONNECT_APP_ID: z.string(),
+  NEXT_PUBLIC_ENV: z.string(),
+  NEXT_PUBLIC_DOMAIN: z.string(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
@@ -17,8 +19,11 @@ export function getEnv(): Env {
   }
   const parseAttempt = EnvSchema.safeParse({
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
-    NEXT_PUBLIC_SUBGRAPH_URL: process.env.NEXT_PUBLIC_SUBGRAPH_URL,
-    NEXT_PUBLIC_PRIVY_APP_ID: process.env.NEXT_PUBLIC_PRIVY_APP_ID,
+    NEXT_PUBLIC_ENV: process.env.NEXT_PUBLIC_ENV,
+    NEXT_PUBLIC_XELLAR_APP_ID: process.env.NEXT_PUBLIC_XELLAR_APP_ID,
+    NEXT_PUBLIC_WALLET_CONNECT_APP_ID:
+      process.env.NEXT_PUBLIC_WALLET_CONNECT_APP_ID,
+    NEXT_PUBLIC_DOMAIN: process.env.NEXT_PUBLIC_DOMAIN,
   });
   if (!parseAttempt.success) {
     console.error(

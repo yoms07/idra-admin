@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useAccount, useDisconnect, useSignMessage } from "wagmi";
+import { useAccount, useChainId, useDisconnect, useSignMessage } from "wagmi";
 import { authKeys } from "../queryKeys";
 import { authService } from "../services/authService";
 import { type NonceRequest, type VerifyRequest } from "../schema/auth";
@@ -47,7 +47,7 @@ export function useIsAuthenticated() {
     !!user && !error && isTheSameAddress(user.walletAddress, address || "");
   return {
     isAuthenticated,
-    isLoading: isLoading || isWalletConnecting,
+    isLoading: isLoading,
     user: isAuthenticated ? user : undefined,
   };
 }
@@ -77,6 +77,7 @@ export function useSiweAuthentication() {
 
   const [isSigning, setIsSigning] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const chainId = useChainId();
 
   const qc = useQueryClient();
 
@@ -86,7 +87,7 @@ export function useSiweAuthentication() {
     setErrorMessage(null);
     setIsSigning(true);
     try {
-      const nonceData = await getNonce({ walletAddress });
+      const nonceData = await getNonce({ walletAddress, chainId });
       if (!nonceData.message) {
         throw new Error("Missing SIWE message from server");
       }

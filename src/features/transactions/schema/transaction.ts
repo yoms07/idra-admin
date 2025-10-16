@@ -28,15 +28,14 @@ export interface UnifiedTransaction {
   id: string;
   type: TransactionType;
   status: TransactionStatus;
-  amountIdr?: string;
   amount?: string;
   fromAddress?: string;
   toAddress?: string;
   mintAddress?: string;
   transactionHash?: string;
   burnTxHash?: string;
+  chainId: number;
   paymentReference?: string;
-  disbursementId?: string;
   paymentStatus?: string;
   disburseStatus?: string;
   fee?: string;

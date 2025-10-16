@@ -26,23 +26,12 @@ const LoginPage = () => {
     isDisconnected: isWalletDisconnected,
   } = useAccount();
   const { disconnect } = useDisconnect();
-  const {
-    signInWithEthereum,
-    isGettingNonce,
-    isVerifying,
-    isSigning,
-    errorMessage,
-  } = useSiweAuthentication();
+  const { signInWithEthereum, isGettingNonce, isVerifying, isSigning } =
+    useSiweAuthentication();
   const { isAuthenticated, isLoading: isCheckingAuth } = useIsAuthenticated();
 
   const [error, setError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
-
-  // useEffect(() => {
-  //   if (isAuthenticated && user) {
-  //     router.push("/dashboard");
-  //   }
-  // }, [isAuthenticated, user, router]);
 
   const handleWalletAuthentication = async () => {
     if (!address) return;

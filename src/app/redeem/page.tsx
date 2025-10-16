@@ -7,7 +7,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAccount, useChainId } from "wagmi";
 import { useBankAccounts } from "@/features/bank-accounts/hooks/useBankAccounts";
 import { useIDRABalance } from "@/features/balance/hooks/useBalance";
-import { useCreateRedeem } from "@/features/redeem/hooks/useRedeem";
+import {
+  useCreateRedeem,
+  useEstimateRedeem,
+} from "@/features/redeem/hooks/useRedeem";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,17 +31,20 @@ import { RecentRedemptions } from "./recent-redemptions";
 import { RedeemFormSchema, type RedeemForm } from "@/lib/schema";
 import { Building2, AlertCircle, Clock, AlertTriangle } from "lucide-react";
 import { formatIDRA, formatIDR } from "@/lib/utils";
+import { Currency } from "@/features/mint/schema/mint";
+import { useDebounce } from "@/hooks/useDebounce";
+import { type RedeemCreateBody } from "@/features/redeem/schema/redeem";
+import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
 
 const percentageButtons = [25, 50, 75];
 
-export default function RedeemPage() {
+function RedeemPage() {
   const router = useRouter();
   const { isConnected, address } = useAccount();
   const chainId = useChainId();
   const { data: bankAccounts = [] } = useBankAccounts();
   const { formatted: balanceFormatted } = useIDRABalance();
   const balance = balanceFormatted || "0";
-  const balanceUSD = balance; // 1:1 placeholder for now
   const { mutate: createRedeem, isPending: isCreatingRedeem } =
     useCreateRedeem();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -55,9 +61,31 @@ export default function RedeemPage() {
   });
 
   const idraAmount = form.watch("idraAmount");
+  const debouncedIdraAmount = useDebounce(idraAmount, 400);
+  const debouncedAddress = useDebounce(address, 400);
   const selectedBankAccount = bankAccounts.find(
     (acc: any) => acc.id === form.watch("bankAccountId")
   );
+
+  const estimateInput: RedeemCreateBody | undefined =
+    debouncedAddress && debouncedIdraAmount && selectedBankAccount
+      ? {
+          fromAddress: debouncedAddress as `0x${string}`,
+          originalAmount: debouncedIdraAmount.toString(),
+          inputCurrency: Currency.IDRA,
+          redeemCurrency: Currency.IDR,
+          chainId,
+          recipient: {
+            bankCode: selectedBankAccount.bankName,
+            bankName: selectedBankAccount.bankName,
+            accountName: selectedBankAccount.accountHolderName,
+            accountNumber: `****${selectedBankAccount.accountNumberLast4}`,
+          },
+        }
+      : undefined;
+
+  const { data: estimate, isFetching: isEstimating } =
+    useEstimateRedeem(estimateInput);
 
   const handlePercentage = (percentage: number) => {
     const amount = ((parseFloat(balance) * percentage) / 100).toFixed(2);
@@ -89,30 +117,29 @@ export default function RedeemPage() {
     setError(null);
 
     try {
-      // API expects amountIdr as digits-only string (no decimals)
-      const amountIdrStr = Math.round(parseFloat(idraAmount || "0")).toString();
+      if (isEstimating) return;
 
-      createRedeem(
-        {
-          fromAddress: address as `0x${string}`,
-          amountIdr: amountIdrStr,
-          recipient: {
-            bankCode: selectedBankAccount.bankName,
-            bankName: selectedBankAccount.bankName,
-            accountName: selectedBankAccount.accountHolderName,
-            // NOTE: Only last4 is stored locally; backend expects full accountNumber
-            accountNumber: `****${selectedBankAccount.accountNumberLast4}`,
-          },
-          chainId,
+      const body: RedeemCreateBody = {
+        fromAddress: address as `0x${string}`,
+        originalAmount: (idraAmount || "0").toString(),
+        inputCurrency: Currency.IDRA,
+        redeemCurrency: Currency.IDR,
+        chainId,
+        recipient: {
+          bankCode: selectedBankAccount.bankName,
+          bankName: selectedBankAccount.bankName,
+          accountName: selectedBankAccount.accountHolderName,
+          accountNumber: selectedBankAccount.accountNumber,
         },
-        {
-          onSuccess: () => {
-            setError(null);
-            setShowConfirmation(true);
-          },
-          onError: () => setError("Redemption failed. Please try again."),
-        }
-      );
+      };
+
+      createRedeem(body, {
+        onSuccess: () => {
+          setError(null);
+          setShowConfirmation(true);
+        },
+        onError: () => setError("Redemption failed. Please try again."),
+      });
     } catch (err) {
       setError("Redemption failed. Please try again.");
     } finally {
@@ -145,7 +172,7 @@ export default function RedeemPage() {
         <div className="p-6">
           <RedeemConfirmation
             idraAmount={idraAmount || "0"}
-            usdAmount={idraAmount}
+            idrAmount={estimate?.redeemAmount || "0"}
             selectedBankAccount={
               selectedBankAccount || { accountHolderName: "", bankName: "" }
             }
@@ -250,14 +277,58 @@ export default function RedeemPage() {
                   </div>
                 </div>
 
-                {/* IDR Equivalent */}
-                {idraAmount && (
-                  <div className="p-3 bg-muted rounded-lg">
-                    <div className="flex text-sm gap-1">
-                      <span className="text-center">
-                        You will receive {formatIDR(idraAmount)} sent to your
-                        bank account
-                      </span>
+                {/* Estimated Summary */}
+                {idraAmount && selectedBankAccount && (
+                  <div className="space-y-2 p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium">Redemption Summary</h4>
+                    <div className="space-y-1 text-sm">
+                      {estimate ? (
+                        <>
+                          <div className="flex justify-between">
+                            <span>Amount to redeem</span>
+                            <span>{formatIDRA(estimate.inputAmount)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>PG fee</span>
+                            <span>{formatIDR(estimate.pgFee)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Platform fee</span>
+                            <span>{formatIDR(estimate.platformFee)}</span>
+                          </div>
+                          <div className="flex justify-between font-medium">
+                            <span>You will receive</span>
+                            <span>{formatIDR(estimate.redeemAmount)}</span>
+                          </div>
+                          <div className="flex justify-between text-muted-foreground">
+                            <span>Bank Account</span>
+                            <span className="text-right">
+                              {selectedBankAccount.accountHolderName}
+                              <br />
+                              {selectedBankAccount.bankName}
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex justify-between">
+                            <span>Amount to redeem</span>
+                            <span>{formatIDRA(idraAmount)}</span>
+                          </div>
+                          <div className="flex justify-between font-medium">
+                            <span>You will receive</span>
+                            <span>{formatIDR(idraAmount)}</span>
+                          </div>
+                          <div className="flex justify-between text-muted-foreground">
+                            <span>Bank Account</span>
+                            <span className="text-right">
+                              {selectedBankAccount.accountHolderName}
+                              <br />
+                              {selectedBankAccount.bankName}
+                            </span>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
@@ -389,5 +460,13 @@ export default function RedeemPage() {
         </div>
       </div>
     </MainLayout>
+  );
+}
+
+export default function Page() {
+  return (
+    <RequireAuthentication>
+      <RedeemPage />
+    </RequireAuthentication>
   );
 }

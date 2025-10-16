@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppStore } from "@/state/stores/appStore";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { useCreateMint, useEstimateMint } from "@/features/mint/hooks/useMint";
 import { MainLayout } from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,7 @@ function MintPage() {
   const router = useRouter();
   const { address, isConnected } = useAccount();
   const { mutate: createMint } = useCreateMint();
+  const chainId = useChainId();
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [qrData, setQrData] = useState<string | undefined>(undefined);
@@ -74,7 +75,7 @@ function MintPage() {
           mintCurrency: Currency.IDRA,
           originalAmount: debouncedIdraAmount.toString(),
           paymentMethod: debouncedPaymentMethod,
-          chainId: 84532,
+          chainId,
         }
       : undefined;
 
@@ -108,7 +109,7 @@ function MintPage() {
           mintCurrency: Currency.IDRA,
           originalAmount: idraAmount.toString(),
           paymentMethod: data.paymentMethod,
-          chainId: 84532,
+          chainId,
         },
         {
           onSuccess: (res) => {

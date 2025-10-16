@@ -5,10 +5,6 @@ import { TransactionList } from "@/features/transactions/components/transaction-
 import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
 
 function TransactionsPage() {
-  const handleViewDetails = (id: string) => {
-    console.log("View details for transaction:", id);
-  };
-
   return (
     <MainLayout>
       <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -23,11 +19,7 @@ function TransactionsPage() {
         {/* Transaction List */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Recent Transactions</h2>
-          <TransactionList
-            onViewDetails={handleViewDetails}
-            showFilters={true}
-            limit={10}
-          />
+          <TransactionList showFilters={true} limit={10} />
         </div>
       </div>
     </MainLayout>
