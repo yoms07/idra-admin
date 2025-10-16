@@ -1,11 +1,11 @@
 "use client";
 
 import { RadioGroupItem } from "@/components/ui/radio-group";
-import { MintMethod } from "@/features/mint/schema/mint";
+import { PaymentMethod } from "@/features/mint/schema/mint";
 import * as React from "react";
 
 interface PaymentMethodItemProps {
-  value: MintMethod;
+  value: PaymentMethod;
   title: string;
   description: string;
   icon: React.ReactNode;
