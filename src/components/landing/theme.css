@@ -1,0 +1,26 @@
+@import "tailwindcss";
+:root {
+  --color-landing-background: #0a0a0a;
+  --color-landing-background-100: #151515;
+  --color-landing-background-200: #1e1e1e;
+  --color-landing-background-300: #191919;
+  --color-landing-foreground: #fbfbfb;
+  --color-landing-muted: #a2a2a2;
+  --color-landing-primary: #1a1a1a;
+  --color-landing-border: #434343;
+  --color-landing-border-100: #2e2e2e;
+  --color-landing-border-200: #474747;
+}
+
+.dark {
+  --color-landing-background: #0a0a0a;
+  --color-landing-background-100:  #151515;
+  --color-landing-background-200: #1e1e1e;
+  --color-landing-background-300: #191919;
+  --color-landing-foreground: #fbfbfb;
+  --color-landing-muted: #a2a2a2;
+  --color-landing-primary: #1a1a1a;
+  --color-landing-border: #434343;
+  --color-landing-border-100: #2e2e2e;
+  --color-landing-border-200: #474747;
+}

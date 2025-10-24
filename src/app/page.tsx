@@ -1,20 +1,30 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useIsAuthenticated } from "@/features/auth";
+import { Header } from "@/components/landing/Header";
+import { Footer } from "@/components/landing/Footer";
+import { Hero } from "@/components/landing/sections/Hero";
+import { Team } from "@/components/landing/sections/Team";
+import { About } from "@/components/landing/sections/About";
+import Feature from "@/components/landing/sections/Features";
+import { Products } from "@/components/landing/sections/Products";
+import { Testimonial } from "@/components/landing/sections/Testimonial";
+import { AccountAbstraction } from "@/components/landing/sections/AA";
+import { Docs } from "@/components/landing/sections/Docs";
+import "../components/landing/theme.css";
+import { Testimonial2 } from "@/components/landing/sections/Testimonial2";
 
 export default function Home() {
-  const router = useRouter();
-  const { isAuthenticated } = useIsAuthenticated();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/dashboard");
-    } else {
-      router.push("/login");
-    }
-  }, [isAuthenticated, router]);
-
-  return null;
+  return (
+    <div className="bg-landing-background">
+      <Header />
+      <Hero />
+      <About />
+      <Products />
+      <Testimonial />
+      <AccountAbstraction />
+      <Docs />
+      <Testimonial2 />
+      <Footer />
+    </div>
+  );
 }
