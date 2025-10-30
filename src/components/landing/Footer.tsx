@@ -50,7 +50,7 @@ function FooterCTA() {
           viewport={{ once: true, margin: "0px 0px -50px 0px" }}
           className="mx-auto max-w-[590px] text-center text-4xl leading-[120%] text-white lg:text-[44px] font-figtree font-bold"
         >
-          READY TO UNLOCK DIGITAL RUPIAH?
+          READY TO UNLOCK <br /> DIGITAL RUPIAH?
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: "2rem" }}

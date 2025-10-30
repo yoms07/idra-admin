@@ -50,7 +50,6 @@ function TestimonialMarquee() {
       question: "What is $IDRA?",
       answer:
         "IDRA is a Rupiah stablecoin. It is a digital asset (crypto) designed to always maintain a 1:1 value with the Indonesian Rupiah (1 IDRA = 1 IDR). IDRA combines the stability of the Rupiah with the speed and global accessibility of blockchain technology.",
-      className: "bg-[#363636]",
     },
     {
       question: "Is $IDRA secure? What about the risk of hacks?",
@@ -87,8 +86,6 @@ function TestimonialMarquee() {
       question: "How can I trust that its value is really 1:1 with Rupiah?",
       answer:
         "This is our core guarantee. For every 1 IDRA in circulation, we hold 1 Rupiah (IDR) in reserve at trusted, regulated financial institutions. Our reserves are periodically audited by independent, third-party firms to prove this 1:1 backing is always maintained.",
-      className: "bg-white text-background",
-      quoteClassName: "text-background",
     },
   ];
 
