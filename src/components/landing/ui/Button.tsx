@@ -15,7 +15,7 @@ export function SecondaryButton({
     <button
       className={cn(
         // Base button styles
-        "group bg-black relative flex cursor-pointer items-center gap-1 overflow-hidden rounded-lg border-0 px-[16px] font-semibold text-white transition-all duration-[300ms] ease-[cubic-bezier(0.23,1,0.32,1)]",
+        "group bg-black relative flex cursor-pointer items-center gap-1 overflow-hidden rounded-lg border-0 px-[20px] font-semibold text-white transition-all duration-[300ms] ease-[cubic-bezier(0.23,1,0.32,1)]",
         // Hover states
         "hover:text-black hover:rounded-xl hover:bg-white hover:shadow-none",
         // Active state

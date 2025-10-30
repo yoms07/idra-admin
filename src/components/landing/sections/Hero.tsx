@@ -62,8 +62,8 @@ export function Hero() {
 
 function HeroContent() {
   return (
-    <div className="relative z-20 flex flex-col items-center justify-center  md:justify-end gap-6 max-h-screen h-full">
-      <div className="bg-[#870E1680] px-4 py-2 italic rounded-full text-sm md:text-lg font-instrument-serif tracking-widest text-white font-medium">
+    <div className="relative z-20 flex flex-col items-center justify-center md:justify-end gap-2 max-h-screen h-full">
+      <div className="bg-[#870E1680] px-4 py-1 italic rounded-full text-sm md:text-lg font-instrument-serif tracking-widest text-white font-medium">
         <p>INDONESIA STABLE COIN</p>
       </div>
       <h1 className="mx-auto max-w-[704px] gap-x-5 text-center text-4xl md:text-5xl leading-[110%] font-medium lg:text-7xl">
@@ -107,14 +107,17 @@ function HeroContent() {
           y: 0,
           transition: { duration: 0.4, delay: 1.6 },
         }}
-        className="flex items-center gap-5"
+        className="flex items-center gap-5 py-4"
       >
         <PrimaryButton onClick={() => window.open(DASHBOARD_URL, "_blank")}>
           Login / Sign Up
         </PrimaryButton>
-        <SecondaryButton onClick={() => window.open(SDK_URL, "_blank")}>
+        <PrimaryButton
+          onClick={() => window.open(SDK_URL, "_blank")}
+          className=""
+        >
           Explore SDKs
-        </SecondaryButton>
+        </PrimaryButton>
       </motion.div>
       <motion.img src="/images/logo.png" className="w-5/12 hidden md:block" />
       <motion.img

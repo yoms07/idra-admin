@@ -51,7 +51,7 @@ export function Globe() {
             <circle cx="257.602" cy="259.932" r="170.625" fill="#7E859D" />
           </g>
           <g style={{ mixBlendMode: "color-dodge" }}>
-            <circle cx="480.967" cy="287.852" r="170.625" fill="#0099FF" />
+            <circle cx="480.967" cy="287.852" r="170.625" fill="#faa0a6" />
           </g>
           <g style={{ mixBlendMode: "color-dodge" }}>
             <circle cx="547.664" cy="517.42" r="170.625" fill="#5A5E5E" />

@@ -58,14 +58,13 @@ export function AccountAbstraction() {
       className="relative mx-auto flex max-w-[1100px] flex-col items-center gap-10 px-4 py-16 max-lg:flex-col lg:h-[200vh] lg:gap-19.5"
       id="features"
     >
-      <div className="top-0 flex w-full flex-col gap-4 lg:sticky lg:h-screen lg:justify-center">
-        <div className="absolute top-0 h-32">
+      <div className="top-1/3 flex w-full flex-col gap-4 lg:sticky lg:h-screen lg:justify-start">
+        <div className="absolute top-0">
           <img
             src="/images/img-as-light-red.png"
-            className="-left-1/2 sticky top-12 translate-y-24 -translate-x-1/2"
+            className="-left-1/2 sticky -translate-x-1/2 -translate-y-1/4"
           />
         </div>
-
         <motion.p
           initial={{ opacity: 0, x: "-2rem" }}
           whileInView={{
@@ -76,7 +75,7 @@ export function AccountAbstraction() {
           viewport={{ once: true, margin: "0px 0px -50px 0px" }}
           className="bg-[#870E1680] px-4 py-1 italic rounded-full text-lg font-instrument-serif tracking-wide text-white font-medium w-fit"
         >
-          <p>IDRA Features</p>
+          <p>IDRA FEATURES</p>
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, x: "-2rem" }}

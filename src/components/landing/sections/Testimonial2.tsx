@@ -156,7 +156,7 @@ function Card({
   return (
     <div
       className={cn(
-        "bg-landing-background-300 flex h-full w-full flex-col rounded-2xl p-6 max-lg:w-[350px] lg:max-w-[356px] font-geist-mono",
+        "bg-landing-background-300 text-white hover:text-black hover:bg-white duration-300 transition-all flex h-full w-full flex-col rounded-2xl p-6 max-lg:w-[350px] lg:max-w-[356px] font-geist-mono",
         className
       )}
     >
@@ -172,9 +172,7 @@ function Card({
           )}
         />
       )}
-      <p className={cn(`mb-[52px] text-lg text-white`, quoteClassName)}>
-        {question}
-      </p>
+      <p className={cn(`mb-[52px] text-lg`, quoteClassName)}>{question}</p>
       <div className="mt-auto">
         <div
           className={cn(`text-xs font-medium text-[#A2A2A2]`, nameClassName)}
