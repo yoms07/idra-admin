@@ -15,11 +15,13 @@ export function SecondaryButton({
     <button
       className={cn(
         // Base button styles
-        "group bg-black relative flex h-12 cursor-pointer items-center gap-1 overflow-hidden rounded-lg border-0 px-[16px] font-semibold text-white transition-all duration-[300ms] ease-[cubic-bezier(0.23,1,0.32,1)]",
+        "group bg-black relative flex cursor-pointer items-center gap-1 overflow-hidden rounded-lg border-0 px-[16px] font-semibold text-white transition-all duration-[300ms] ease-[cubic-bezier(0.23,1,0.32,1)]",
         // Hover states
         "hover:text-black hover:rounded-xl hover:bg-white hover:shadow-none",
         // Active state
         "active:scale-95 active:shadow-[0_0_0_4px_#1a1a1a]",
+        "text-sm md:text-base",
+        "h-10 md:h-12",
         className
       )}
       type="button"
@@ -74,8 +76,10 @@ export function PrimaryButton({ children, className, ...props }: ButtonProps) {
       onMouseEnter={createRipple}
       onMouseLeave={() => setRipple(null)}
       className={cn(
-        "group text-background relative inline-flex h-12 w-fit cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-white px-4 font-semibold transition-all duration-300 hover:bg-white/80",
+        "group text-background relative inline-flex w-fit cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-white px-4 font-semibold transition-all duration-300 hover:bg-white/80",
         "active:scale-95 active:shadow-[0_0_0_4px_#1a1a1a]",
+        "text-sm md:text-base",
+        "h-10 md:h-12",
         className
       )}
       {...props}

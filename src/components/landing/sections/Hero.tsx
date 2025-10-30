@@ -3,7 +3,6 @@
 import { motion } from "motion/react";
 import { Fragment } from "react";
 import { PrimaryButton, SecondaryButton } from "../ui/Button";
-import SilkBackground from "../ui/SilkBackground";
 import { SparklesCore } from "../ui/Sparkles";
 import { Globe } from "../ui/Globe";
 import Image from "next/image";
@@ -63,11 +62,11 @@ export function Hero() {
 
 function HeroContent() {
   return (
-    <div className="relative z-20 flex flex-col items-center justify-end gap-6 max-h-screen h-full">
-      <div className="bg-[#870E1680] px-4 py-2 italic rounded-full text-lg font-instrument-serif tracking-widest text-white font-medium">
+    <div className="relative z-20 flex flex-col items-center justify-center  md:justify-end gap-6 max-h-screen h-full">
+      <div className="bg-[#870E1680] px-4 py-2 italic rounded-full text-sm md:text-lg font-instrument-serif tracking-widest text-white font-medium">
         <p>INDONESIA STABLE COIN</p>
       </div>
-      <h1 className="mx-auto max-w-[704px] gap-x-5 text-center text-5xl leading-[110%] font-medium lg:text-7xl">
+      <h1 className="mx-auto max-w-[704px] gap-x-5 text-center text-4xl md:text-5xl leading-[110%] font-medium lg:text-7xl">
         {TITLE.map((item, index) => (
           <Fragment key={index}>
             <motion.span
@@ -95,7 +94,7 @@ function HeroContent() {
           y: 0,
           transition: { duration: 0.4, delay: 1.4 },
         }}
-        className="text-muted max-w-[680px] text-center text-xl font-geist-mono text-[#A2A2A2] font-bold"
+        className="text-muted max-w-[680px] text-center text-md md:text-xl font-geist-mono text-[#A2A2A2] font-bold"
       >
         Welcome to $IDRA, Indonesia's premier Rupiah Stable Coin. The stability
         you trust, now unleashed with the speed and power of Web3. Instant
@@ -117,7 +116,11 @@ function HeroContent() {
           Explore SDKs
         </SecondaryButton>
       </motion.div>
-      <motion.img src="/images/logo.png" className="w-5/12" />
+      <motion.img src="/images/logo.png" className="w-5/12 hidden md:block" />
+      <motion.img
+        src="/images/logo-mobile.png"
+        className="w-1/2 block md:hidden"
+      />
     </div>
   );
 }

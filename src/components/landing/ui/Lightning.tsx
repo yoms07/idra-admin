@@ -13,7 +13,7 @@ export function Lightning({ className, imageClassName, ...props }: Props) {
       {...props}
     >
       <Image
-        src="/images/img-as-light-decoration.png"
+        src="/images/img-as-light-red.png"
         alt="lightning"
         width={1080}
         height={1080}

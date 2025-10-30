@@ -4,6 +4,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "motion/react";
 import { useRef } from "react";
+import { BiSolidCheckShield } from "react-icons/bi";
+import { AiFillThunderbolt } from "react-icons/ai";
 import {
   HandShakeCheckIcon,
   LampPuzzleIcon,
@@ -11,6 +13,7 @@ import {
   LiquidIcon,
   Wallet2Icon,
 } from "../ui/Icons";
+import { Lightning } from "../ui/Lightning";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -52,10 +55,17 @@ export function AccountAbstraction() {
   return (
     <section
       ref={containerRef}
-      className="relative mx-auto   flex max-w-[1100px] flex-col items-center gap-10 px-4 py-16 max-lg:flex-col lg:h-[200vh] lg:gap-19.5"
+      className="relative mx-auto flex max-w-[1100px] flex-col items-center gap-10 px-4 py-16 max-lg:flex-col lg:h-[200vh] lg:gap-19.5"
       id="features"
     >
       <div className="top-0 flex w-full flex-col gap-4 lg:sticky lg:h-screen lg:justify-center">
+        <div className="absolute top-0 h-32">
+          <img
+            src="/images/img-as-light-red.png"
+            className="-left-1/2 sticky top-12 translate-y-24 -translate-x-1/2"
+          />
+        </div>
+
         <motion.p
           initial={{ opacity: 0, x: "-2rem" }}
           whileInView={{
@@ -76,13 +86,13 @@ export function AccountAbstraction() {
             transition: { duration: 0.4, delay: 0.4 },
           }}
           viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-          className="text-4xl font-semibold font-figtree lg:text-[44px] text-[#FBFBFB]"
+          className="text-3xl md:text-4xl font-semibold font-figtree lg:text-[44px] text-[#FBFBFB]"
         >
           BORDERLESS FINANCE.&#10; <br />
           BACKED BY TRUST
         </motion.h1>
       </div>
-      <div className="mx-auto grid w-full items-center gap-4 lg:grid-cols-4">
+      <div className="mx-auto grid w-full items-center gap-4 grid-cols-2 lg:grid-cols-4">
         {CARD_ITEMS.map((item, index) => (
           <Card key={index} {...item} />
         ))}
@@ -122,7 +132,7 @@ function Card({
 
 const CARD_ITEMS = [
   {
-    icon: <ShieldTrustIcon fill="white" />,
+    icon: <BiSolidCheckShield fill="white" className="size-8" />,
     title: "STABLE & AUDITED",
     description:
       "with fully regulated Rupiah reserves, proven by independent audits.",
@@ -130,7 +140,7 @@ const CARD_ITEMS = [
   },
 
   {
-    icon: <LiquidIcon />,
+    icon: <AiFillThunderbolt fill="white" className="size-8" />,
     title: "INSTANT SETTLEMENT",
     description:
       "Send and receive digital Rupiah globally in seconds. No delays, no closing hours. Always active 24/7/365.",
@@ -138,7 +148,13 @@ const CARD_ITEMS = [
   },
 
   {
-    icon: <Wallet2Icon />,
+    icon: (
+      <img
+        src="/images/discounted-price-tag.png"
+        alt="near-zero fees"
+        className="size-8"
+      />
+    ),
     title: "NEAR-ZERO FEES",
     description:
       "Built on blockchain to cut intermediary costs. Enjoy efficient global transfers with incredibly low fees.",
@@ -146,7 +162,9 @@ const CARD_ITEMS = [
   },
 
   {
-    icon: <HandShakeCheckIcon />,
+    icon: (
+      <img src="/images/globe.png" alt="near-zero fees" className="size-8" />
+    ),
     title: "OPEN & GLOBAL ACCESS",
     description:
       "Accessible to anyone, anywhere. IDRA is your passport to the global Web3 and DeFi ecosystem",

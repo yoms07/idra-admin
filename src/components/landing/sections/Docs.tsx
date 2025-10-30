@@ -25,7 +25,7 @@ export const Docs = () => {
               <PrimaryButton
                 onClick={() => window.open(DASHBOARD_URL, "_blank")}
               >
-                Login / signup
+                Login / Sign Up
               </PrimaryButton>
               <SecondaryButton onClick={() => window.open(SDK_URL, "_blank")}>
                 Explore SDKs

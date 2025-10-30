@@ -17,7 +17,7 @@ export function About() {
   return (
     <section ref={targetRef} className="relative z-0 h-[300vh]" id="product">
       <div className="sticky top-0 mx-auto flex h-1/3 max-w-[1100px] flex-col justify-center items-center gap-6 px-4">
-        <div className="bg-[#870E1680] px-4 py-1 italic rounded-full text-lg font-instrument-serif tracking-wide text-white font-medium">
+        <div className="bg-[#870E1680] px-4 py-1 italic rounded-full text-sm md:text-lg  font-instrument-serif tracking-wide text-white font-medium">
           <p>WHAT IS IDRA?</p>
         </div>
         <span className="text-muted flex flex-wrap justify-center space-x-1 text-3xl font-medium lg:space-x-1.5 xl:text-[44px] font-figtree">
