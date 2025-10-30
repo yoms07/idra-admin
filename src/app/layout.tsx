@@ -30,6 +30,14 @@ export const metadata: Metadata = {
   title: "IDRA | Indonesia Stable Coin",
   description:
     "Welcome to $IDRA, Indonesia's premier Rupiah Stable Coin. The stability you trust, now unleashed with the speed and power of Web3. Instant global transactions, 1:1 secured, and always on 24/7.",
+  openGraph: {
+    title: "IDRA | Indonesia Stable Coin",
+    description:
+      "Welcome to $IDRA, Indonesia's premier Rupiah Stable Coin. The stability you trust, now unleashed with the speed and power of Web3. Instant global transactions, 1:1 secured, and always on 24/7.",
+    url: "https://idra-dashboard.vercel.app/",
+    siteName: "IDRA | Indonesia Stable Coin",
+    images: "/images/logo-mobile.png",
+  },
 };
 
 export default function RootLayout({
