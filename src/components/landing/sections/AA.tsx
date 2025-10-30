@@ -7,6 +7,7 @@ import { useRef } from "react";
 import {
   HandShakeCheckIcon,
   LampPuzzleIcon,
+  ShieldTrustIcon,
   LiquidIcon,
   Wallet2Icon,
 } from "../ui/Icons";
@@ -62,9 +63,9 @@ export function AccountAbstraction() {
             transition: { duration: 0.4, delay: 0.2 },
           }}
           viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-          className="font-instrument uppercase py-2 px-4 rounded-full bg-primary-1000/50  italic flex w-fit"
+          className="bg-[#870E1680] px-4 py-1 italic rounded-full text-lg font-instrument-serif tracking-wide text-white font-medium w-fit"
         >
-          Account Abstraction
+          <p>WHAT IS IDRA?</p>
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, x: "-2rem" }}
@@ -74,7 +75,7 @@ export function AccountAbstraction() {
             transition: { duration: 0.4, delay: 0.4 },
           }}
           viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-          className="text-4xl font-medium lg:text-[44px]"
+          className="text-4xl font-semibold font-figtree lg:text-[44px] text-[#FBFBFB]"
         >
           BORDERLESS FINANCE.&#10; <br />
           BACKED BY TRUST
@@ -103,14 +104,16 @@ function Card({
   return (
     <div className="vertical-card bg-landing-background-200 flex h-[370px] w-full flex-col items-center justify-between p-6">
       <div className="flex w-full items-center justify-between">
-        <p className="font-instrument text-[32px]">{number}</p>
+        <p className="font-instrument-serif text-[32px]">{number}</p>
         {icon}
       </div>
       <div className="space-y-2">
-        <h3 className="text-base font-medium text-white lg:text-2xl">
+        <h3 className="text-base font-semibold text-[#FBFBFB] lg:text-2xl font-figtree">
           {title}
         </h3>
-        <p className="text-muted text-sm lg:text-base">{description}</p>
+        <p className="text-[#A2A2A2] text-sm lg:text-base font-geist-mono">
+          {description}
+        </p>
       </div>
     </div>
   );
@@ -118,7 +121,7 @@ function Card({
 
 const CARD_ITEMS = [
   {
-    icon: <LampPuzzleIcon />,
+    icon: <ShieldTrustIcon fill="white" />,
     title: "STABLE & AUDITED",
     description:
       "with fully regulated Rupiah reserves, proven by independent audits.",

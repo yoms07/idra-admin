@@ -10,9 +10,8 @@ import { PrimaryButton } from "./ui/Button";
 import { cn } from "@/lib/utils";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { IDRALogoBlack } from "../icons/idra-logo-black";
 const DASHBOARD_URL = "/dashboard";
-const PASSPORT_URL = "/passport";
-const SDK_URL = "/sdk";
 
 export function Header() {
   const [isScrolled, setisScrolled] = useState(false);
@@ -44,15 +43,19 @@ export function Header() {
       className={cn("fixed top-0 left-0 z-50 w-full px-5 py-7")}
     >
       <div className="mx-auto grid max-w-[1100px] grid-cols-2 gap-40 lg:grid-cols-3">
-        <Link href="/" className="flex w-23 items-center">
-          <Logo />
+        <Link
+          href="/"
+          className="flex w-23 items-center gap-2 font-figtree font-bold text-xl"
+        >
+          <IDRALogoBlack />
+          IDRA
         </Link>
         <Navigation className="max-lg:hidden" />
         <PrimaryButton
           onClick={() => window.open(DASHBOARD_URL, "_blank")}
-          className="ml-auto h-10 text-sm max-lg:hidden"
+          className="ml-auto h-10 text-sm max-lg:hidden font-figtree"
         >
-          Launch App
+          Login / SignUp
         </PrimaryButton>
         <Sidebar />
       </div>
@@ -184,13 +187,13 @@ function DropdownMenu({ onClick }: { onClick?: () => void }) {
     return (
       <div className="flex flex-col gap-6">
         <button
-          onClick={() => handleClick(DASHBOARD_URL)}
+          onClick={() => handleClick("/dashboard")}
           className="hover:text-muted w-fit cursor-pointer text-lg font-medium text-nowrap transition-all duration-300"
         >
           Devkits Dashboard
         </button>
         <button
-          onClick={() => handleClick(SDK_URL)}
+          onClick={() => handleClick("/sdk")}
           className="hover:text-muted w-fit cursor-pointer text-lg font-medium text-nowrap transition-all duration-300"
         >
           Developer Docs
@@ -213,69 +216,29 @@ function DropdownMenu({ onClick }: { onClick?: () => void }) {
           className={`size-4 transition-all duration-300 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            key="dropdown"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, x: 1, transition: { duration: 0.2 } }}
-            exit={{
-              opacity: 0,
-              scale: 0.9,
-              transition: { duration: 0.2, delay: 0.2 },
-            }}
-            className="border-border-100 bg-background-300 absolute top-full flex w-[600px] gap-4 rounded-2xl border"
-          >
-            <div className="w-full space-y-6 px-8 pt-6 pb-10">
-              <p className="text-muted text-xs">DEVELOPER TOOLS</p>
-              <button
-                onClick={() => handleClick(DASHBOARD_URL)}
-                className="group flex cursor-pointer flex-col gap-2"
-              >
-                <span className="group-hover:text-muted w-fit cursor-pointer leading-[100%] font-medium text-nowrap transition-all duration-300">
-                  Devkits Dashboard
-                </span>
-                <span className="text-muted w-fit text-sm font-medium text-nowrap transition-all duration-300">
-                  An invinite canvas
-                </span>
-              </button>
-            </div>
-            <div className="border-border-100 w-full space-y-6 border-l px-8 pt-6 pb-10">
-              <p className="text-muted text-xs">DEVELOPER RESOURCES</p>
-              <button
-                onClick={() => handleClick(SDK_URL)}
-                className="group flex cursor-pointer flex-col gap-2"
-              >
-                <span className="group-hover:text-muted w-fit cursor-pointer leading-[100%] font-medium text-nowrap transition-all duration-300">
-                  Developer Docs
-                </span>
-                <span className="text-muted w-fit text-sm font-medium text-nowrap transition-all duration-300">
-                  Interviews and how-tos
-                </span>
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
 
 const NAVIGATION_ITEMS = [
   {
-    label: "Product",
-    url: "/product",
+    label: "What is IDRA?",
+    url: "#product",
   },
   {
-    label: "developer",
+    label: "Utility",
     url: "developer",
   },
   {
-    label: "Passport",
-    url: PASSPORT_URL,
+    label: "Features",
+    url: "#features",
   },
   {
-    label: "All Stars",
-    url: "/allstars",
+    label: "Transparency",
+    url: "#transparency",
+  },
+  {
+    label: "FAQ",
+    url: "#faq",
   },
 ];

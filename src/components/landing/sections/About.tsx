@@ -15,12 +15,12 @@ export function About() {
     );
 
   return (
-    <section ref={targetRef} className="relative z-0 h-[300vh]">
+    <section ref={targetRef} className="relative z-0 h-[300vh]" id="product">
       <div className="sticky top-0 mx-auto flex h-1/3 max-w-[1100px] flex-col justify-center items-center gap-6 px-4">
-        <h1 className="text-foreground font-instrument uppercase italic px-4 py-2 bg-primary-1000/50 rounded-full">
-          WHAT IS IDRA?
-        </h1>
-        <span className="text-muted flex flex-wrap justify-center space-x-1 text-3xl font-medium lg:space-x-1.5 xl:text-[44px]">
+        <div className="bg-[#870E1680] px-4 py-1 italic rounded-full text-lg font-instrument-serif tracking-wide text-white font-medium">
+          <p>WHAT IS IDRA?</p>
+        </div>
+        <span className="text-muted flex flex-wrap justify-center space-x-1 text-3xl font-medium lg:space-x-1.5 xl:text-[44px] font-figtree">
           {words.map((word, i) => {
             const start = i / words.length;
             const end = start + 1 / words.length;
@@ -43,11 +43,11 @@ interface WordProps {
 }
 
 function Word({ children, progress, range }: WordProps) {
-  const opacity = useTransform(progress, range, [0, 1]);
+  const opacity = useTransform(progress, range, [0.3, 1]);
   return (
     <span className="relative">
       <span className="absolute opacity-30">{children}</span>
-      <motion.span style={{ opacity: opacity }} className={"text-foreground"}>
+      <motion.span style={{ opacity: opacity }} className={"text-[#FBFBFB]"}>
         {children}
       </motion.span>
     </span>

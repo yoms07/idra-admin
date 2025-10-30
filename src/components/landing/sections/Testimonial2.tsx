@@ -8,7 +8,7 @@ import Image from "next/image";
 export const Testimonial2 = () => {
   return (
     <>
-      <div className="flex flex-col items-center gap-16 px-4 mb-12">
+      <div className="flex flex-col items-center gap-16 px-4 mb-12" id="faq">
         <div className="flex flex-col gap-4">
           <motion.h1
             initial={{ opacity: 0, y: "2rem" }}
@@ -18,7 +18,7 @@ export const Testimonial2 = () => {
               transition: { duration: 0.4, delay: 0.2 },
             }}
             viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-            className="text-center text-4xl font-medium lg:text-[44px]"
+            className="text-center text-4xl font-bold lg:text-[44px] font-figtree text-[#FBFBFB]"
           >
             GOT QUESTIONS?
           </motion.h1>
@@ -30,7 +30,7 @@ export const Testimonial2 = () => {
               transition: { duration: 0.4, delay: 0.4 },
             }}
             viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-            className="text-muted mx-auto max-w-[512px] text-center"
+            className="text-[#A2A2A2] font-geist-mono mx-auto max-w-[512px] text-center"
           >
             We have the key answers on IDRA's security, 1:1 backing, and how to
             get started.
@@ -47,70 +47,48 @@ function TestimonialMarquee() {
 
   const testimonialsLeft = [
     {
-      name: "What is $IDRA?",
-      company: "CEO of Indodax",
-      quote:
+      question: "What is $IDRA?",
+      answer:
         "IDRA is a Rupiah stablecoin. It is a digital asset (crypto) designed to always maintain a 1:1 value with the Indonesian Rupiah (1 IDRA = 1 IDR). IDRA combines the stability of the Rupiah with the speed and global accessibility of blockchain technology.",
       className: "bg-[#363636]",
-      logoClassName: isMobile ? null : "h-8.5 w-auto object-contain",
-      logo: isMobile ? null : "/images/img-indodax.png",
     },
     {
-      name: "Ricksen",
-      company: "CEO of Monk Labs",
-      quote:
-        "We integrated Xellar into our staking dApp in a day. Users onboard with email, no wallet drama",
-    },
-    {
-      name: "Hiroshi Matsuda",
-      company: "ChainMatter",
-      quote:
-        "Xellar is redefining dev experience for Web3. It's the kind of tool that makes building fun again",
+      question: "Is $IDRA secure? What about the risk of hacks?",
+      answer:
+        "Yes. Our technology (smart contracts) is fully audited by security experts like [Certik]. Your Rupiah reserves are held in separate, secure accounts, completely independent of our company funds.",
     },
   ];
 
   const testimonialsCenter = [
     {
-      name: "Jamie Xu",
-      company: "Engineering Lead at Arcane Labs",
-      quote:
-        "We shipped our MVP weeks ahead of schedule thanks to Xellar. The abstraction layer just works",
+      question: "Is $IDRA legal and regulated in Indonesia?",
+      answer:
+        "Yes. IDRA fully complies with Indonesian regulations. We are registered and supervised by the relevant authorities [e.g., BAPPEBTI].",
     },
     {
-      name: "Nana Okoye",
-      company: "Head of UX at BetaBoard",
-      quote:
-        "Social login + account abstraction = magic. Our users love how smooth the experience is",
+      question: "Where can I buy and use $IDRA?",
+      answer:
+        "You can easily buy IDRA on our partner CEX and DEX platforms. Use it for trading, sending money, making payments, or as a stable asset in the Web3 world.",
     },
     {
-      name: "Hiroshi Matsuda",
-      company: "ChainMatter",
-      quote:
-        "Xellar is redefining dev experience for Web3. It's the kind of tool that makes building fun again",
+      question: "How do I change $IDRA back into Rupiah?",
+      answer:
+        "Simply sell your IDRA on any partner exchange to convert it back to Rupiah (IDR), then withdraw it directly to your bank account.",
     },
   ];
 
   const testimonialsRight = [
     {
-      name: "Jamie Xu",
-      company: "Engineering Lead at Arcane Labs",
-      quote:
-        "We shipped our MVP weeks ahead of schedule thanks to Xellar. The abstraction layer just works",
+      question: "Who is the team behind $IDRA?",
+      answer:
+        "IDRA is managed by Xellar, an experienced Indonesian team specializing in finance, blockchain technology, and regulatory compliance.",
     },
     {
-      name: "Paul Idris",
-      company: "COO of BlockNest",
-      quote:
-        "Xellar is redefining dev experience for Web3. It's the kind of tool that makes building fun again",
-    },
-    {
-      name: "Willbert",
-      company: "Rampable",
-      quote:
-        "Xellar made our onboarding 10x smoother. Their SDK was effortless to integrate, and their support is top-tier",
+      question: "How can I trust that its value is really 1:1 with Rupiah?",
+      answer:
+        "This is our core guarantee. For every 1 IDRA in circulation, we hold 1 Rupiah (IDR) in reserve at trusted, regulated financial institutions. Our reserves are periodically audited by independent, third-party firms to prove this 1:1 backing is always maintained.",
       className: "bg-white text-background",
       quoteClassName: "text-background",
-      logo: isMobile ? null : "/images/img-rampable-2.png",
     },
   ];
 
@@ -158,10 +136,10 @@ type CardProps = {
   nameClassName?: string;
   companyClassName?: string;
   logoClassName?: string | null;
-  quote: string;
+  answer: string;
   logo?: string | null;
-  name: string;
-  company: string;
+  question: string;
+  company?: string;
 };
 
 function Card({
@@ -171,21 +149,21 @@ function Card({
   companyClassName,
   logoClassName,
   logo,
-  name,
+  question,
   company,
-  quote,
+  answer,
 }: CardProps) {
   return (
     <div
       className={cn(
-        "bg-landing-background-300 flex h-full w-full flex-col rounded-2xl p-6 max-lg:w-[350px] lg:max-w-[356px]",
+        "bg-landing-background-300 flex h-full w-full flex-col rounded-2xl p-6 max-lg:w-[350px] lg:max-w-[356px] font-geist-mono",
         className
       )}
     >
       {logo && (
         <Image
           src={logo}
-          alt={name}
+          alt={question}
           width={200}
           height={200}
           className={cn(
@@ -195,11 +173,15 @@ function Card({
         />
       )}
       <p className={cn(`mb-[52px] text-lg text-white`, quoteClassName)}>
-        {quote}
+        {question}
       </p>
       <div className="mt-auto">
-        <div className={cn(`text-xs font-medium`, nameClassName)}>{name}</div>
-        <div className={cn(`text-muted text-xs`, companyClassName)}>
+        <div
+          className={cn(`text-xs font-medium text-[#A2A2A2]`, nameClassName)}
+        >
+          {answer}
+        </div>
+        <div className={cn(`text-[#A2A2A2] text-xs`, companyClassName)}>
           {company}
         </div>
       </div>

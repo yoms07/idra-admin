@@ -82,6 +82,9 @@
   --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
   --animate-orbit: orbit calc(var(--duration) * 1s) linear infinite;
 
+  --font-figtree: var(--font-figtree);
+  --font-instrument-serif: var(--font-instrument-serif);
+
 
   @keyframes orbit {
     0% {

@@ -15,9 +15,9 @@ export function SecondaryButton({
     <button
       className={cn(
         // Base button styles
-        "group bg-primary relative flex h-12 cursor-pointer items-center gap-1 overflow-hidden rounded-lg border-0 px-[16px] font-semibold text-white transition-all duration-[300ms] ease-[cubic-bezier(0.23,1,0.32,1)]",
+        "group bg-black relative flex h-12 cursor-pointer items-center gap-1 overflow-hidden rounded-lg border-0 px-[16px] font-semibold text-white transition-all duration-[300ms] ease-[cubic-bezier(0.23,1,0.32,1)]",
         // Hover states
-        "hover:text-primary hover:rounded-xl hover:bg-white hover:shadow-none",
+        "hover:text-black hover:rounded-xl hover:bg-white hover:shadow-none",
         // Active state
         "active:scale-95 active:shadow-[0_0_0_4px_#1a1a1a]",
         className
@@ -36,7 +36,7 @@ export function SecondaryButton({
       {isShowIcon && (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="group-hover:fill-primary pointer-events-none absolute right-1 z-[9] w-[18px] translate-x-4 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:pointer-events-auto group-hover:translate-x-0 group-hover:opacity-100"
+          className="group-hover:fill-black pointer-events-none absolute right-1 z-[9] w-[18px] translate-x-4 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:pointer-events-auto group-hover:translate-x-0 group-hover:opacity-100"
           viewBox="0 0 24 24"
         >
           <path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"></path>
@@ -88,7 +88,7 @@ export function PrimaryButton({ children, className, ...props }: ButtonProps) {
         {ripple && (
           <motion.span
             key={ripple.key}
-            className="bg-primary pointer-events-none absolute z-10 rounded-full"
+            className="bg-black pointer-events-none absolute z-10 rounded-full"
             style={{
               top: ripple.y,
               left: ripple.x,

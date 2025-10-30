@@ -25,14 +25,14 @@ export function Testimonial() {
         }}
       >
         <Image
-          src="/images/img-xellar-logo-2.png"
+          src="/images/img-idra-logo-2.png"
           alt="testimonial"
           width={500}
           height={500}
           className="h-[118px] w-auto object-contain"
         />
       </motion.div>
-      <motion.h1 className="mx-auto mb-21 max-w-[650px] text-center text-5xl leading-[120%] font-medium lg:text-[72px]">
+      <motion.h1 className="mx-auto mb-21 max-w-[550px] text-center text-5xl leading-[120%] font-medium lg:text-[72px]">
         {TITLE.map((item, index) => (
           <Fragment key={index}>
             <motion.span
@@ -59,6 +59,9 @@ export function Testimonial() {
 }
 
 const TITLE = [
-  { word: "Supported", className: "" },
-  { word: "3 Networks", className: "" },
+  { word: "Supported", className: "text-[#FBFBFB] font-bold font-figtree" },
+  {
+    word: "3 Networks",
+    className: "text-[#FBFBFB] font-medium italic font-instrument-serif",
+  },
 ];

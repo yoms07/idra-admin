@@ -64,7 +64,7 @@ export function Hero() {
 function HeroContent() {
   return (
     <div className="relative z-20 flex flex-col items-center justify-end gap-6 max-h-screen h-full">
-      <div className="bg-primary-1000/50 px-4 py-2 italic rounded-full text-lg">
+      <div className="bg-[#870E1680] px-4 py-2 italic rounded-full text-lg font-instrument-serif tracking-widest text-white font-medium">
         <p>INDONESIA STABLE COIN</p>
       </div>
       <h1 className="mx-auto max-w-[704px] gap-x-5 text-center text-5xl leading-[110%] font-medium lg:text-7xl">
@@ -95,7 +95,7 @@ function HeroContent() {
           y: 0,
           transition: { duration: 0.4, delay: 1.4 },
         }}
-        className="text-muted max-w-[420px] text-center text-xl"
+        className="text-muted max-w-[680px] text-center text-xl font-geist-mono text-[#A2A2A2] font-bold"
       >
         Welcome to $IDRA, Indonesia's premier Rupiah Stable Coin. The stability
         you trust, now unleashed with the speed and power of Web3. Instant
@@ -155,22 +155,22 @@ export function RotateGlobe() {
 const TITLE = [
   {
     word: "Evolved",
-    className: "",
+    className: "font-figtree font-bold",
   },
   {
     word: "Stability",
-    className: "",
+    className: "font-figtree font-bold",
   },
   {
     word: "Rupiah",
-    className: "",
+    className: "font-figtree font-bold",
   },
   {
     word: "Stable",
-    className: "",
+    className: "italic font-instrument-serif",
   },
   {
     word: "Coin",
-    className: "",
+    className: "italic font-instrument-serif",
   },
 ];

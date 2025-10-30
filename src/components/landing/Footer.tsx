@@ -6,11 +6,13 @@ import { motion } from "motion/react";
 import { Globe, SecondaryGlobe } from "./ui/Globe";
 import { InstagramIcon, YoutubeIcon, XTwitterIcon } from "./ui/Icons";
 import { usePathname } from "next/navigation";
+import { IDRALogoBlack } from "../icons/idra-logo-black";
+import { FaT, FaTelegram } from "react-icons/fa6";
 
 const DASHBOARD_URL = "/dashboard";
-const YOUTUBE_URL = "https://www.youtube.com/@xellar";
-const INSTAGRAM_URL = "https://www.instagram.com/xellar";
-const XTWITTER_URL = "https://x.com/xellar";
+const TELEGRAM_URL = "#";
+const INSTAGRAM_URL = "#";
+const XTWITTER_URL = "#";
 
 export function Footer() {
   const pathname = usePathname();
@@ -46,7 +48,7 @@ function FooterCTA() {
             transition: { duration: 0.4, delay: 0.2 },
           }}
           viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-          className="mx-auto max-w-[590px] text-center text-4xl leading-[120%] font-medium lg:text-[44px]"
+          className="mx-auto max-w-[590px] text-center text-4xl leading-[120%] text-white lg:text-[44px] font-figtree font-bold"
         >
           READY TO UNLOCK DIGITAL RUPIAH?
         </motion.h1>
@@ -58,7 +60,7 @@ function FooterCTA() {
             transition: { duration: 0.4, delay: 0.4 },
           }}
           viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-          className="text-muted mx-auto max-w-[431px] text-center"
+          className="text-[#A2A2A2] font-figtree text-lg font-bold mx-auto max-w-[431px] text-center"
         >
           Experience stable, fast, and global transactions. Start your IDRA
           journey today.
@@ -99,8 +101,12 @@ function FooterSection() {
           }}
           viewport={{ once: true, margin: "0px 0px 0px 0px" }}
         >
-          <Link href="/">
-            <Logo />
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-figtree font-bold text-lg"
+          >
+            <IDRALogoBlack />
+            IDRA
           </Link>
         </motion.div>
         <div className="flex items-center gap-4">
@@ -126,7 +132,7 @@ function FooterSection() {
           ))}
         </div>
       </div>
-      <div className="flex justify-between gap-3 max-lg:flex-col lg:items-center">
+      <div className="flex justify-between gap-3 max-lg:flex-col lg:items-center text-[#A2A2A2]">
         <motion.p
           initial={{ opacity: 0, x: "-2rem" }}
           whileInView={{
@@ -135,9 +141,9 @@ function FooterSection() {
             transition: { duration: 0.4, delay: 0.6 },
           }}
           viewport={{ once: true, margin: "0px 0px 0px 0px" }}
-          className="text-muted text-xs"
+          className="text-[#A2A2A2] text-xs font-figtree"
         >
-          &copy; Xellar Technologies 2025
+          &copy; $IDRA 2025
         </motion.p>
         <motion.p
           initial={{ opacity: 0, x: "2rem" }}
@@ -147,10 +153,9 @@ function FooterSection() {
             transition: { duration: 0.4, delay: 0.6 },
           }}
           viewport={{ once: true, margin: "0px 0px 0px 0px" }}
-          className="text-muted text-xs"
+          className="text-[#A2A2A2] text-xs font-figtree"
         >
-          Xellar does not have a token and is not affiliated with any project
-          pretending to be Xellar.
+          Terms of Service
         </motion.p>
       </div>
     </motion.div>
@@ -159,8 +164,8 @@ function FooterSection() {
 
 const SOCIALS = [
   {
-    icon: <YoutubeIcon className="size-6" />,
-    url: YOUTUBE_URL,
+    icon: <FaTelegram className="size-6" />,
+    url: TELEGRAM_URL,
   },
   {
     icon: <InstagramIcon className="size-5" />,

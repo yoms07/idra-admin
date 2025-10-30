@@ -257,7 +257,7 @@ function BottomSection() {
     <div
       ref={ref}
       style={{
-        background: "linear-gradient(180deg, #0A0A0A 40.46%, #2B2B2B 120%)",
+        background: "linear-gradient(180deg, #0A0A0A 40.46%, #3E1F1F 120%)",
       }}
       className="relative flex h-[570px] w-full flex-col items-center justify-center overflow-hidden"
     >
