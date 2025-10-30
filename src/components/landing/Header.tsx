@@ -71,18 +71,19 @@ function Navigation({
   className?: string;
   buttonClassName?: string;
   onClick?: () => void;
+  scrollOffset?: number;
 }) {
   const router = useRouter();
   const lenis = useLenis();
 
-  function handleClick(url: string) {
+  function handleClick(url: string, scrollOffset?: number) {
     onClick?.();
     if (url.startsWith("http")) {
       window.open(url, "_blank");
     } else if (url.startsWith("/")) {
       router.push(url);
     } else {
-      lenis?.scrollTo(url);
+      lenis?.scrollTo(url, { offset: scrollOffset ?? -80 });
     }
   }
 
@@ -96,9 +97,9 @@ function Navigation({
         return (
           <button
             key={index}
-            onClick={() => handleClick(item.url)}
+            onClick={() => handleClick(item.url, item.offset)}
             className={cn(
-              "hover:text-muted cursor-pointer whitespace-nowrap leading-[100%] font-medium text-nowrap transition-all duration-300",
+              "hover:text-muted cursor-pointer whitespace-nowrap leading-[100%] font-medium text-nowrap transition-all duration-300 font-figtree",
               buttonClassName
             )}
           >
@@ -128,7 +129,7 @@ function Sidebar() {
         {isOpen && (
           <motion.div
             key="sidebar"
-            className="bg-background/50 fixed top-0 right-0 z-50 h-[100dvh] w-full backdrop-blur-[2px]"
+            className="bg-landing-background/50 fixed top-0 right-0 z-50 h-[100dvh] w-full backdrop-blur-[2px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, transition: { duration: 0.2 } }}
             exit={{ opacity: 0, transition: { duration: 0.2, delay: 0.2 } }}
@@ -141,7 +142,7 @@ function Sidebar() {
               initial={{ x: "100%" }}
               animate={{ x: 0, transition: { duration: 0.2, delay: 0.2 } }}
               exit={{ x: "100%", transition: { duration: 0.2 } }}
-              className="from-background-200 to-background-300 relative ml-auto flex h-full w-[70%] flex-col justify-between bg-gradient-to-b p-6"
+              className="from-landing-background-200 to-landing-background-300 relative ml-auto flex h-full w-[70%] flex-col justify-between bg-gradient-to-b p-6"
             >
               <button
                 onClick={() => setIsOpen(false)}
@@ -151,8 +152,12 @@ function Sidebar() {
                 <span className="sr-only">Close</span>
               </button>
               <div className="flex flex-col gap-8">
-                <Link href="/" className="w-fit">
-                  <Logo className="h-10" />
+                <Link
+                  href="/"
+                  className="w-fit flex items-center gap-2 text-lg font-figtree font-bold"
+                >
+                  <IDRALogoBlack />
+                  IDRA
                 </Link>
                 <Navigation
                   className="flex flex-col items-start gap-6"
@@ -164,7 +169,7 @@ function Sidebar() {
                 onClick={() => window.open(DASHBOARD_URL, "_blank")}
                 className="w-fit"
               >
-                Launch App
+                Login / Sign Up
               </PrimaryButton>
             </motion.div>
           </motion.div>
@@ -227,11 +232,13 @@ const NAVIGATION_ITEMS = [
   },
   {
     label: "Utility",
-    url: "developer",
+    url: "#utility",
+    offset: 70,
   },
   {
     label: "Features",
     url: "#features",
+    offset: 150,
   },
   {
     label: "Transparency",

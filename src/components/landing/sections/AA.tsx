@@ -53,6 +53,7 @@ export function AccountAbstraction() {
     <section
       ref={containerRef}
       className="relative mx-auto   flex max-w-[1100px] flex-col items-center gap-10 px-4 py-16 max-lg:flex-col lg:h-[200vh] lg:gap-19.5"
+      id="features"
     >
       <div className="top-0 flex w-full flex-col gap-4 lg:sticky lg:h-screen lg:justify-center">
         <motion.p
@@ -65,7 +66,7 @@ export function AccountAbstraction() {
           viewport={{ once: true, margin: "0px 0px -50px 0px" }}
           className="bg-[#870E1680] px-4 py-1 italic rounded-full text-lg font-instrument-serif tracking-wide text-white font-medium w-fit"
         >
-          <p>WHAT IS IDRA?</p>
+          <p>IDRA Features</p>
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, x: "-2rem" }}

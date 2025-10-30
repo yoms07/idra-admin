@@ -8,7 +8,10 @@ export function Products() {
   const [isHoverCard1, setIsHoverCard1] = useState(false);
   const [isHoverCard2, setIsHoverCard2] = useState(false);
   return (
-    <section className="mx-auto flex w-full flex-col items-center gap-32 pt-40">
+    <section
+      className="mx-auto flex w-full flex-col items-center gap-32 pt-40"
+      id="utility"
+    >
       <BottomSection />
     </section>
   );
