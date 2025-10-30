@@ -9,7 +9,7 @@ import Image from "next/image";
 import { Lightning } from "../ui/Lightning";
 
 const DASHBOARD_URL = "/dashboard";
-const SDK_URL = "/sdk";
+const SDK_URL = "#";
 function Background() {
   return (
     <motion.div

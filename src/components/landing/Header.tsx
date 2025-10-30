@@ -243,6 +243,7 @@ const NAVIGATION_ITEMS = [
   {
     label: "Transparency",
     url: "#transparency",
+    offset: -250,
   },
   {
     label: "FAQ",
