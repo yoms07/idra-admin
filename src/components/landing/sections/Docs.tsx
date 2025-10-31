@@ -8,7 +8,7 @@ const WhyIDRABadge = ({ className }: { className?: string }) => {
   return (
     <div
       className={cn(
-        "bg-[#870E1680] px-4 py-1 italic rounded-full text-sm md:text-lg font-instrument-serif tracking-wide text-white font-medium w-fit ",
+        "bg-[#870E1680] px-5 py-1.5 italic rounded-full text-xl md:text-2xl font-instrument-serif tracking-wide text-white font-medium w-fit ",
         className
       )}
     >
