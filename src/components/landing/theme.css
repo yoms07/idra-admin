@@ -13,6 +13,13 @@
 }
 
 .dark {
+  --background: oklch(0.2244 0.0074 67.4370);
+  --foreground: oklch(0.9288 0.0126 255.5078);
+  --primary: oklch(0.6801 0.1583 276.9349);
+  --primary-foreground: oklch(0.2244 0.0074 67.4370);
+  --border: oklch(0.3359 0.0077 59.4197);
+  --input: oklch(0.3359 0.0077 59.4197);
+  --radius: 1.25rem;
   --color-landing-background: #0a0a0a;
   --color-landing-background-100:  #151515;
   --color-landing-background-200: #1e1e1e;

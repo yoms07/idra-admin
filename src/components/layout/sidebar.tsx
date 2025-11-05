@@ -6,6 +6,7 @@ import { useAppStore } from "@/state/stores/appStore";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -13,9 +14,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Home, Send, Clock } from "lucide-react";
+import { Home, Send, Clock, Settings, ChevronDown } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MintSymbol } from "../icons/mint-symbol";
 import { RedeemSymbol } from "../icons/redeem-symbol";
+import { IDRALogoBlack } from "../icons/idra-logo-black";
+import { IDRALogoLightMode } from "../icons/idra-logo-light-mode";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: <Home /> },
@@ -32,22 +36,13 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">
-              ID
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="font-semibold text-lg">IDRA Dashboard</span>
-            <span className="text-xs text-muted-foreground">
-              Stablecoin Service
-            </span>
-          </div>
+        <div className="flex items-center gap-2 px-2 text-3xl pt-2 text-black font-bold cursor-pointer">
+          <IDRALogoLightMode />
+          IDRA
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="mt-2">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -59,6 +54,7 @@ export function AppSidebar() {
                       asChild
                       isActive={isActive}
                       tooltip={item.name}
+                      className="font-semibold py-5"
                     >
                       <Link href={item.href} className="flex gap-1 hover:gap-2">
                         {item.icon}
@@ -72,6 +68,37 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarMenu>
+          {/* Settings */}
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="py-5">
+              <Link href="#" className="flex gap-1 hover:gap-2">
+                <Settings className="text-muted-foreground" />
+                Settings
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          {/* User attachment */}
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="py-5">
+              <button className="flex gap-1 justify-between hover:gap-2">
+                <span className="flex items-center gap-1">
+                  <Avatar className="size-5">
+                    <AvatarFallback className="bg-[#1F2A37] text-white text-xs font-bold">
+                      DI
+                    </AvatarFallback>
+                  </Avatar>
+                  <span>Dimas Indra</span>
+                </span>
+                <ChevronDown className="text-muted-foreground" />
+              </button>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
