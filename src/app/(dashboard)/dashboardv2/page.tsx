@@ -16,13 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowDownToLine,
@@ -33,9 +26,18 @@ import {
 } from "lucide-react";
 import * as React from "react";
 import { DateRange } from "react-day-picker";
+import { DepositModal } from "@/components/modals/deposit-modal/deposit-modal";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 function DashboardPage() {
   const [date, setDate] = React.useState<DateRange | undefined>();
+  const [depositOpen, setDepositOpen] = React.useState(false);
   const rows = [
     {
       type: "Send On-Chain",
@@ -77,17 +79,20 @@ function DashboardPage() {
               <h2 className="text-4xl font-semibold mt-1">1.000.000 IDR</h2>
             </div>
             <div className="flex gap-3">
-              <Button className="gap-2 bg-red-100 border-primary-400 border-1 text-primary-400 hover:bg-primary-400 hover:text-white hover:border-primary-500">
+              <Button className="gap-2 " variant="secondary">
                 <Send className="size-4" />
                 Transfer
               </Button>
-              <Button className="gap-3">
+              <Button className="gap-3" onClick={() => setDepositOpen(true)}>
                 <ArrowDownToLine className="size-4" />
                 Deposit
               </Button>
             </div>
           </div>
         </div>
+
+        {/* Deposit Flow Modal (shared form context across steps) */}
+        <DepositModal open={depositOpen} onOpenChange={setDepositOpen} />
 
         {/* Transactions */}
         <div className="space-y-3">
@@ -110,8 +115,8 @@ function DashboardPage() {
               <Popover>
                 <PopoverTrigger asChild className="w-48">
                   <Button
-                    variant="secondary"
-                    className="flex-1 justify-start rounded-lg text-muted-foreground gap-2 font-light h-9 w-48"
+                    variant="ghost"
+                    className="flex-1 justify-start rounded-lg text-muted-foreground gap-2 font-light h-9 w-48 border-border border-1 hover:bg-white"
                   >
                     {date?.from ? (
                       date.to ? (

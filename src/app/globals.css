@@ -86,6 +86,7 @@
 
   --font-figtree: var(--font-figtree);
   --font-instrument-serif: var(--font-instrument-serif);
+  --font-manrope: var(--font-manrope);
 
   --color-text-secondary: #414651;
 
@@ -405,5 +406,14 @@
     @apply bg-background text-foreground;
     letter-spacing: var(--tracking-normal);
   }
+}
+
+/* Hide scrollbars utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 

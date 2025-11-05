@@ -10,7 +10,7 @@ import { Products } from "@/components/landing/sections/Products";
 import { Testimonial } from "@/components/landing/sections/Testimonial";
 import { AccountAbstraction } from "@/components/landing/sections/AA";
 import { Docs } from "@/components/landing/sections/Docs";
-import "../components/landing/theme.css";
+import "../../components/landing/theme.css";
 import { Testimonial2 } from "@/components/landing/sections/Testimonial2";
 
 export default function Home() {
