@@ -34,10 +34,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import TransferModal from "@/components/modals/transfer-modal/transfer-modal";
 
 function DashboardPage() {
   const [date, setDate] = React.useState<DateRange | undefined>();
   const [depositOpen, setDepositOpen] = React.useState(false);
+  const [transferOpen, setTransferOpen] = React.useState(false);
   const rows = [
     {
       type: "Send On-Chain",
@@ -79,7 +81,11 @@ function DashboardPage() {
               <h2 className="text-4xl font-semibold mt-1">1.000.000 IDR</h2>
             </div>
             <div className="flex gap-3">
-              <Button className="gap-2 " variant="secondary">
+              <Button
+                className="gap-2 "
+                variant="secondary"
+                onClick={() => setTransferOpen(true)}
+              >
                 <Send className="size-4" />
                 Transfer
               </Button>
@@ -91,10 +97,9 @@ function DashboardPage() {
           </div>
         </div>
 
-        {/* Deposit Flow Modal (shared form context across steps) */}
         <DepositModal open={depositOpen} onOpenChange={setDepositOpen} />
+        <TransferModal open={transferOpen} onOpenChange={setTransferOpen} />
 
-        {/* Transactions */}
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-4">
             <h3 className="text-xl font-semibold">Transaction</h3>
