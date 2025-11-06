@@ -13,13 +13,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import InputAmount from "@/components/dashboard/input-amount";
+import { SelectItem } from "@/components/ui/select";
+import DashboardSelect from "@/components/dashboard/select";
 import { useMultiStepModal } from "@/components/modals/multi-step-modal";
 
 const MOCK_ACCOUNTS = [
@@ -55,24 +51,20 @@ export function BankSelectStep() {
           name="bankAccountId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bank account</FormLabel>
               <FormControl>
-                <Select
+                <DashboardSelect
+                  label="Bank account"
                   value={field.value ?? undefined}
                   onValueChange={(v) => field.onChange(v)}
+                  placeholder="Select a bank account"
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a bank account" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MOCK_ACCOUNTS.map((a) => (
-                      <SelectItem key={a.id} value={a.id}>
-                        {a.label}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="add">+ Add new bank account…</SelectItem>
-                  </SelectContent>
-                </Select>
+                  {MOCK_ACCOUNTS.map((a) => (
+                    <SelectItem key={a.id} value={a.id}>
+                      {a.label}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="add">+ Add new bank account…</SelectItem>
+                </DashboardSelect>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -84,19 +76,12 @@ export function BankSelectStep() {
           name="amount"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Amount</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  min={0}
-                  step="0.01"
+                <InputAmount
                   value={field.value ?? ""}
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value === "" ? null : Number(e.target.value)
-                    )
-                  }
-                  placeholder="0.00"
+                  onChange={(v) => field.onChange(v)}
+                  label="Amount"
+                  currency="IDR"
                 />
               </FormControl>
               <FormMessage />

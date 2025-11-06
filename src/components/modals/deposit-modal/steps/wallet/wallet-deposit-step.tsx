@@ -3,13 +3,7 @@
 import * as React from "react";
 import { useFormContext } from "react-hook-form";
 import { Card } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SelectItem } from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -19,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import DashboardSelect from "@/components/dashboard/select";
 import type { DepositFormValues, Network } from "../../deposit-modal";
 import { useMultiStepModal } from "@/components/modals/multi-step-modal";
 
@@ -51,21 +46,17 @@ export function WalletDepositStep() {
           name="network"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Network</FormLabel>
               <FormControl>
-                <Select
+                <DashboardSelect
+                  label="Network"
                   value={field.value ?? undefined}
                   onValueChange={(v) => field.onChange(v as Network)}
+                  placeholder="Select a network"
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a network" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ethereum">Ethereum</SelectItem>
-                    <SelectItem value="polygon">Polygon</SelectItem>
-                    <SelectItem value="solana">Solana</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <SelectItem value="ethereum">Ethereum</SelectItem>
+                  <SelectItem value="polygon">Polygon</SelectItem>
+                  <SelectItem value="solana">Solana</SelectItem>
+                </DashboardSelect>
               </FormControl>
               <FormMessage />
             </FormItem>
