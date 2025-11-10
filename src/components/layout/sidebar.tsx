@@ -20,6 +20,9 @@ import { MintSymbol } from "../icons/mint-symbol";
 import { RedeemSymbol } from "../icons/redeem-symbol";
 import { IDRALogoBlack } from "../icons/idra-logo-black";
 import { IDRALogoLightMode } from "../icons/idra-logo-light-mode";
+import { useMe } from "@/features/auth";
+import { AvatarImage } from "@radix-ui/react-avatar";
+import { GradientAvatar } from "../ui/gradient-avatar";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: <Home /> },
@@ -31,7 +34,7 @@ const navigation = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { reset } = useAppStore();
+  const { data: me } = useMe();
 
   return (
     <Sidebar>
@@ -85,13 +88,17 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="py-5">
               <button className="flex gap-1 justify-between hover:gap-2">
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5">
                   <Avatar className="size-5">
-                    <AvatarFallback className="bg-[#1F2A37] text-white text-xs font-bold">
-                      DI
+                    <AvatarImage src={""} className="size-5" />
+                    <AvatarFallback>
+                      <GradientAvatar
+                        name={me?.name || ""}
+                        className="size-5 text-xs"
+                      />
                     </AvatarFallback>
                   </Avatar>
-                  <span>Dimas Indra</span>
+                  <span>{me?.name}</span>
                 </span>
                 <ChevronDown className="text-muted-foreground" />
               </button>

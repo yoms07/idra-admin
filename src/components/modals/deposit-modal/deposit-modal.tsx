@@ -11,19 +11,19 @@ import { Button } from "@/components/ui/button";
 import { ChooseSourceStep } from "./steps/choose-source-step";
 import { ChoosePaymentMethodStep } from "./steps/funds/choose-payment-method-step";
 import { PaymentSummaryStep } from "./steps/funds/payment-summary-step";
-import { ProcessingStep } from "./steps/funds/processing-step";
 import { SuccessStep } from "./steps/funds/success-step";
 import { WalletDepositStep } from "./steps/wallet/wallet-deposit-step";
+import type { DepositData } from "@/features/deposit";
 
 export type DepositSource = "funds" | "wallet";
-export type PaymentMethod = "qris" | "va";
 export type Network = "ethereum" | "solana" | "polygon";
 
 export type DepositFormValues = {
   source: DepositSource | null;
-  paymentMethod: PaymentMethod | null;
+  paymentMethod: string | null;
   amount: number | null;
-  // computed/derived display values
+  depositId?: string | null;
+  depositData?: DepositData | null;
   vaNumber?: string | null;
   qrisPayload?: string | null;
   // wallet flow
@@ -48,6 +48,8 @@ export function DepositModal({
       source: null,
       paymentMethod: null,
       amount: null,
+      depositId: null,
+      depositData: null,
       vaNumber: null,
       qrisPayload: null,
       network: null,
@@ -103,11 +105,6 @@ export function DepositModal({
           id: "funds-summary",
           title: "Payment summary",
           content: <PaymentSummaryStep />,
-        },
-        {
-          id: "funds-processing",
-          title: "Processing",
-          content: <ProcessingStep />,
         },
         {
           id: "funds-success",

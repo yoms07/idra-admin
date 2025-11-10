@@ -16,40 +16,144 @@ import {
 } from "@/components/ui/form";
 import { SelectItem } from "@/components/ui/select";
 import DashboardSelect from "@/components/dashboard/select";
+import Image from "next/image";
 import { useMultiStepModal } from "@/components/modals/multi-step-modal";
 import type { DepositFormValues } from "../../deposit-modal";
+import {
+  useCreateDeposit,
+  usePaymentMethods,
+  type DepoistPaymentMethod,
+} from "@/features/deposit";
+import { ErrorMessage } from "@/components/common/ErrorMessage";
+import { Loader } from "@/components/common/Loader";
+
+// Check if payment method is QRIS
+function isQRIS(depositPaymentType: string): boolean {
+  return depositPaymentType.toLowerCase().includes("qris");
+}
 
 export function ChoosePaymentMethodStep() {
   const form = useFormContext<DepositFormValues>();
   const { goNext } = useMultiStepModal();
+  const createDeposit = useCreateDeposit();
+  const {
+    data: paymentMethods,
+    isLoading,
+    error: paymentMethodsError,
+  } = usePaymentMethods();
 
-  const onNext = () => {
+  // Store selected payment method data
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    React.useState<DepoistPaymentMethod | null>(null);
+
+  const selectedPaymentMethodValue = form.watch("paymentMethod");
+  const amount = form.watch("amount");
+
+  // Update selected payment method when form value changes
+  React.useEffect(() => {
+    if (paymentMethods && selectedPaymentMethodValue) {
+      const method = paymentMethods.find(
+        (pm) => pm.depositPaymentType === selectedPaymentMethodValue
+      );
+      setSelectedPaymentMethod(method || null);
+    } else {
+      setSelectedPaymentMethod(null);
+    }
+  }, [selectedPaymentMethodValue, paymentMethods]);
+
+  const onNext = async () => {
     const raw = form.getValues();
     const amountNum = Number(raw.amount ?? 0);
 
     let valid = true;
     if (!raw.paymentMethod) {
-      form.setError("paymentMethod", { message: "Select a method" });
+      form.setError("paymentMethod", { message: "Select a payment method" });
       valid = false;
     }
     if (!Number.isFinite(amountNum) || amountNum <= 0) {
       form.setError("amount", { message: "Amount must be greater than 0" });
       valid = false;
     }
-    if (!valid) return;
 
-    if (raw.paymentMethod === "va") {
-      const va = `8888${Math.floor(10000000 + Math.random() * 89999999)}`;
-      form.setValue("vaNumber", va, { shouldDirty: true });
-      form.setValue("qrisPayload", null);
-    } else if (raw.paymentMethod === "qris") {
-      const payload = `IDRA|QRIS|AMT:${amountNum}`;
-      form.setValue("qrisPayload", payload, { shouldDirty: true });
-      form.setValue("vaNumber", null);
+    // Validate amount against selected payment method's min/max
+    if (selectedPaymentMethod && valid) {
+      if (amountNum < selectedPaymentMethod.minimumAmount) {
+        form.setError("amount", {
+          message: `Minimum amount is Rp ${selectedPaymentMethod.minimumAmount.toLocaleString("id-ID")}`,
+        });
+        valid = false;
+      }
+      if (amountNum > selectedPaymentMethod.maximumAmount) {
+        form.setError("amount", {
+          message: `Maximum amount is Rp ${selectedPaymentMethod.maximumAmount.toLocaleString("id-ID")}`,
+        });
+        valid = false;
+      }
     }
 
-    goNext();
+    if (!valid) return;
+
+    try {
+      const depositData = await createDeposit.mutateAsync({
+        originalAmount: amountNum.toString(),
+        currency: "IDR",
+        paymentMethod: raw.paymentMethod!,
+      });
+
+      // Store deposit data in form
+      form.setValue("depositId", depositData.id, { shouldDirty: true });
+      form.setValue("depositData", depositData, { shouldDirty: true });
+
+      // Also set legacy fields for backward compatibility
+      const isQris = isQRIS(depositData.paymentMethod);
+      if (isQris) {
+        const qrisInstructions = depositData.paymentInstructions;
+        if ("qrData" in qrisInstructions) {
+          form.setValue("qrisPayload", qrisInstructions.qrData, {
+            shouldDirty: true,
+          });
+        }
+        form.setValue("vaNumber", null);
+      } else {
+        const vaInstructions = depositData.paymentInstructions;
+        if ("accountNumber" in vaInstructions) {
+          form.setValue("vaNumber", vaInstructions.accountNumber, {
+            shouldDirty: true,
+          });
+        }
+        form.setValue("qrisPayload", null);
+      }
+
+      goNext();
+    } catch (error) {
+      console.error("Failed to create deposit:", error);
+      form.setError("root", {
+        message: "Failed to create deposit. Please try again.",
+      });
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (paymentMethodsError || !paymentMethods || paymentMethods.length === 0) {
+    return (
+      <div className="space-y-4">
+        <ErrorMessage
+          message={
+            paymentMethodsError
+              ? "Failed to load payment methods. Please try again."
+              : "No payment methods available."
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <Form {...(form as any)}>
@@ -64,10 +168,24 @@ export function ChoosePaymentMethodStep() {
                   label="Method"
                   value={field.value ?? undefined}
                   onValueChange={(v) => field.onChange(v)}
-                  placeholder="Select method"
+                  placeholder="Select payment method"
                 >
-                  <SelectItem value="qris">QRIS (QR Payment)</SelectItem>
-                  <SelectItem value="va">Virtual Account (VA)</SelectItem>
+                  {paymentMethods.map((pm) => (
+                    <SelectItem key={pm.bankCode} value={pm.bankCode}>
+                      <span className="flex items-center gap-2">
+                        {pm.image ? (
+                          <Image
+                            src={pm.image}
+                            alt={pm.bankName}
+                            width={30}
+                            height={30}
+                            className="object-contain rounded"
+                          />
+                        ) : null}
+                        <span>{pm.bankName.toUpperCase()}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
                 </DashboardSelect>
               </FormControl>
               <FormMessage />
@@ -93,9 +211,17 @@ export function ChoosePaymentMethodStep() {
           )}
         />
 
+        {form.formState.errors.root && (
+          <ErrorMessage message={form.formState.errors.root.message} />
+        )}
+
         <div className="flex justify-end gap-2">
-          <Button variant="default" onClick={onNext}>
-            Continue
+          <Button
+            variant="default"
+            onClick={onNext}
+            disabled={createDeposit.isPending}
+          >
+            {createDeposit.isPending ? "Creating..." : "Continue"}
           </Button>
         </div>
       </div>

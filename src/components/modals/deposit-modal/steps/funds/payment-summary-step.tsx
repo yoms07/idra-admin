@@ -11,6 +11,16 @@ import mBankingGuide from "./mBankingGuide.json";
 import iBankingGuide from "./iBankingGuide.json";
 import atmGuide from "./atmGuide.json";
 import qrisGuide from "./qris.json";
+import { useDepositById, PaymentStatus } from "@/features/deposit";
+import { ErrorMessage } from "@/components/common/ErrorMessage";
+import { useQueryClient } from "@tanstack/react-query";
+import { authKeys } from "@/features/auth";
+
+// Check if payment method is QRIS
+function isQRIS(paymentMethod: string | null | undefined): boolean {
+  if (!paymentMethod) return false;
+  return paymentMethod.toLowerCase().includes("qris");
+}
 
 function CopyField({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = React.useState(false);
@@ -38,21 +48,95 @@ function CopyField({ label, value }: { label: string; value: string }) {
 export function PaymentSummaryStep() {
   const form = useFormContext<DepositFormValues>();
   const { goNext, goPrevious } = useMultiStepModal();
+  const depositId = form.watch("depositId");
+  const depositData = form.watch("depositData");
   const method = form.watch("paymentMethod");
   const amount = form.watch("amount") ?? 0;
-  const va = form.watch("vaNumber") ?? undefined;
-  const qrisPayload = form.watch("qrisPayload") ?? undefined;
+
+  // Get payment instructions from depositData
+  const paymentInstructions = depositData?.paymentInstructions;
+  const vaAccountNumber =
+    paymentInstructions && "accountNumber" in paymentInstructions
+      ? paymentInstructions.accountNumber
+      : (form.watch("vaNumber") ?? undefined);
+  const qrisCode =
+    paymentInstructions && "qrData" in paymentInstructions
+      ? paymentInstructions.qrData
+      : (form.watch("qrisPayload") ?? undefined);
+  const bankName =
+    paymentInstructions && "bankName" in paymentInstructions
+      ? paymentInstructions.bankName
+      : undefined;
+
+  const qc = useQueryClient();
+
   const [showGuideMBanking, setShowGuideMBanking] = React.useState(true);
   const [showGuideIBanking, setShowGuideIBanking] = React.useState(false);
   const [showGuideATM, setShowGuideATM] = React.useState(false);
   const [showQrisGuide, setShowQrisGuide] = React.useState(true);
-  const [showQrisNotConfirmed, setShowQrisNotConfirmed] = React.useState(false);
+  const [checkingStatus, setCheckingStatus] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  // Fetch deposit status when checking
+  const { data: currentDepositData, refetch } = useDepositById(
+    checkingStatus && depositId ? depositId : undefined,
+    { refetchInterval: checkingStatus ? 2000 : undefined }
+  );
+
+  // Check if deposit is completed
+  React.useEffect(() => {
+    if (checkingStatus && currentDepositData) {
+      if (currentDepositData.paymentStatus === PaymentStatus.COMPLETED) {
+        // Update form with latest deposit data
+        form.setValue("depositData", currentDepositData, { shouldDirty: true });
+        qc.invalidateQueries({
+          queryKey: authKeys.me(),
+        });
+        setCheckingStatus(false);
+        goNext();
+      } else if (
+        currentDepositData.paymentStatus === PaymentStatus.FAILED ||
+        currentDepositData.paymentStatus === PaymentStatus.EXPIRED
+      ) {
+        setCheckingStatus(false);
+        setError("Payment failed or expired. Please try again.");
+      }
+    }
+  }, [checkingStatus, currentDepositData, form, goNext]);
 
   const withTokens = (text: string) =>
-    text.replaceAll("xxxAccountNumberxxx", va ?? "");
+    text.replaceAll("xxxAccountNumberxxx", vaAccountNumber ?? "");
 
-  const onContinue = () => {
-    goNext();
+  const onContinue = async () => {
+    if (!depositId) {
+      setError("Deposit ID not found. Please go back and try again.");
+      return;
+    }
+
+    setError(null);
+    setCheckingStatus(true);
+    try {
+      const result = await refetch();
+      if (result.data) {
+        if (result.data.paymentStatus === PaymentStatus.COMPLETED) {
+          form.setValue("depositData", result.data, { shouldDirty: true });
+          setCheckingStatus(false);
+          goNext();
+        } else if (
+          result.data.paymentStatus === PaymentStatus.FAILED ||
+          result.data.paymentStatus === PaymentStatus.EXPIRED
+        ) {
+          setCheckingStatus(false);
+          setError("Payment failed or expired. Please try again.");
+        } else {
+          // Still waiting for payment, will be handled by the useEffect polling
+        }
+      }
+    } catch (err) {
+      console.error("Failed to check deposit status:", err);
+      setCheckingStatus(false);
+      setError("Failed to check payment status. Please try again.");
+    }
   };
 
   return (
@@ -73,15 +157,18 @@ export function PaymentSummaryStep() {
         </div>
 
         {/* VA or QR */}
-        {method === "va" && va && (
+        {method && !isQRIS(method) && vaAccountNumber && (
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="text-[#4B5563] text-base">Virtual Account</span>
             <div className="flex items-center gap-2">
-              <span className="font-mono font-medium">BCA {va}</span>
+              <span className="font-mono font-medium">
+                {bankName ? `${bankName} ` : ""}
+                {vaAccountNumber}
+              </span>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigator.clipboard.writeText(va)}
+                onClick={() => navigator.clipboard.writeText(vaAccountNumber)}
               >
                 <Copy className="size-4" />
               </Button>
@@ -95,12 +182,10 @@ export function PaymentSummaryStep() {
           <span className="text-[#4B5563] text-base">Estimated Time</span>
           <span className="font-medium">~30s</span>
         </div>
-        {method === "qris" && qrisPayload && (
-          <QrisBlock payload={qrisPayload} />
-        )}
+        {isQRIS(method) && qrisCode && <QrisBlock payload={qrisCode} />}
 
         {/* Guide accordions */}
-        {method === "va" && (
+        {method && !isQRIS(method) && (
           <div className="mt-4 space-y-4">
             {/* mBanking */}
             <div>
@@ -195,7 +280,7 @@ export function PaymentSummaryStep() {
           </div>
         )}
 
-        {method === "qris" && (
+        {isQRIS(method) && (
           <div className="mt-4 space-y-4">
             <div>
               <button
@@ -230,11 +315,19 @@ export function PaymentSummaryStep() {
         )}
       </div>
 
+      {error && <ErrorMessage message={error} />}
+
       <div className="flex justify-between">
-        <Button variant="outline" onClick={goPrevious}>
+        <Button
+          variant="outline"
+          onClick={goPrevious}
+          disabled={checkingStatus}
+        >
           Back
         </Button>
-        <Button onClick={onContinue}>I have paid / Continue</Button>
+        <Button onClick={onContinue} disabled={checkingStatus}>
+          {checkingStatus ? "Checking payment..." : "I have paid / Continue"}
+        </Button>
       </div>
     </div>
   );

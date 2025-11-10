@@ -36,8 +36,11 @@ import {
 } from "@/components/ui/select";
 import TransferModal from "@/components/modals/transfer-modal/transfer-modal";
 import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
+import { useMe } from "@/features/auth";
+import { formatIDR, formatIDRA } from "@/lib/utils";
 
 function DashboardPage() {
+  const me = useMe();
   const [date, setDate] = React.useState<DateRange | undefined>();
   const [depositOpen, setDepositOpen] = React.useState(false);
   const [transferOpen, setTransferOpen] = React.useState(false);
@@ -75,11 +78,13 @@ function DashboardPage() {
         <div className="rounded-xl p-5 bg-[#F5F5F5]">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-md font-semibold">Hello, Jason Stanley</p>
+              <p className="text-md font-semibold">Hello, {me.data?.name}</p>
               <p className="text-xs mt-2 text-neutral-950 flex items-center gap-1">
                 Total Balance <Info size={14} />
               </p>
-              <h2 className="text-4xl font-semibold mt-1">1.000.000 IDR</h2>
+              <h2 className="text-4xl font-semibold mt-1">
+                {formatIDRA(me.data?.offchainBalance || 0)}
+              </h2>
             </div>
             <div className="flex gap-3">
               <Button
