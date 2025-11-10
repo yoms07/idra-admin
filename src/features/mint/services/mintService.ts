@@ -11,7 +11,10 @@ import {
   PaginationSchema,
   type Pagination,
 } from "../schema/mint";
-import { Currency } from "@/app/api/mint";
+enum Currency {
+  IDR,
+  USDT,
+}
 
 export const mintService = {
   async create(input: CreateMintRequest): Promise<MintData> {

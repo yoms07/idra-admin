@@ -12,9 +12,17 @@ import { Mail, Lock, User } from "lucide-react";
 export function RegisterForm() {
   const form = useFormContext<AuthFormValues>();
   const { submitRegister, loading, switchTo } = useAuth();
+  const errors = form.formState.errors;
+  console.log({ errors });
 
   return (
     <div className="px-6 space-y-5">
+      {errors.root && (
+        <div className="text-red-600 text-sm p-2 border border-red-200 bg-red-50 rounded">
+          {errors.root.message}
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="name">Name</Label>
         <Input
@@ -26,6 +34,9 @@ export function RegisterForm() {
           value={form.watch("name") ?? ""}
           onChange={(e) => form.setValue("name", e.target.value)}
         />
+        {errors.name && (
+          <p className="text-red-600 text-sm">{errors.name.message}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
@@ -38,6 +49,9 @@ export function RegisterForm() {
           value={form.watch("email")}
           onChange={(e) => form.setValue("email", e.target.value)}
         />
+        {errors.email && (
+          <p className="text-red-600 text-sm">{errors.email.message}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
@@ -50,6 +64,9 @@ export function RegisterForm() {
           value={form.watch("password")}
           onChange={(e) => form.setValue("password", e.target.value)}
         />
+        {errors.password && (
+          <p className="text-red-600 text-sm">{errors.password.message}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="confirm">Confirm password</Label>
@@ -62,6 +79,11 @@ export function RegisterForm() {
           value={form.watch("confirmPassword") ?? ""}
           onChange={(e) => form.setValue("confirmPassword", e.target.value)}
         />
+        {errors.confirmPassword && (
+          <p className="text-red-600 text-sm">
+            {errors.confirmPassword.message}
+          </p>
+        )}
       </div>
       <Button className="w-full" disabled={loading} onClick={submitRegister}>
         {loading ? "Creating account..." : "Create account"}

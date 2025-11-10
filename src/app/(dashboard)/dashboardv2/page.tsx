@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import TransferModal from "@/components/modals/transfer-modal/transfer-modal";
+import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
 
 function DashboardPage() {
   const [date, setDate] = React.useState<DateRange | undefined>();
@@ -195,5 +196,9 @@ function DashboardPage() {
 }
 
 export default function () {
-  return <DashboardPage />;
+  return (
+    <RequireAuthentication>
+      <DashboardPage />
+    </RequireAuthentication>
+  );
 }

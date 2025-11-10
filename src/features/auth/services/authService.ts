@@ -5,15 +5,37 @@ import {
   VerifyRequestSchema,
   VerifyResponseSchema,
   MeResponseSchema,
+  GoogleOAuthCallbackRequestSchema,
+  GoogleOAuthCallbackResponseSchema,
+  RegisterRequestSchema,
+  RegisterResponseSchema,
+  LoginRequestSchema,
+  LoginResponseSchema,
+  VerifyOtpRequestSchema,
+  VerifyRegisterOtpResponseSchema,
+  VerifyLoginOtpResponseSchema,
+  LogoutResponseSchema,
   type NonceRequest,
   type VerifyRequest,
+  type GoogleOAuthCallbackRequest,
+  type RegisterRequest,
+  type LoginRequest,
+  type VerifyOtpRequest,
   NonceData,
   NonceResponseSchema,
   VerifyData,
   MeData,
+  GoogleOAuthCallbackData,
+  RegisterData,
+  LoginData,
+  VerifyRegisterOtpData,
+  VerifyLoginOtpData,
+  LogoutData,
 } from "../schema/auth";
 import { http } from "@/lib/http/client";
 import { SiweMessage } from "siwe";
+import Cookies from "js-cookie";
+import { parseAuthError } from "../errors";
 
 export const authService = {
   async getNonce(request: NonceRequest): Promise<NonceData> {
@@ -47,7 +69,7 @@ export const authService = {
     const parsedVerify = VerifyResponseSchema.parse(res.data);
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem("auth_token", parsedVerify.data.token);
+        Cookies.set("at", parsedVerify.data.token);
       } catch (_) {}
     }
     return parsedVerify.data;
@@ -60,6 +82,94 @@ export const authService = {
       return parsedMe.data;
     } catch (error) {
       return null;
+    }
+  },
+
+  async googleOAuthCallback(
+    request: GoogleOAuthCallbackRequest
+  ): Promise<GoogleOAuthCallbackData> {
+    const body = GoogleOAuthCallbackRequestSchema.parse(request);
+    console.log({ body });
+    const res = await http.get(
+      `/api/auth/oauth/google/callback?code=${body.code}&state=${body.state}`
+    );
+    const parsedResponse = GoogleOAuthCallbackResponseSchema.parse(res.data);
+    if (typeof window !== "undefined") {
+      try {
+        Cookies.set("at", parsedResponse.data.token);
+      } catch (_) {}
+    }
+    return parsedResponse.data;
+  },
+
+  async register(request: RegisterRequest): Promise<RegisterData> {
+    try {
+      const body = RegisterRequestSchema.parse(request);
+      const res = await http.post("/api/auth/register", body);
+      const parsedResponse = RegisterResponseSchema.parse(res.data);
+      return parsedResponse.data;
+    } catch (error) {
+      throw parseAuthError(error);
+    }
+  },
+
+  async login(request: LoginRequest): Promise<LoginData> {
+    try {
+      const body = LoginRequestSchema.parse(request);
+      const res = await http.post("/api/auth/login", body);
+      const parsedResponse = LoginResponseSchema.parse(res.data);
+      return parsedResponse.data;
+    } catch (error) {
+      throw parseAuthError(error);
+    }
+  },
+
+  async verifyRegisterOtp(
+    request: VerifyOtpRequest
+  ): Promise<VerifyRegisterOtpData> {
+    try {
+      const body = VerifyOtpRequestSchema.parse(request);
+      const res = await http.post("/api/auth/register/verify-otp", body);
+      const parsedResponse = VerifyRegisterOtpResponseSchema.parse(res.data);
+      if (typeof window !== "undefined") {
+        try {
+          Cookies.set("at", parsedResponse.data.token);
+        } catch (_) {}
+      }
+      return parsedResponse.data;
+    } catch (error) {
+      throw parseAuthError(error);
+    }
+  },
+
+  async verifyLoginOtp(request: VerifyOtpRequest): Promise<VerifyLoginOtpData> {
+    try {
+      const body = VerifyOtpRequestSchema.parse(request);
+      const res = await http.post("/api/auth/login/verify-otp", body);
+      const parsedResponse = VerifyLoginOtpResponseSchema.parse(res.data);
+      if (typeof window !== "undefined") {
+        try {
+          Cookies.set("at", parsedResponse.data.token);
+        } catch (_) {}
+      }
+      return parsedResponse.data;
+    } catch (error) {
+      throw parseAuthError(error);
+    }
+  },
+
+  async logout(): Promise<LogoutData> {
+    try {
+      const res = await http.post("/api/auth/logout");
+      const parsedResponse = LogoutResponseSchema.parse(res.data);
+      if (typeof window !== "undefined") {
+        try {
+          Cookies.remove("at");
+        } catch (_) {}
+      }
+      return parsedResponse.data;
+    } catch (error) {
+      throw parseAuthError(error);
     }
   },
 };

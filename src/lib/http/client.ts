@@ -1,7 +1,5 @@
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
-import { authKeys } from "@/features/auth/queryKeys";
-import { useQueryClient } from "@tanstack/react-query";
-import { qc } from "@/state/query/queryClient";
+import axios, { AxiosError } from "axios";
+import Cookies from "js-cookie";
 import { setUserToNull } from "@/features/auth";
 
 export const http = axios.create({
@@ -10,8 +8,7 @@ export const http = axios.create({
 });
 
 http.interceptors.request.use((config) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+  const token = Cookies.get("at");
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -24,12 +21,8 @@ http.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
     if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("auth_token");
-        console.log("invalidate begin");
-        await setUserToNull();
-        console.log("invalidate success");
-      }
+      Cookies.remove("at");
+      await setUserToNull();
     }
     return Promise.reject(error);
   }

@@ -11,6 +11,7 @@ import LoginForm from "@/features/auth/components/login-form";
 import RegisterForm from "@/features/auth/components/register-form";
 import OtpForm from "@/features/auth/components/otp-form";
 import ForgotPasswordForm from "@/features/auth/components/forgot-password-form";
+import { RequireNotAuthenticated } from "@/features/auth/components/auth-wrapper";
 
 function AuthBody() {
   const { step } = useAuth();
@@ -69,8 +70,10 @@ function AuthBody() {
 
 export default function Page() {
   return (
-    <AuthProvider>
-      <AuthBody />
-    </AuthProvider>
+    <RequireNotAuthenticated>
+      <AuthProvider>
+        <AuthBody />
+      </AuthProvider>
+    </RequireNotAuthenticated>
   );
 }

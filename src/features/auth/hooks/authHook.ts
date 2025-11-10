@@ -1,10 +1,15 @@
+"use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { useAccount, useChainId, useDisconnect, useSignMessage } from "wagmi";
+import Cookies from "js-cookie";
 import { authKeys } from "../queryKeys";
 import { authService } from "../services/authService";
-import { type NonceRequest, type VerifyRequest } from "../schema/auth";
-import { isTheSameAddress } from "@/lib/utils";
+import {
+  type NonceRequest,
+  type VerifyRequest,
+  type RegisterRequest,
+  type LoginRequest,
+  type VerifyOtpRequest,
+} from "../schema/auth";
 import { qc } from "@/state/query/queryClient";
 
 export function useGetNonce() {
@@ -18,11 +23,7 @@ export function useVerifySignature() {
 
   return useMutation({
     mutationFn: (request: VerifyRequest) => authService.verify(request),
-    onSuccess: (data) => {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("auth_token", data.token);
-      }
-
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: authKeys.me() });
     },
   });
@@ -41,81 +42,64 @@ export function useMe() {
 }
 
 export function useIsAuthenticated() {
-  const { data: user, isLoading, error } = useMe();
-  const { address, isConnecting: isWalletConnecting } = useAccount();
-  const isAuthenticated =
-    !!user && !error && isTheSameAddress(user.walletAddress, address || "");
+  const { data: user, isLoading } = useMe();
+  console.log({ user });
   return {
-    isAuthenticated,
-    isLoading: isLoading,
-    user: isAuthenticated ? user : undefined,
+    isAuthenticated: !!user,
+    isLoading,
   };
+}
+
+export function useRegister() {
+  return useMutation({
+    mutationFn: (request: RegisterRequest) => authService.register(request),
+  });
+}
+
+export function useLogin() {
+  return useMutation({
+    mutationFn: (request: LoginRequest) => authService.login(request),
+  });
+}
+
+export function useVerifyRegisterOtp() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: VerifyOtpRequest) =>
+      authService.verifyRegisterOtp(request),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: authKeys.me() });
+    },
+  });
+}
+
+export function useVerifyLoginOtp() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: VerifyOtpRequest) =>
+      authService.verifyLoginOtp(request),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: authKeys.me() });
+    },
+  });
 }
 
 export function useLogout() {
   const qc = useQueryClient();
-  const { disconnectAsync } = useDisconnect();
 
   return useMutation({
     mutationFn: async () => {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("auth_token");
+      try {
+        await authService.logout();
+      } catch (error) {
+        // Continue with cleanup even if logout request fails
       }
-      await disconnectAsync();
+      Cookies.remove("at");
     },
     onSuccess: () => {
       qc.removeQueries({ queryKey: authKeys.all });
     },
   });
-}
-
-export function useSiweAuthentication() {
-  const { mutateAsync: getNonce, isPending: isGettingNonce } = useGetNonce();
-  const { mutateAsync: verifySignature, isPending: isVerifying } =
-    useVerifySignature();
-  const { signMessageAsync } = useSignMessage();
-
-  const [isSigning, setIsSigning] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const chainId = useChainId();
-
-  const qc = useQueryClient();
-
-  const signInWithEthereum = async (
-    walletAddress: string
-  ): Promise<string | null> => {
-    setErrorMessage(null);
-    setIsSigning(true);
-    try {
-      const nonceData = await getNonce({ walletAddress, chainId });
-      if (!nonceData.message) {
-        throw new Error("Missing SIWE message from server");
-      }
-
-      const signature = await signMessageAsync({ message: nonceData.message });
-      await verifySignature({ message: nonceData.message, signature });
-      setIsSigning(false);
-      qc.invalidateQueries({
-        queryKey: authKeys.me(),
-      });
-
-      return null;
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error
-          ? err.message
-          : "Authentication failed. Please try again.";
-      setErrorMessage(msg);
-      setIsSigning(false);
-      return msg;
-    }
-  };
-
-  return {
-    signInWithEthereum,
-    isGettingNonce,
-    isVerifying,
-    isSigning,
-    errorMessage,
-  };
 }
