@@ -34,3 +34,8 @@ export function getExplorerTxUrl(chainId: number, txHash: string) {
   const baseUrl = chain?.blockExplorers?.default?.url;
   return baseUrl ? `${baseUrl.replace(/\/?$/, "")}/tx/${txHash}` : null;
 }
+
+// Basic Ethereum address validation (accepts EVM addresses)
+export function isValidEthereumAddress(address: string): boolean {
+  return /^0x[a-fA-F0-9]{40}$/.test(address.trim());
+}

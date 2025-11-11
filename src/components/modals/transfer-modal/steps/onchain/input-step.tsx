@@ -7,10 +7,8 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import InputAmount from "@/components/dashboard/input-amount";
@@ -18,6 +16,7 @@ import InputText from "@/components/dashboard/input-text";
 import { SelectItem } from "@/components/ui/select";
 import DashboardSelect from "@/components/dashboard/select";
 import { useMultiStepModal } from "@/components/modals/multi-step-modal";
+import { isValidEthereumAddress } from "@/lib/utils";
 
 export function OnchainInputStep() {
   const form = useFormContext<TransferFormValues>();
@@ -26,19 +25,28 @@ export function OnchainInputStep() {
   const proceed = () => {
     const v = form.getValues();
     let valid = true;
-    if (!v.address || v.address.length < 6) {
+
+    if (!v.address || v.address.trim() === "") {
       form.setError("address", { message: "Enter a valid address" });
       valid = false;
+    } else if (!isValidEthereumAddress(v.address.trim())) {
+      form.setError("address", {
+        message: "Invalid Ethereum address format",
+      });
+      valid = false;
     }
+
     if (!v.network) {
       form.setError("network", { message: "Choose a network" });
       valid = false;
     }
+
     const amt = Number(v.amount ?? 0);
     if (!Number.isFinite(amt) || amt <= 0) {
       form.setError("amount", { message: "Amount must be greater than 0" });
       valid = false;
     }
+
     if (!valid) return;
     goNext();
   };
