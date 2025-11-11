@@ -16,6 +16,7 @@ import { ProcessingStep } from "./steps/shared/processing-step";
 import { SuccessStep } from "./steps/shared/success-step";
 import { BankSelectStep } from "./steps/bank/select-account-step";
 import { BankConfirmStep } from "./steps/bank/confirm-step";
+import { AddBankAccountStep } from "./steps/bank/add-bank-account-step";
 
 export type TransferDestination = "bank" | "onchain";
 export type Network = "ethereum" | "polygon" | "solana";
@@ -28,8 +29,14 @@ export type TransferFormValues = {
   network?: Network | null;
   // bank specifics
   bankAccountId?: string | null; // "add" means add new account
+  paymentMethodType?: "bank" | "e-wallet" | null;
+  newBankCode?: string | null;
+  newAccountNumber?: string | null;
+  newAccountHolderName?: string | null;
   // OTP
   otp?: string | null;
+  // Withdrawal ID after creation
+  withdrawalId?: string | null;
 };
 
 export type TransferModalProps = {
@@ -51,7 +58,12 @@ export function TransferModal({
       address: null,
       network: null,
       bankAccountId: null,
+      paymentMethodType: "bank",
+      newBankCode: null,
+      newAccountNumber: null,
+      newAccountHolderName: null,
       otp: null,
+      withdrawalId: null,
     },
     mode: "onChange",
   });
@@ -61,12 +73,13 @@ export function TransferModal({
   }, [open]);
 
   const destination = form.watch("destination");
+  const bankAccountId = form.watch("bankAccountId");
 
   const sourceStep: MultiStep = {
     id: "choose",
     title: "What type of transfer are you making today?",
     content: <ChooseDestinationStep />,
-    showProgress: true,
+    showProgressBar: true,
     renderFooter: ({ goNext }) => {
       const canProceed = !!form.watch("destination");
       return (
@@ -108,25 +121,42 @@ export function TransferModal({
       ];
     }
     if (destination === "bank") {
-      return [
+      const steps: MultiStep[] = [
         sourceStep,
         {
           id: "bank-select",
           title: "Withdraw to bank",
           content: <BankSelectStep />,
         },
-        {
-          id: "bank-confirm",
-          title: "Confirm transfer",
-          content: <BankConfirmStep />,
-        },
-        { id: "otp", title: "Verify OTP", content: <OtpStep /> },
-        { id: "processing", title: "Processing", content: <ProcessingStep /> },
-        { id: "success", title: "Success", content: <SuccessStep /> },
       ];
+
+      if (bankAccountId === "add") {
+        steps.push({
+          id: "bank-add",
+          title: "Add Bank Account",
+          content: <AddBankAccountStep />,
+        });
+      } else {
+        steps.push(
+          {
+            id: "bank-confirm",
+            title: "Are you sure want to transfer you'r Assets?",
+            content: <BankConfirmStep />,
+          },
+          { id: "otp", title: "Verify OTP", content: <OtpStep /> },
+          {
+            id: "processing",
+            title: "Processing",
+            content: <ProcessingStep />,
+          },
+          { id: "success", title: "Success", content: <SuccessStep /> }
+        );
+      }
+
+      return steps;
     }
     return [sourceStep];
-  }, [destination]);
+  }, [destination, bankAccountId]);
 
   return (
     <FormProvider {...form}>
@@ -137,6 +167,8 @@ export function TransferModal({
           if (!o) form.reset();
           onOpenChange(o);
         }}
+        showProgressBar
+        showProgressStep={false}
         steps={steps}
         showNavigation={false}
         className={className}

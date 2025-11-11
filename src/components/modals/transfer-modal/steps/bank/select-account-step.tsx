@@ -9,23 +9,22 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import InputAmount from "@/components/dashboard/input-amount";
 import { SelectItem } from "@/components/ui/select";
 import DashboardSelect from "@/components/dashboard/select";
 import { useMultiStepModal } from "@/components/modals/multi-step-modal";
-
-const MOCK_ACCOUNTS = [
-  { id: "bca-001", label: "BCA •••• 1234 (Jason)" },
-  { id: "bri-002", label: "BRI •••• 9876 (Jason)" },
-];
+import { useBankAccounts } from "@/features/bank-accounts/hooks/useBankAccounts";
+import { Loader } from "@/components/common/Loader";
+import { ErrorMessage } from "@/components/common/ErrorMessage";
+import { useMe } from "@/features/auth/hooks/authHook";
 
 export function BankSelectStep() {
   const form = useFormContext<TransferFormValues>();
   const { goNext } = useMultiStepModal();
+  const { data: accounts, isLoading, error } = useBankAccounts();
+  const { data: me } = useMe();
 
   const continueNext = () => {
     const v = form.getValues();
@@ -39,9 +38,42 @@ export function BankSelectStep() {
       form.setError("amount", { message: "Amount must be greater than 0" });
       valid = false;
     }
+    // Validate against offchain balance (from auth/me)
+    const offchainBalance = Number(me?.offchainBalance ?? "0");
+    if (Number.isFinite(amt) && amt > offchainBalance) {
+      form.setError("amount", {
+        message: `Amount exceeds available balance (max ${offchainBalance.toLocaleString(
+          "id-ID"
+        )})`,
+      });
+      valid = false;
+    }
     if (!valid) return;
     goNext();
   };
+
+  const handleBankAccountChange = (value: string) => {
+    form.setValue("bankAccountId", value, { shouldDirty: true });
+    if (value === "add") {
+      goNext();
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <ErrorMessage message="Failed to load bank accounts. Please try again." />
+      </div>
+    );
+  }
 
   return (
     <Form {...(form as any)}>
@@ -53,14 +85,15 @@ export function BankSelectStep() {
             <FormItem>
               <FormControl>
                 <DashboardSelect
-                  label="Bank account"
+                  label="To"
                   value={field.value ?? undefined}
-                  onValueChange={(v) => field.onChange(v)}
+                  onValueChange={handleBankAccountChange}
                   placeholder="Select a bank account"
                 >
-                  {MOCK_ACCOUNTS.map((a) => (
-                    <SelectItem key={a.id} value={a.id}>
-                      {a.label}
+                  {(accounts || []).map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.accountHolderName} - {account.bankName}••••{" "}
+                      {account.accountNumberLast4}
                     </SelectItem>
                   ))}
                   <SelectItem value="add">+ Add new bank account…</SelectItem>

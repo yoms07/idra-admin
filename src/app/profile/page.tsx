@@ -85,7 +85,7 @@ function ProfilePage() {
         createAccount(
           {
             accountHolderName,
-            bankName, // send bank code expected by API
+            bankCode: bankName, // send bank code expected by API
             accountNumber,
             isDefault: false,
           },

@@ -17,7 +17,7 @@ export const SupportedBanksResponseSchema = baseResponse(
 
 export const CreateBankAccountRequestSchema = z.object({
   accountHolderName: z.string().min(1),
-  bankName: z.string().min(1), // server expects code like "bank_central_asia"
+  bankCode: z.string().min(1), // server expects code like "bank_central_asia"
   accountNumber: z.string().min(1),
   isDefault: z.boolean().optional().default(false),
 });
@@ -26,6 +26,7 @@ export const BankAccountSchema = z.object({
   id: z.string(),
   accountHolderName: z.string(),
   accountNumber: z.string(),
+  bankCode: z.string(),
   bankName: z.string(),
   accountNumberLast4: z.string(),
   isDefault: z.boolean(),

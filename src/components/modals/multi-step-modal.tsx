@@ -36,7 +36,8 @@ export type MultiStep = {
   footer?: React.ReactNode;
   renderFooter?: (ctx: StepRenderContext) => React.ReactNode;
   // Optional per-step progress visibility override
-  showProgress?: boolean;
+  showProgressBar?: boolean;
+  showProgressStep?: boolean;
 };
 
 export type MultiStepModalProps = {
@@ -44,7 +45,8 @@ export type MultiStepModalProps = {
   onOpenChange: (open: boolean) => void;
   steps: MultiStep[];
   initialStep?: number;
-  showProgress?: boolean;
+  showProgressBar?: boolean;
+  showProgressStep?: boolean;
   showNavigation?: boolean; // show Previous/Next default controls
   headerChildren?: React.ReactNode; // right-side or below title area
   renderFooter?: (ctx: StepRenderContext) => React.ReactNode; // custom footer
@@ -71,7 +73,8 @@ export function MultiStepModal({
   onOpenChange,
   steps,
   initialStep = 0,
-  showProgress = true,
+  showProgressBar = true,
+  showProgressStep = true,
   showNavigation = true,
   headerChildren,
   renderFooter,
@@ -114,26 +117,33 @@ export function MultiStepModal({
   );
 
   const progress = stepCount > 1 ? ((clampedIndex + 1) / stepCount) * 100 : 0;
-  const stepShowProgress = current?.showProgress;
-  const shouldShowProgress = stepShowProgress ?? showProgress;
+  const stepShowProgress = current?.showProgressBar;
+  const shouldShowProgressBar = stepShowProgress ?? showProgressBar;
+  const shouldShowProgressStep = current?.showProgressStep ?? showProgressStep;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn("max-h-[85vh] flex flex-col overflow-hidden", className)}
       >
-        <DialogHeader>
+        <DialogHeader className="mb-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
-              {current?.title && <DialogTitle>{current.title}</DialogTitle>}
-              {shouldShowProgress && stepCount > 1 && (
-                <div className="mt-3">
-                  <Progress value={progress} />
+              {current?.title && (
+                <DialogTitle className="text-center text-2xl py-2">
+                  {current.title}
+                </DialogTitle>
+              )}
+              <div className="mt-3">
+                {shouldShowProgressBar && stepCount > 1 && (
+                  <Progress value={progress} className="h-1.5" />
+                )}
+                {shouldShowProgressStep && stepCount > 1 && (
                   <div className="text-xs text-muted-foreground mt-1">
                     Step {clampedIndex + 1} of {stepCount}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
             {headerChildren && <div className="shrink-0">{headerChildren}</div>}
           </div>

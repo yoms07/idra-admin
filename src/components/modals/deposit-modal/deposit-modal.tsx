@@ -111,7 +111,7 @@ export function DepositModal({
           content: <SuccessStep />,
           renderFooter: () => null,
           footer: null,
-          showProgress: false,
+          showProgressBar: false,
         },
       ];
     }
