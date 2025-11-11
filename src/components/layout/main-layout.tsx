@@ -90,9 +90,9 @@ export function MainLayout({ children }: MainLayoutProps) {
                     aria-label="Open profile menu"
                   >
                     <Avatar className="size-9 border-primary border-1">
-                      <AvatarImage src={undefined} alt={user?.walletAddress} />
+                      <AvatarImage src={undefined} alt={user?.name} />
                       <AvatarFallback>
-                        {user?.walletAddress?.slice(2, 3)?.toUpperCase() || "U"}
+                        {user?.name?.slice(2, 3)?.toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
