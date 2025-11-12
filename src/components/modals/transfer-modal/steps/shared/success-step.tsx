@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { useFormContext } from "react-hook-form";
-import type { TransferFormValues, Network } from "../../transfer-modal";
+import type { TransferFormValues } from "../../transfer-modal";
 import { useWithdrawalById } from "@/features/withdrawal";
 import { useBankAccounts } from "@/features/bank-accounts/hooks/useBankAccounts";
 import { usePaymentMethods } from "@/features/withdrawal";
@@ -14,12 +14,7 @@ import {
 import { formatIDR, formatIDRA } from "@/lib/utils";
 import { Copy } from "lucide-react";
 import { useMultiStepModal } from "@/components/modals/multi-step-modal";
-
-// Format network name for display
-function formatNetworkName(network: Network | null): string {
-  if (!network) return "-";
-  return network.charAt(0).toUpperCase() + network.slice(1).toUpperCase();
-}
+import { useCurrentNetwork } from "../../hooks/useCurrentNetwork";
 
 // Truncate address for display
 function truncateAddress(address: string | null): string {
@@ -46,7 +41,7 @@ export function SuccessStep() {
   const transferId = form.watch("transferId");
   const amount = form.watch("amount");
   const address = form.watch("address");
-  const network = form.watch("network");
+  const network = useCurrentNetwork();
 
   // Fetch data based on destination
   const { data: withdrawal, isLoading: isLoadingWithdrawal } =
@@ -141,17 +136,6 @@ export function SuccessStep() {
   const transferAddress =
     destination === "onchain" ? transfer?.toAddress || address : null;
 
-  // Get chain name for display
-  const chainName = React.useMemo(() => {
-    if (destination === "onchain") {
-      if (chainInfo) {
-        return chainInfo.name.toUpperCase();
-      }
-      return formatNetworkName(network ?? null);
-    }
-    return null;
-  }, [destination, chainInfo, network]);
-
   const totalValue = amountNum;
 
   if (isLoading) {
@@ -223,7 +207,7 @@ export function SuccessStep() {
                 <div className="w-5 h-5 rounded-full bg-[#111827] flex items-center justify-center">
                   <div className="w-2.5 h-2.5 rounded-sm bg-white transform rotate-45"></div>
                 </div>
-                <span>{chainName || "-"}</span>
+                <span>{network?.name || "-"}</span>
               </div>
             </div>
             <div className="grid grid-cols-2 items-center">
