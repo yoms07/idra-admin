@@ -15,7 +15,7 @@ export function RequireAuthentication({
   }
 
   if (!isAuthenticated) {
-    router.push("/loginv2");
+    router.push("/login");
   }
 
   return <>{children}</>;
@@ -34,7 +34,7 @@ export function RequireNotAuthenticated({
   }
 
   if (isAuthenticated) {
-    router.push("/dashboardv2");
+    router.push("/dashboard");
   }
 
   return <>{children}</>;

@@ -43,17 +43,17 @@ export function MainLayout({ children }: MainLayoutProps) {
         <AppSidebar />
 
         <SidebarInset className="w-full">
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-[#F9F7F5]">
             <SidebarTrigger className="-ml-1" />
             <div className="flex-1" />
-            <div className="flex items-center gap-2">
-              <Button onClick={() => openProfileModal()}>Switch Chain</Button>
+            <div className="flex items-center gap-2 ">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
                     size="icon"
                     aria-label="Notifications"
+                    className="bg-transparent rounded-xl !border-[#D4D4D8] shadow-none border-2"
                   >
                     <Bell className="h-4 w-4" />
                   </Button>
@@ -82,39 +82,10 @@ export function MainLayout({ children }: MainLayoutProps) {
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="h-8 w-8 rounded-full p-0"
-                    aria-label="Open profile menu"
-                  >
-                    <Avatar className="size-9 border-primary border-1">
-                      <AvatarImage src={undefined} alt={user?.name} />
-                      <AvatarFallback>
-                        {user?.name?.slice(2, 3)?.toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 space-y-1">
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile">
-                      <UserRound /> Your Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={handleDisconnect}
-                    className="text-destructive !hover:text-destructive !hover:bg-destructive/10"
-                  >
-                    <LogOut /> Disconnect
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
+          <main className="flex-1 overflow-y-auto pb-16 md:pb-0 bg-[#F9F7F5]">
             {children}
           </main>
 

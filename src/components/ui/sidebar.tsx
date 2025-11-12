@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, VariantProps } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, PanelLeftIcon } from "lucide-react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -253,32 +253,12 @@ function Sidebar({
   );
 }
 
-const DoubleLeftArrow = () => {
-  return (
-    <svg
-      width="14"
-      height="12"
-      viewBox="0 0 14 12"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M13 11L8 6L13 1M6 11L1 6L6 1"
-        stroke="black"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
-  );
-};
-
 function SidebarTrigger({
   className,
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, open } = useSidebar();
 
   return (
     <Button
@@ -293,7 +273,7 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <DoubleLeftArrow />
+      {open ? <ChevronsLeft size={12} /> : <ChevronsRight size={12} />}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

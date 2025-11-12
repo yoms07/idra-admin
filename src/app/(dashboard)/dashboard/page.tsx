@@ -75,11 +75,11 @@ function DashboardPage() {
     <MainLayout>
       <div className="space-y-6 p-4">
         {/* Overview card */}
-        <div className="rounded-xl p-5 bg-[#F5F5F5]">
+        <div className="rounded-xl p-5 bg-[#123033] text-white">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-md font-semibold">Hello, {me.data?.name}</p>
-              <p className="text-xs mt-2 text-neutral-950 flex items-center gap-1">
+              <p className="text-xs mt-2 flex items-center gap-1">
                 Total Balance <Info size={14} />
               </p>
               <h2 className="text-4xl font-semibold mt-1">
@@ -88,7 +88,7 @@ function DashboardPage() {
             </div>
             <div className="flex gap-3">
               <Button
-                className="gap-2 "
+                className="gap-2 bg-transparent text-white border-white"
                 variant="secondary"
                 onClick={() => setTransferOpen(true)}
               >
@@ -157,8 +157,8 @@ function DashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border">
-            <Table>
+          <div className="rounded-xl border bg-white">
+            <Table className="">
               <TableHeader>
                 <TableRow className="font-semibold">
                   <TableHead>Transaction Type</TableHead>

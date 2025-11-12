@@ -14,22 +14,25 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Home, Send, Clock, Settings, ChevronDown } from "lucide-react";
+import {
+  Home,
+  Send,
+  Clock,
+  Settings,
+  ChevronDown,
+  Bell,
+  Zap,
+} from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MintSymbol } from "../icons/mint-symbol";
-import { RedeemSymbol } from "../icons/redeem-symbol";
-import { IDRALogoBlack } from "../icons/idra-logo-black";
 import { IDRALogoLightMode } from "../icons/idra-logo-light-mode";
 import { useMe } from "@/features/auth";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import { GradientAvatar } from "../ui/gradient-avatar";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: <Home /> },
-  { name: "Mint", href: "/mint", icon: <MintSymbol /> },
-  { name: "Redeem", href: "/redeem", icon: <RedeemSymbol /> },
-  { name: "Send", href: "/send", icon: <Send /> },
-  { name: "History", href: "/transactions", icon: <Clock /> },
+  { name: "home", href: "/dashboard", icon: <Home /> },
+  { name: "Referral", href: "#", icon: <Bell /> },
+  { name: "Terms & Policy", href: "#", icon: <Zap /> },
 ];
 
 export function AppSidebar() {

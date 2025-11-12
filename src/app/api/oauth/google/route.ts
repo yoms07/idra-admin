@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
 
     await saveSession(result.token);
 
-    const redirectUrl = new URL("/dashboardv2", request.url);
+    const redirectUrl = new URL("/dashboard", request.url);
 
     return NextResponse.redirect(redirectUrl);
   } catch (error) {
