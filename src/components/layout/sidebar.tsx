@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppStore } from "@/state/stores/appStore";
 import {
@@ -22,12 +22,19 @@ import {
   ChevronDown,
   Bell,
   Zap,
+  LogOut,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { IDRALogoLightMode } from "../icons/idra-logo-light-mode";
-import { useMe } from "@/features/auth";
+import { useMe, useLogout } from "@/features/auth";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import { GradientAvatar } from "../ui/gradient-avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navigation = [
   { name: "home", href: "/dashboard", icon: <Home /> },
@@ -37,7 +44,16 @@ const navigation = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: me } = useMe();
+  const { reset } = useAppStore();
+  const { mutateAsync: logout } = useLogout();
+
+  const handleLogout = async () => {
+    reset();
+    await logout();
+    router.push("/login");
+  };
 
   return (
     <Sidebar>
@@ -89,23 +105,36 @@ export function AppSidebar() {
 
           {/* User attachment */}
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="py-5">
-              <button className="flex gap-1 justify-between hover:gap-2">
-                <span className="flex items-center gap-1.5">
-                  <Avatar className="size-5">
-                    <AvatarImage src={""} className="size-5" />
-                    <AvatarFallback>
-                      <GradientAvatar
-                        name={me?.name || ""}
-                        className="size-5 text-xs"
-                      />
-                    </AvatarFallback>
-                  </Avatar>
-                  <span>{me?.name}</span>
-                </span>
-                <ChevronDown className="text-muted-foreground" />
-              </button>
-            </SidebarMenuButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton className="py-5 w-full">
+                  <div className="flex gap-1 justify-between items-center w-full">
+                    <span className="flex items-center gap-1.5">
+                      <Avatar className="size-5">
+                        <AvatarImage src={""} className="size-5" />
+                        <AvatarFallback>
+                          <GradientAvatar
+                            name={me?.name || ""}
+                            className="size-5 text-xs"
+                          />
+                        </AvatarFallback>
+                      </Avatar>
+                      <span>{me?.name}</span>
+                    </span>
+                    <ChevronDown className="text-muted-foreground" />
+                  </div>
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer !hover:bg-primary"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
