@@ -77,11 +77,11 @@ function TestimonialMarquee() {
   ];
 
   const testimonialsRight = [
-    {
-      question: "Who is the team behind $IDRA?",
-      answer:
-        "IDRA is managed by Xellar, an experienced Indonesian team specializing in finance, blockchain technology, and regulatory compliance.",
-    },
+    // {
+    //   question: "Who is the team behind $IDRA?",
+    //   answer:
+    //     "IDRA is managed by Xellar, an experienced Indonesian team specializing in finance, blockchain technology, and regulatory compliance.",
+    // },
     {
       question: "How can I trust that its value is really 1:1 with Rupiah?",
       answer:
