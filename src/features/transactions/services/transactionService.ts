@@ -19,15 +19,11 @@ export const transactionService = {
       ...transaction,
       createdAt: new Date(transaction.createdAt),
       updatedAt: new Date(transaction.updatedAt),
-      mintedAt: transaction.mintedAt
-        ? new Date(transaction.mintedAt)
-        : undefined,
-      readyToMintAt: transaction.readyToMintAt
-        ? new Date(transaction.readyToMintAt)
-        : undefined,
-      expiresAt: transaction.expiresAt
-        ? new Date(transaction.expiresAt)
-        : undefined,
+      mintedAt: transaction.mintedAt ? new Date(transaction.mintedAt) : null,
+      expiresAt: transaction.expiresAt ? new Date(transaction.expiresAt) : null,
+      completedAt: transaction.completedAt
+        ? new Date(transaction.completedAt)
+        : null,
     } as UnifiedTransaction;
   },
 
@@ -39,19 +35,15 @@ export const transactionService = {
       ...transaction,
       createdAt: new Date(transaction.createdAt),
       updatedAt: new Date(transaction.updatedAt),
-      mintedAt: transaction.mintedAt
-        ? new Date(transaction.mintedAt)
-        : undefined,
-      readyToMintAt: transaction.readyToMintAt
-        ? new Date(transaction.readyToMintAt)
-        : undefined,
-      expiresAt: transaction.expiresAt
-        ? new Date(transaction.expiresAt)
-        : undefined,
+      mintedAt: transaction.mintedAt ? new Date(transaction.mintedAt) : null,
+      expiresAt: transaction.expiresAt ? new Date(transaction.expiresAt) : null,
+      completedAt: transaction.completedAt
+        ? new Date(transaction.completedAt)
+        : null,
     })) as UnifiedTransaction[];
 
     return {
-      data: transactions,
+      data: transactions as UnifiedTransaction[],
       pagination: parsed.pagination,
     };
   },

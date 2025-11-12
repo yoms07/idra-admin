@@ -17,13 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  ArrowDownToLine,
-  Calendar,
-  ChevronDown,
-  Info,
-  Send,
-} from "lucide-react";
+import { ArrowDownToLine, Calendar, Info, Send } from "lucide-react";
 import * as React from "react";
 import { DateRange } from "react-day-picker";
 import { DepositModal } from "@/components/modals/deposit-modal/deposit-modal";
@@ -37,39 +31,106 @@ import {
 import TransferModal from "@/components/modals/transfer-modal/transfer-modal";
 import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
 import { useMe } from "@/features/auth";
-import { formatIDR, formatIDRA } from "@/lib/utils";
+import { formatDate, formatIDR, formatIDRA } from "@/lib/utils";
+import { useTransactionList } from "@/features/transactions/hooks/useTransactions";
+import type {
+  TransactionType,
+  UnifiedTransaction,
+} from "@/features/transactions/schema/transaction";
+import { Loader } from "@/components/common/Loader";
 
 function DashboardPage() {
   const me = useMe();
   const [date, setDate] = React.useState<DateRange | undefined>();
   const [depositOpen, setDepositOpen] = React.useState(false);
   const [transferOpen, setTransferOpen] = React.useState(false);
-  const rows = [
-    {
-      type: "Send On-Chain",
-      amount: "1.000.000.000",
-      asset: "$IDRA",
-      date: "08/12/2024 | 09:12",
-      method: "Blockchain Wallet",
-      status: "In Progress",
-    },
-    {
-      type: "Deposit",
-      amount: "1.000.000.000",
-      asset: "$IDRA",
-      date: "08/12/2024 | 09:12",
-      method: "Bank Transfer",
-      status: "Success",
-    },
-    {
-      type: "Send On-Chain",
-      amount: "1.000.000.000",
-      asset: "$IDRA",
-      date: "08/12/2024 | 09:12",
-      method: "Blockchain Wallet",
-      status: "Success",
-    },
-  ];
+  const [selectedType, setSelectedType] = React.useState<string>("all");
+
+  // Build query params from filters
+  const queryParams = React.useMemo(() => {
+    const params: {
+      page?: number;
+      limit?: number;
+      type?: TransactionType;
+      startDate?: string;
+      endDate?: string;
+    } = {
+      page: 1,
+      limit: 10,
+    };
+
+    // Add type filter
+    if (selectedType !== "all") {
+      if (selectedType === "send") {
+        params.type = "transfer";
+      } else {
+        params.type = selectedType as TransactionType;
+      }
+    }
+
+    // Add date range filter
+    if (date?.from) {
+      params.startDate = date.from.toISOString().split("T")[0];
+    }
+    if (date?.to) {
+      params.endDate = date.to.toISOString().split("T")[0];
+    }
+
+    return params;
+  }, [selectedType, date]);
+
+  const { data: transactionsData, isLoading } = useTransactionList(queryParams);
+
+  // Format transaction for table display
+  const formatTransactionType = (type: TransactionType): string => {
+    switch (type) {
+      case "transfer":
+        return "Send On-Chain";
+      case "deposit":
+        return "Deposit";
+      case "withdraw":
+        return "Withdraw";
+      default:
+        return type;
+    }
+  };
+
+  // Format transaction method/type
+  const formatTransactionMethod = (transaction: UnifiedTransaction): string => {
+    if (transaction.type === "transfer") {
+      return "Blockchain Wallet";
+    }
+    if (transaction.type === "deposit") {
+      if (transaction.paymentMethod === "qris") {
+        return "QRIS";
+      }
+      if (transaction.paymentMethod?.startsWith("va_")) {
+        return "Virtual Account";
+      }
+      return transaction.paymentMethod || "Bank Transfer";
+    }
+    if (transaction.type === "withdraw") {
+      return transaction.recipientBank?.bankName || "Bank Transfer";
+    }
+    return "-";
+  };
+
+  // Format status
+  const formatStatus = (status: string): string => {
+    switch (status) {
+      case "completed":
+        return "Success";
+      case "pending":
+      case "processing":
+        return "In Progress";
+      case "failed":
+        return "Failed";
+      default:
+        return status;
+    }
+  };
+
+  const transactions = transactionsData?.data || [];
 
   return (
     <MainLayout>
@@ -111,7 +172,7 @@ function DashboardPage() {
             <h3 className="text-xl font-semibold">Transaction</h3>
             <div className="flex items-center gap-4 w-full max-w-lg">
               {/* Transaction Type Select */}
-              <Select>
+              <Select value={selectedType} onValueChange={setSelectedType}>
                 <SelectTrigger className="h-12 rounded-lg text-black w-48">
                   <SelectValue placeholder="Transaction Type" />
                 </SelectTrigger>
@@ -119,6 +180,7 @@ function DashboardPage() {
                   <SelectItem value="all">All</SelectItem>
                   <SelectItem value="deposit">Deposit</SelectItem>
                   <SelectItem value="send">Send On-Chain</SelectItem>
+                  <SelectItem value="withdraw">Withdraw</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -158,41 +220,67 @@ function DashboardPage() {
           </div>
 
           <div className="rounded-xl border bg-white">
-            <Table className="">
-              <TableHeader>
-                <TableRow className="font-semibold">
-                  <TableHead>Transaction Type</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((r, i) => (
-                  <TableRow key={i} className="h-14">
-                    <TableCell>{r.type}</TableCell>
-                    <TableCell>
-                      {r.amount}{" "}
-                      <span className="text-muted-foreground">{r.asset}</span>
-                    </TableCell>
-                    <TableCell>{r.date}</TableCell>
-                    <TableCell>{r.method}</TableCell>
-                    <TableCell className="">
-                      {r.status === "Success" ? (
-                        <Badge className="bg-success-100 text-success-700 border-transparent">
-                          Success
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-warning-100 text-warning-700 border-transparent">
-                          In Progress
-                        </Badge>
-                      )}
-                    </TableCell>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader />
+              </div>
+            ) : transactions.length === 0 ? (
+              <div className="flex items-center justify-center py-12 text-muted-foreground">
+                No transactions found
+              </div>
+            ) : (
+              <Table className="">
+                <TableHeader>
+                  <TableRow className="font-semibold">
+                    <TableHead>Transaction Type</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {transactions.map((transaction) => {
+                    const status = formatStatus(transaction.status);
+                    const amount = formatIDRA(transaction.amount);
+                    return (
+                      <TableRow key={transaction.id} className="h-14">
+                        <TableCell>
+                          {formatTransactionType(transaction.type)}
+                        </TableCell>
+                        <TableCell>
+                          {amount.split(" ")[0]}{" "}
+                          <span className="text-muted-foreground">
+                            {amount.split(" ")[1]}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {formatDate(transaction.createdAt)}
+                        </TableCell>
+                        <TableCell>
+                          {formatTransactionMethod(transaction)}
+                        </TableCell>
+                        <TableCell>
+                          {status === "Success" ? (
+                            <Badge className="bg-success-100 text-success-700 border-transparent">
+                              Success
+                            </Badge>
+                          ) : status === "In Progress" ? (
+                            <Badge className="bg-warning-100 text-warning-700 border-transparent">
+                              In Progress
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-red-100 text-red-700 border-transparent">
+                              {status}
+                            </Badge>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
           </div>
         </div>
       </div>

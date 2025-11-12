@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export type TransactionType = "mint" | "redeem";
+export type TransactionType = "transfer" | "withdraw" | "deposit";
 export type TransactionStatus =
   | "pending"
   | "processing"
@@ -10,10 +10,9 @@ export type TransactionStatus =
   | "expired";
 
 export const TransactionTypeSchema = z.enum([
-  "mint",
-  "redeem",
   "transfer",
-  "burn",
+  "withdraw",
+  "deposit",
 ]);
 export const TransactionStatusSchema = z.enum([
   "pending",
@@ -24,38 +23,81 @@ export const TransactionStatusSchema = z.enum([
   "expired",
 ]);
 
+// Recipient bank schema for withdraw transactions
+export const RecipientBankSchema = z.object({
+  bankCode: z.string(),
+  bankName: z.string(),
+  accountName: z.string(),
+  accountNumber: z.string(),
+});
+
+// Base transaction schema from API
+export const TransactionSchema = z.object({
+  id: z.string(),
+  type: TransactionTypeSchema,
+  status: TransactionStatusSchema,
+  amount: z.string(),
+  originalAmount: z.string().nullable(),
+  inputAmount: z.string().nullable(),
+  redeemAmount: z.string().nullable(),
+  toAddress: z.string().nullable(),
+  transactionHash: z.string().nullable(),
+  paymentReference: z.string().nullable(),
+  paymentStatus: z.string().nullable(),
+  pgFee: z.string().nullable(),
+  platformFee: z.string().nullable(),
+  currency: z.string(),
+  paymentMethod: z.string().nullable(),
+  recipientBank: RecipientBankSchema.nullable(),
+  chainId: z.number().nullable(),
+  mintJobId: z.string().nullable(),
+  mintedAt: z.string().nullable(),
+  expiresAt: z.string().nullable(),
+  completedAt: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  metadata: z.record(z.string(), z.any()).nullable(),
+});
+
 export interface UnifiedTransaction {
   id: string;
   type: TransactionType;
   status: TransactionStatus;
-  amount?: string;
-  fromAddress?: string;
-  toAddress?: string;
-  mintAddress?: string;
-  transactionHash?: string;
-  burnTxHash?: string;
-  chainId: number;
-  paymentReference?: string;
-  paymentStatus?: string;
-  disburseStatus?: string;
-  fee?: string;
-  networkFee?: string;
-  note?: string;
+  amount: string;
+  originalAmount: string | null;
+  inputAmount: string | null;
+  redeemAmount: string | null;
+  toAddress: string | null;
+  transactionHash: string | null;
+  paymentReference: string | null;
+  paymentStatus: string | null;
+  pgFee: string | null;
+  platformFee: string | null;
+  currency: string;
+  paymentMethod: string | null;
+  recipientBank: {
+    bankCode: string;
+    bankName: string;
+    accountName: string;
+    accountNumber: string;
+  } | null;
+  chainId: number | null;
+  mintJobId: string | null;
+  mintedAt: Date | null;
+  expiresAt: Date | null;
+  completedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
-  mintedAt?: Date;
-  readyToMintAt?: Date;
-  expiresAt?: Date;
-  metadata?: object;
+  metadata: Record<string, any> | null;
 }
 
 // API Response schemas
 export const TransactionResponseSchema = z.object({
-  data: z.any(), // We'll validate this as UnifiedTransaction in the service
+  data: TransactionSchema,
 });
 
 export const TransactionListResponseSchema = z.object({
-  data: z.array(z.any()), // We'll validate this as UnifiedTransaction[] in the service
+  data: z.array(TransactionSchema),
   pagination: z.object({
     page: z.number(),
     limit: z.number(),
@@ -106,16 +148,20 @@ export interface TransactionListParams {
   limit?: number;
   type?: TransactionType;
   status?: TransactionStatus;
-  fromAddress?: string;
-  toAddress?: string;
-  mintAddress?: string;
   startDate?: string;
   endDate?: string;
 }
 
-export type TransactionListResponse = z.infer<
-  typeof TransactionListResponseSchema
->;
+// TransactionListResponse with converted dates
+export type TransactionListResponse = {
+  data: UnifiedTransaction[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
 export type TransactionStatsResponse = z.infer<
   typeof TransactionStatsResponseSchema
 >;

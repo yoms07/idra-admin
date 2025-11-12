@@ -21,10 +21,12 @@ interface TransactionCardProps {
 
 const getTransactionIcon = (type: TransactionType) => {
   switch (type) {
-    case "mint":
+    case "deposit":
       return <MintSymbol className="h-4 w-4 text-green-600" />;
-    case "redeem":
+    case "withdraw":
       return <RedeemSymbol className="h-4 w-4 text-blue-600" />;
+    case "transfer":
+      return <Minus className="h-4 w-4 text-purple-600" />;
     default:
       return <Minus className="h-4 w-4 text-gray-600" />;
   }
@@ -44,10 +46,10 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
   });
 
   const explorerUrl =
-    getExplorerTxUrl(
-      transaction.chainId,
-      transaction.transactionHash || transaction.burnTxHash || ""
-    ) || undefined;
+    transaction.chainId && transaction.transactionHash
+      ? getExplorerTxUrl(transaction.chainId, transaction.transactionHash) ||
+        undefined
+      : undefined;
 
   return (
     <>
@@ -75,17 +77,25 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
             <div className="flex items-center gap-2 flex-shrink-0">
               <div className="text-right">
                 <div className="font-semibold text-sm">{amount}</div>
-                {transaction.type === "redeem" && transaction.fromAddress && (
+                {transaction.type === "transfer" && transaction.toAddress && (
                   <div className="text-[11px] text-muted-foreground font-mono truncate max-w-[160px]">
-                    From: {transaction.fromAddress}
+                    To: {transaction.toAddress.slice(0, 10)}...
                   </div>
                 )}
+                {transaction.type === "withdraw" &&
+                  transaction.recipientBank && (
+                    <div className="text-[11px] text-muted-foreground truncate max-w-[160px]">
+                      {transaction.recipientBank.bankName}
+                    </div>
+                  )}
                 {(transaction.paymentReference ||
                   transaction.transactionHash) && (
                   <div className="text-xs text-muted-foreground font-mono truncate max-w-[120px]">
                     {transaction.paymentReference
                       ? `Ref: ${transaction.paymentReference.slice(0, 8)}...`
-                      : `Tx: ${transaction.transactionHash?.slice(0, 8)}...`}
+                      : transaction.transactionHash
+                        ? `Tx: ${transaction.transactionHash.slice(0, 8)}...`
+                        : null}
                   </div>
                 )}
               </div>
@@ -133,17 +143,26 @@ export function TransactionDetailModals({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  return transaction.type === "mint" ? (
-    <MintDetailModal
-      open={open}
-      onOpenChange={onOpenChange}
-      mintId={transaction.id}
-    />
-  ) : (
-    <RedeemDetailModal
-      open={open}
-      onOpenChange={onOpenChange}
-      redeemId={transaction.id}
-    />
-  );
+  // For now, we'll show modals based on type
+  // You may want to create separate modals for transfer/withdraw/deposit
+  if (transaction.type === "deposit") {
+    return (
+      <MintDetailModal
+        open={open}
+        onOpenChange={onOpenChange}
+        mintId={transaction.id}
+      />
+    );
+  }
+  if (transaction.type === "withdraw") {
+    return (
+      <RedeemDetailModal
+        open={open}
+        onOpenChange={onOpenChange}
+        redeemId={transaction.id}
+      />
+    );
+  }
+  // For transfer, we might need a new modal or reuse one
+  return null;
 }
