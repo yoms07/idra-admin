@@ -134,7 +134,13 @@ export function MultiStepModal({
                   {current.title}
                 </DialogTitle>
               )}
-              <div className="mt-3">
+              <div
+                className={cn(
+                  (shouldShowProgressBar || shouldShowProgressStep) &&
+                    stepCount > 1 &&
+                    "mt-3"
+                )}
+              >
                 {shouldShowProgressBar && stepCount > 1 && (
                   <Progress value={progress} className="h-1.5" />
                 )}

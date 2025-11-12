@@ -11,6 +11,7 @@ import {
 import { ChooseDestinationStep } from "./steps/choose-destination-step";
 import { OnchainInputStep } from "./steps/onchain/input-step";
 import { OnchainConfirmStep } from "./steps/onchain/confirm-step";
+import { OnchainProcessingStep } from "./steps/onchain/processing-step";
 import { OtpStep } from "./steps/shared/otp-step";
 import { ProcessingStep } from "./steps/shared/processing-step";
 import { SuccessStep } from "./steps/shared/success-step";
@@ -19,14 +20,13 @@ import { BankConfirmStep } from "./steps/bank/confirm-step";
 import { AddBankAccountStep } from "./steps/bank/add-bank-account-step";
 
 export type TransferDestination = "bank" | "onchain";
-export type Network = "ethereum" | "polygon" | "solana";
 
 export type TransferFormValues = {
   destination: TransferDestination | null;
   amount: number | null;
   // onchain specifics
   address?: string | null;
-  network?: Network | null;
+  chainId?: number | null;
   // bank specifics
   bankAccountId?: string | null; // "add" means add new account
   paymentMethodType?: "bank" | "e-wallet" | null;
@@ -37,6 +37,8 @@ export type TransferFormValues = {
   otp?: string | null;
   // Withdrawal ID after creation
   withdrawalId?: string | null;
+  // Transfer ID after creation
+  transferId?: string | null;
 };
 
 export type TransferModalProps = {
@@ -56,7 +58,7 @@ export function TransferModal({
       destination: null,
       amount: null,
       address: null,
-      network: null,
+      chainId: null,
       bankAccountId: null,
       paymentMethodType: "bank",
       newBankCode: null,
@@ -64,6 +66,7 @@ export function TransferModal({
       newAccountHolderName: null,
       otp: null,
       withdrawalId: null,
+      transferId: null,
     },
     mode: "onChange",
   });
@@ -112,11 +115,15 @@ export function TransferModal({
         },
         {
           id: "on-confirm",
-          title: "Confirm transfer",
+          title: "Are you sure want to transfer your Assets?",
           content: <OnchainConfirmStep />,
         },
         { id: "otp", title: "Verify OTP", content: <OtpStep /> },
-        { id: "processing", title: "Processing", content: <ProcessingStep /> },
+        {
+          id: "processing",
+          title: "Processing",
+          content: <OnchainProcessingStep />,
+        },
         { id: "success", title: "Success", content: <SuccessStep /> },
       ];
     }
@@ -140,7 +147,7 @@ export function TransferModal({
         steps.push(
           {
             id: "bank-confirm",
-            title: "Are you sure want to transfer you'r Assets?",
+            title: "Are you sure want to transfer your Assets?",
             content: <BankConfirmStep />,
           },
           { id: "otp", title: "Verify OTP", content: <OtpStep /> },

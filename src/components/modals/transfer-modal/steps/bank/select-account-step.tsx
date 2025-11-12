@@ -34,13 +34,13 @@ export function BankSelectStep() {
       valid = false;
     }
     const amt = Number(v.amount ?? 0);
-    if (!Number.isFinite(amt) || amt <= 0) {
+    if (amt <= 0) {
       form.setError("amount", { message: "Amount must be greater than 0" });
       valid = false;
     }
     // Validate against offchain balance (from auth/me)
     const offchainBalance = Number(me?.offchainBalance ?? "0");
-    if (Number.isFinite(amt) && amt > offchainBalance) {
+    if (amt > offchainBalance) {
       form.setError("amount", {
         message: `Amount exceeds available balance (max ${offchainBalance.toLocaleString(
           "id-ID"
@@ -76,7 +76,7 @@ export function BankSelectStep() {
   }
 
   return (
-    <Form {...(form as any)}>
+    <Form {...form}>
       <div className="space-y-6">
         <FormField
           control={form.control}

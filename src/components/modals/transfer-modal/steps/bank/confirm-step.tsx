@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { useMultiStepModal } from "@/components/modals/multi-step-modal";
 import { useBankAccounts } from "@/features/bank-accounts/hooks/useBankAccounts";
 import { useCreateWithdrawal, usePaymentMethods } from "@/features/withdrawal";
-import { CheckCircle } from "lucide-react";
 import { formatIDR, formatIDRA } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 
@@ -46,7 +45,7 @@ export function BankConfirmStep() {
     if (!selectedAccount) {
       return;
     }
-    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+    if (amountNum <= 0) {
       return;
     }
     try {

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useFormContext } from "react-hook-form";
-import type { TransferFormValues, Network } from "../../transfer-modal";
+import type { TransferFormValues } from "../../transfer-modal";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -17,10 +17,14 @@ import { SelectItem } from "@/components/ui/select";
 import DashboardSelect from "@/components/dashboard/select";
 import { useMultiStepModal } from "@/components/modals/multi-step-modal";
 import { isValidEthereumAddress } from "@/lib/utils";
+import { useSupportedChains } from "@/features/transfer/hooks/useTransfer";
 
 export function OnchainInputStep() {
   const form = useFormContext<TransferFormValues>();
   const { goNext } = useMultiStepModal();
+
+  const { data: supportedChains, isLoading: isLoadingChains } =
+    useSupportedChains();
 
   const proceed = () => {
     const v = form.getValues();
@@ -36,8 +40,8 @@ export function OnchainInputStep() {
       valid = false;
     }
 
-    if (!v.network) {
-      form.setError("network", { message: "Choose a network" });
+    if (!v.chainId) {
+      form.setError("chainId", { message: "Choose a network" });
       valid = false;
     }
 
@@ -50,6 +54,26 @@ export function OnchainInputStep() {
     if (!valid) return;
     goNext();
   };
+
+  // Show loading state while fetching chains
+  if (isLoadingChains) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-muted-foreground">Loading networks...</div>
+      </div>
+    );
+  }
+
+  // Show error if no supported chains
+  if (!isLoadingChains && (supportedChains || []).length === 0) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-muted-foreground">
+          No supported networks available. Please try again later.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Form {...(form as any)}>
@@ -74,19 +98,21 @@ export function OnchainInputStep() {
 
         <FormField
           control={form.control}
-          name="network"
+          name="chainId"
           render={({ field }) => (
             <FormItem>
               <FormControl>
                 <DashboardSelect
                   label="Network"
-                  value={(field.value as Network | null) ?? undefined}
-                  onValueChange={(v) => field.onChange(v as Network)}
+                  value={field.value?.toString()}
+                  onValueChange={(v) => field.onChange(Number(v))}
                   placeholder="Select a network"
                 >
-                  <SelectItem value="ethereum">Ethereum</SelectItem>
-                  <SelectItem value="polygon">Polygon</SelectItem>
-                  <SelectItem value="solana">Solana</SelectItem>
+                  {(supportedChains || []).map((option) => (
+                    <SelectItem key={option.id} value={option.id.toString()}>
+                      {option.name}
+                    </SelectItem>
+                  ))}
                 </DashboardSelect>
               </FormControl>
               <FormMessage />

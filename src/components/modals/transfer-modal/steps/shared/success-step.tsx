@@ -3,25 +3,65 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { useFormContext } from "react-hook-form";
-import type { TransferFormValues } from "../../transfer-modal";
+import type { TransferFormValues, Network } from "../../transfer-modal";
 import { useWithdrawalById } from "@/features/withdrawal";
 import { useBankAccounts } from "@/features/bank-accounts/hooks/useBankAccounts";
 import { usePaymentMethods } from "@/features/withdrawal";
+import {
+  useTransferById,
+  useSupportedChains,
+} from "@/features/transfer/hooks/useTransfer";
 import { formatIDR, formatIDRA } from "@/lib/utils";
 import { Copy } from "lucide-react";
 import { useMultiStepModal } from "@/components/modals/multi-step-modal";
 
+// Format network name for display
+function formatNetworkName(network: Network | null): string {
+  if (!network) return "-";
+  return network.charAt(0).toUpperCase() + network.slice(1).toUpperCase();
+}
+
+// Truncate address for display
+function truncateAddress(address: string | null): string {
+  if (!address) return "-";
+  if (address.length <= 10) return address;
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+// Format transaction hash for display (can be long, split across lines)
+function formatTxHash(txHash: string | null | undefined): string {
+  if (!txHash) return "-";
+  if (txHash.length <= 20) return txHash;
+  // Split into chunks for better display
+  const chunk1 = txHash.slice(0, 28);
+  const chunk2 = txHash.slice(28);
+  return `${chunk1}\n${chunk2}`;
+}
+
 export function SuccessStep() {
   const form = useFormContext<TransferFormValues>();
   const { close } = useMultiStepModal();
+  const destination = form.watch("destination");
   const withdrawalId = form.watch("withdrawalId");
-  const { data: withdrawal, isLoading } = useWithdrawalById(
-    withdrawalId || undefined
+  const transferId = form.watch("transferId");
+  const amount = form.watch("amount");
+  const address = form.watch("address");
+  const network = form.watch("network");
+
+  // Fetch data based on destination
+  const { data: withdrawal, isLoading: isLoadingWithdrawal } =
+    useWithdrawalById(
+      destination === "bank" ? withdrawalId || undefined : undefined
+    );
+  const { data: transfer, isLoading: isLoadingTransfer } = useTransferById(
+    destination === "onchain" ? transferId || undefined : undefined
   );
+  const { data: supportedChains } = useSupportedChains();
   const { data: accounts } = useBankAccounts();
   const { data: paymentMethods } = usePaymentMethods();
 
-  const amount = form.watch("amount");
+  const isLoading = isLoadingWithdrawal || isLoadingTransfer;
+
   const bankAccountId = form.watch("bankAccountId");
   const selectedAccount = accounts?.find((a) => a.id === bankAccountId);
 
@@ -36,41 +76,82 @@ export function SuccessStep() {
   }, [selectedAccount, paymentMethods]);
 
   const amountNum = Number(amount ?? 0);
+
+  // Get chain info for transfers
+  const chainInfo = React.useMemo(() => {
+    if (!transfer?.chainId || !supportedChains) return null;
+    return supportedChains.find((c) => c.id === transfer.chainId);
+  }, [transfer, supportedChains]);
+
+  // Calculate fees
   const feeEstimate = React.useMemo(() => {
-    if (!selectedPaymentMethod || !amountNum) return 0;
-    const flatFee = selectedPaymentMethod.feeFlat || 0;
-    const percentageFee =
-      (amountNum * (selectedPaymentMethod.feePercentage || 0)) / 100;
-    return flatFee + percentageFee;
-  }, [selectedPaymentMethod, amountNum]);
+    if (destination === "onchain" && transfer?.transferFees) {
+      // Sum all fees paid by user
+      const userFees = transfer.transferFees
+        .filter((f) => f.paidBy === "user")
+        .reduce((sum, f) => sum + parseFloat(f.amount || "0"), 0);
+      return userFees;
+    }
+    if (destination === "bank" && selectedPaymentMethod && amountNum) {
+      const flatFee = selectedPaymentMethod.feeFlat || 0;
+      const percentageFee =
+        (amountNum * (selectedPaymentMethod.feePercentage || 0)) / 100;
+      return flatFee + percentageFee;
+    }
+    return 0;
+  }, [destination, transfer, selectedPaymentMethod, amountNum]);
 
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = React.useState<string | null>(null);
 
-  const handleCopy = async (text: string) => {
+  const handleCopy = async (text: string, type: string) => {
     await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    setCopied(type);
+    setTimeout(() => setCopied(null), 1500);
   };
 
-  const date = withdrawal?.createdAt
-    ? new Date(withdrawal.createdAt).toLocaleString("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : new Date().toLocaleString("id-ID", {
+  // Get transaction date
+  const date = React.useMemo(() => {
+    const dateStr =
+      destination === "onchain" ? transfer?.createdAt : withdrawal?.createdAt;
+    if (dateStr) {
+      return new Date(dateStr).toLocaleString("id-ID", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
       });
+    }
+    return new Date().toLocaleString("id-ID", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }, [destination, transfer, withdrawal]);
 
-  const txid = withdrawal?.id || "-";
-  const bankName = selectedAccount?.bankName || "-";
-  const accountName = selectedAccount?.accountHolderName || "-";
+  // Get transaction ID
+  const txid =
+    destination === "onchain"
+      ? transfer?.transactionHash || transfer?.id || "-"
+      : withdrawal?.id || "-";
+
+  // Get address for onchain transfers
+  const transferAddress =
+    destination === "onchain" ? transfer?.toAddress || address : null;
+
+  // Get chain name for display
+  const chainName = React.useMemo(() => {
+    if (destination === "onchain") {
+      if (chainInfo) {
+        return chainInfo.name.toUpperCase();
+      }
+      return formatNetworkName(network ?? null);
+    }
+    return null;
+  }, [destination, chainInfo, network]);
+
   const totalValue = amountNum;
 
   if (isLoading) {
@@ -108,29 +189,80 @@ export function SuccessStep() {
 
       {/* Checkmark icon */}
       <div className="flex items-center justify-center py-8">
-        <div className="w-32 h-32 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-6xl">
+        <div className="w-32 h-32 rounded-xl bg-red-500 flex items-center justify-center text-white text-6xl shadow-lg">
           ✓
         </div>
       </div>
 
       {/* Details rows */}
       <div className="grid grid-cols-1 gap-4">
-        <div className="grid grid-cols-2 items-center">
-          <div className="text-[#4B5563] text-base">Bank Name</div>
-          <div className="font-semibold text-right">{bankName}</div>
-        </div>
-        <div className="grid grid-cols-2 items-center">
-          <div className="text-[#4B5563] text-base">Account Name</div>
-          <div className="font-semibold text-right">{accountName}</div>
-        </div>
-        <div className="grid grid-cols-2 items-center">
+        {/* Bank-specific fields */}
+        {destination === "bank" && (
+          <>
+            <div className="grid grid-cols-2 items-center">
+              <div className="text-[#4B5563] text-base">Bank Name</div>
+              <div className="font-semibold text-right">
+                {selectedAccount?.bankName || "-"}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 items-center">
+              <div className="text-[#4B5563] text-base">Account Name</div>
+              <div className="font-semibold text-right">
+                {selectedAccount?.accountHolderName || "-"}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Onchain-specific fields */}
+        {destination === "onchain" && (
+          <>
+            <div className="grid grid-cols-2 items-center">
+              <div className="text-[#4B5563] text-base">Chain</div>
+              <div className="font-semibold text-right flex items-center justify-end gap-2">
+                <div className="w-5 h-5 rounded-full bg-[#111827] flex items-center justify-center">
+                  <div className="w-2.5 h-2.5 rounded-sm bg-white transform rotate-45"></div>
+                </div>
+                <span>{chainName || "-"}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 items-center">
+              <div className="text-[#4B5563] text-base">Address</div>
+              <div className="flex items-center justify-end gap-2">
+                <span className="font-semibold font-mono text-sm">
+                  {truncateAddress(transferAddress ?? null)}
+                </span>
+                {transferAddress && transferAddress !== "-" && (
+                  <button
+                    onClick={() => handleCopy(transferAddress, "address")}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    title="Copy address"
+                  >
+                    <Copy className="size-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Transaction ID */}
+        <div className="grid grid-cols-2 items-start">
           <div className="text-[#4B5563] text-base">Txid</div>
-          <div className="flex items-center justify-end gap-2">
-            <span className="font-semibold">{txid}</span>
+          <div className="flex items-start justify-end gap-2">
+            <div className="text-right">
+              {txid !== "-" && txid.length > 30 ? (
+                <div className="font-semibold font-mono text-sm whitespace-pre-line break-all">
+                  {formatTxHash(txid)}
+                </div>
+              ) : (
+                <span className="font-semibold font-mono text-sm">{txid}</span>
+              )}
+            </div>
             {txid !== "-" && (
               <button
-                onClick={() => handleCopy(txid)}
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => handleCopy(txid, "txid")}
+                className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 mt-0.5"
                 title="Copy transaction ID"
               >
                 <Copy className="size-4" />
@@ -138,32 +270,42 @@ export function SuccessStep() {
             )}
           </div>
         </div>
+
+        {/* Send Assets */}
         <div className="grid grid-cols-2 items-center">
           <div className="text-[#4B5563] text-base">Send Assets</div>
           <div className="font-semibold text-right flex items-center justify-end gap-2">
-            <span className="text-lg">A</span>
+            <div className="w-5 h-5 rounded-full bg-[#111827] flex items-center justify-center">
+              <span className="text-white text-xs font-bold">A</span>
+            </div>
             <span>
               {amountNum > 0
                 ? amountNum.toLocaleString("id-ID", {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
+                    minimumFractionDigits: 3,
+                    maximumFractionDigits: 3,
                   })
-                : "0"}
+                : "0.000"}
             </span>
           </div>
         </div>
+
+        {/* Fee Estimate */}
         <div className="grid grid-cols-2 items-center">
           <div className="text-[#4B5563] text-base">Fee Estimate</div>
           <div className="font-semibold text-right">
             {feeEstimate > 0 ? formatIDR(feeEstimate) : "Rp 0"}
           </div>
         </div>
+
+        {/* Total Value */}
         <div className="grid grid-cols-2 items-center">
           <div className="text-[#4B5563] text-base">Total Value</div>
           <div className="font-semibold text-right">
             {formatIDR(totalValue)}
           </div>
         </div>
+
+        {/* Date */}
         <div className="grid grid-cols-2 items-center">
           <div className="text-[#4B5563] text-base">Date</div>
           <div className="font-semibold text-right">{date}</div>
