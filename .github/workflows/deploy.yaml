@@ -13,8 +13,11 @@ jobs:
         sudo su - root -c "
           cd /root/idra-dashboard
           git pull
-          pnpm install
-          pnpm run build
-          pm2 reload ecosystem.config.js
-          pm2 save
+          source /root/.bashrc
+          source /root/.profile
+          export PATH=/root/.nvm/versions/node/v25.2.0/bin:$PATH
+          /root/.nvm/versions/node/v25.2.0/bin/pnpm install
+          /root/.nvm/versions/node/v25.2.0/bin/pnpm run build
+          /root/.nvm/versions/node/v25.2.0/bin/pm2 reload ecosystem.config.js
+          /root/.nvm/versions/node/v25.2.0/bin/pm2 save
         "
