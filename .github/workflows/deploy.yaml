@@ -1,0 +1,20 @@
+name: Yapp Auto Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+    - name: Deploy application
+      run: |
+        sudo su - root -c "
+          cd /root/idra-dashboard
+          git pull
+          pnpm install
+          pnpm run build
+          pm2 reload ecosystem.config.js
+          pm2 save
+        "
