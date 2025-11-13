@@ -30,10 +30,9 @@ export async function GET(request: NextRequest) {
     });
 
     await saveSession(result.token);
+    const baseUrl = `${request.headers.get("x-forwarded-proto")}://${request.headers.get("host")}`;
 
-    const redirectUrl = new URL("/dashboard", request.url);
-
-    return NextResponse.redirect(redirectUrl);
+    return NextResponse.redirect(new URL("/dashboard", baseUrl));
   } catch (error) {
     console.error("Google OAuth callback error:", error);
     const errorUrl = new URL("/login", request.url);
