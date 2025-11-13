@@ -1,5 +1,4 @@
 import fs from "fs";
-import path from "path";
 import ReactMarkdown from "react-markdown";
 
 export const dynamic = "force-static";
@@ -18,7 +17,7 @@ export default async function TermsPage() {
   return (
     <div className="bg-landing-background">
       <div className="max-w-7xl mx-auto px-6 pb-8">
-        <div className="prose prose-gray max-w-none">
+        <div className="prose prose-gray max-w-none font-figtree">
           <ReactMarkdown>{markdownContent}</ReactMarkdown>
         </div>
       </div>

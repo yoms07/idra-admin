@@ -90,6 +90,8 @@ function DashboardPage() {
         return "Deposit";
       case "withdraw":
         return "Withdraw";
+      case "onchain_deposit":
+        return "OnChain Deposit";
       default:
         return type;
     }
@@ -111,6 +113,9 @@ function DashboardPage() {
     }
     if (transaction.type === "withdraw") {
       return transaction.recipientBank?.bankName || "Bank Transfer";
+    }
+    if (transaction.type === "onchain_deposit") {
+      return "Token Transfer";
     }
     return "-";
   };
@@ -178,7 +183,10 @@ function DashboardPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="deposit">Deposit</SelectItem>
+                  <SelectItem value="deposit">Wallet Deposit</SelectItem>
+                  <SelectItem value="onchain_deposit">
+                    OnChain Deposit
+                  </SelectItem>
                   <SelectItem value="send">Send On-Chain</SelectItem>
                   <SelectItem value="withdraw">Withdraw</SelectItem>
                 </SelectContent>

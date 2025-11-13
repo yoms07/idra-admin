@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-export type TransactionType = "transfer" | "withdraw" | "deposit";
+export type TransactionType =
+  | "transfer"
+  | "withdraw"
+  | "deposit"
+  | "onchain_deposit";
 export type TransactionStatus =
   | "pending"
   | "processing"
@@ -13,6 +17,7 @@ export const TransactionTypeSchema = z.enum([
   "transfer",
   "withdraw",
   "deposit",
+  "onchain_deposit",
 ]);
 export const TransactionStatusSchema = z.enum([
   "pending",
