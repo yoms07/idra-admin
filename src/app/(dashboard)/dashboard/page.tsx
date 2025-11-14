@@ -142,7 +142,7 @@ function DashboardPage() {
       <div className="space-y-6 p-4">
         {/* Overview card */}
         <div className="rounded-xl p-5 bg-[#123033] text-white">
-          <div className="flex items-start justify-between">
+          <div className="flex-col md:flex items-start justify-between">
             <div>
               <p className="text-md font-semibold">Hello, {me.data?.name}</p>
               <p className="text-xs mt-2 flex items-center gap-1">
@@ -152,7 +152,7 @@ function DashboardPage() {
                 {formatIDRA(me.data?.offchainBalance || 0)}
               </h2>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 mt-4  md:mt-0">
               <Button
                 className="gap-2 bg-transparent text-white border-white"
                 variant="secondary"
@@ -173,12 +173,12 @@ function DashboardPage() {
         <TransferModal open={transferOpen} onOpenChange={setTransferOpen} />
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex-col md:flex items-center justify-between gap-4">
             <h3 className="text-xl font-semibold">Transaction</h3>
-            <div className="flex items-center gap-4 w-full max-w-lg">
+            <div className="flex items-center gap-4 w-full max-w-lg mt-2 md:mt-0">
               {/* Transaction Type Select */}
               <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger className="h-12 rounded-lg text-black w-48">
+                <SelectTrigger className="h-12 rounded-lg text-black md:w-48">
                   <SelectValue placeholder="Transaction Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -217,10 +217,10 @@ function DashboardPage() {
 
               {/* Date range picker */}
               <Popover>
-                <PopoverTrigger asChild className="w-48">
+                <PopoverTrigger asChild className="md:w-48">
                   <Button
                     variant="ghost"
-                    className="flex-1 justify-start rounded-lg text-muted-foreground gap-2 font-light h-9 w-48 border-border border-1 hover:bg-white"
+                    className="flex-1 justify-start rounded-lg text-muted-foreground gap-2 font-light h-9 md:w-48 border-border border-1 hover:bg-white overflow-hidden"
                   >
                     {date?.from ? (
                       date.to ? (

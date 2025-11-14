@@ -78,13 +78,6 @@ export function ProcessingStep() {
         className="mx-auto"
         alt="hour-glass"
       />
-
-      {/* Action Button */}
-      <div className="pt-2">
-        <Button className="w-full" onClick={goNext}>
-          View Transaction
-        </Button>
-      </div>
     </div>
   );
 }

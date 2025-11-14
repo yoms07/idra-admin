@@ -13,13 +13,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, LogOut, UserRound } from "lucide-react";
+import { Bell, ChevronDown, LogOut, UserRound } from "lucide-react";
 import {
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
+  SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { useXellarAccount, useProfileModal } from "@xellar/kit";
+import { SolidAvatar } from "../ui/solid-avatar";
+import { useRouter } from "next/navigation";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -27,14 +30,15 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const { reset, notifications } = useAppStore();
+  const router = useRouter();
   const { open: openProfileModal } = useProfileModal();
-  const { data: user } = useMe();
+  const me = useMe();
   const { mutateAsync: logout } = useLogout();
 
-  const handleDisconnect = async () => {
+  const handleLogout = async () => {
     reset();
     await logout();
-    window.location.href = "/login";
+    router.push("/login");
   };
 
   return (
@@ -80,6 +84,34 @@ export function MainLayout({ children }: MainLayoutProps) {
                       ))}
                     </div>
                   )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild className="md:hidden">
+                  <SidebarMenuButton className="py-5 w-full">
+                    <div className="flex gap-1 justify-between items-center w-full">
+                      <span className="flex items-center gap-1.5">
+                        <Avatar className="size-8">
+                          <AvatarImage src={""} className="size-8" />
+                          <AvatarFallback>
+                            <SolidAvatar
+                              name={me?.data?.name || ""}
+                              className="size-8 text-md"
+                            />
+                          </AvatarFallback>
+                        </Avatar>
+                      </span>
+                    </div>
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer !hover:bg-primary"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Logout</span>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
