@@ -1,4 +1,5 @@
 "use client";
+import { QrcodeCanvas } from "react-qrcode-pretty";
 
 import * as React from "react";
 import { useFormContext } from "react-hook-form";
@@ -64,13 +65,25 @@ export function WalletDepositStep() {
         {address && (
           <div className="p-4 !bg-[#F1F5F9] rounded-xl font-figtree">
             <div className="flex items-center justify-center">
-              <img
+              <div className="border-8 border-black rounded-xl p-3 bg-white">
+                <QrcodeCanvas
+                  value={address}
+                  variant={{
+                    eyes: "circle",
+                    body: "dots",
+                  }}
+                  size={230}
+                  divider
+                  image={"/images/logo-mobile.png"}
+                />
+              </div>
+              {/* <img
                 alt="Wallet Address QR"
                 className="border rounded-md p-2 bg-white"
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(address)}`}
                 width={200}
                 height={200}
-              />
+              /> */}
             </div>
             <p className="mt-4 text-[#64748B]">Wallet Address</p>
 

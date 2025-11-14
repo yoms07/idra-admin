@@ -146,6 +146,9 @@ importers:
       react-otp-input:
         specifier: ^3.1.1
         version: 3.1.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-qrcode-pretty:
+        specifier: ^3.3.1
+        version: 3.3.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       siwe:
         specifier: ^3.0.0
         version: 3.0.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
@@ -3852,6 +3855,9 @@ packages:
     resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
     engines: {node: '>=12'}
 
+  downloadjs@1.4.7:
+    resolution: {integrity: sha512-LN1gO7+u9xjU5oEScGFKvXhYf7Y/empUIIEAGBs1LzUq/rg5duiDrkuH5A2lQGd5jfMOb9X9usDa2oVXwJ0U/Q==}
+
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
@@ -6078,6 +6084,9 @@ packages:
     resolution: {integrity: sha512-91M3sVlA7xCFpkJtYX5xzVH8tDo4rNZ7jr8v+1CRgPVkZ4D+Vl9y8rtZWJ/YkEUM6U/h0FAu5W/JAK7iowOteA==}
     engines: {node: '>= 20.19.0'}
 
+  qrcode-generator@1.5.2:
+    resolution: {integrity: sha512-pItrW0Z9HnDBnFmgiNrY1uxRdri32Uh9EjNYLPVC2zZ3ZRIIEqBoDgm4DkvDwNNDHTK7FNkmr8zAa77BYc9xNw==}
+
   qrcode.react@4.2.0:
     resolution: {integrity: sha512-QpgqWi8rD9DsS9EP3z7BT+5lY5SFhsqGjpgW5DY/i3mK4M9DTBNz3ErMi8BWYEfI3L0d8GIbGmcdFAS1uIRGjA==}
     peerDependencies:
@@ -6197,6 +6206,12 @@ packages:
     peerDependencies:
       react: '>=16.8.6 || ^17.0.0 || ^18.0.0'
       react-dom: '>=16.8.6 || ^17.0.0 || ^18.0.0'
+
+  react-qrcode-pretty@3.3.1:
+    resolution: {integrity: sha512-wu3SwCWAEVLvi+6ZeSffofVECIFltwopFQMS45FK+TUw9KblfMuHRLZ2Jnptme0fngj5yGbLnRqzkuO8z8G7nQ==}
+    peerDependencies:
+      react: '>=17'
+      react-dom: '>=17'
 
   react-reconciler@0.31.0:
     resolution: {integrity: sha512-7Ob7Z+URmesIsIVRjnLoDGwBEG/tVitidU0nMsqX/eeJaLY89RISO/10ERe0MqmzuKUUB1rmY+h1itMbUHg9BQ==}
@@ -12538,6 +12553,8 @@ snapshots:
 
   dotenv@17.2.3: {}
 
+  downloadjs@1.4.7: {}
+
   dunder-proto@1.0.1:
     dependencies:
       call-bind-apply-helpers: 1.0.2
@@ -15243,6 +15260,8 @@ snapshots:
 
   qr@0.5.2: {}
 
+  qrcode-generator@1.5.2: {}
+
   qrcode.react@4.2.0(react@19.1.0):
     dependencies:
       react: 19.1.0
@@ -15418,6 +15437,13 @@ snapshots:
 
   react-otp-input@3.1.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+
+  react-qrcode-pretty@3.3.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      downloadjs: 1.4.7
+      qrcode-generator: 1.5.2
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
