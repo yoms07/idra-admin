@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useIsAuthenticated } from "../hooks/authHook";
+import { Loader } from "@/components/common/Loader";
 
 export function RequireAuthentication({
   children,
@@ -11,7 +12,11 @@ export function RequireAuthentication({
   const router = useRouter();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen min-w-screen flex items-center justify-center">
+        <Loader className="size-40" />
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
@@ -30,7 +35,11 @@ export function RequireNotAuthenticated({
   const router = useRouter();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen min-w-screen flex items-center justify-center">
+        <Loader className="size-40" />
+      </div>
+    );
   }
 
   if (isAuthenticated) {
