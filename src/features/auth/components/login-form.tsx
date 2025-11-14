@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Mail, Lock } from "lucide-react";
+import { PasswordInput } from "@/components/ui/password-input";
 import { GoogleIcon } from "@/components/icons/google";
 import { getEnv } from "@/lib/schema/env";
 
@@ -49,14 +50,15 @@ export function LoginForm() {
 
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           placeholder="••••••••"
           autoComplete="current-password"
           leftElement={<Lock className="size-4" />}
           value={form.watch("password")}
-          onChange={(e) => form.setValue("password", e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            form.setValue("password", e.target.value)
+          }
         />
         {errors.password && (
           <p className="text-red-600 text-sm">{errors.password.message}</p>

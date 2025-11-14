@@ -31,7 +31,7 @@ import {
 import TransferModal from "@/components/modals/transfer-modal/transfer-modal";
 import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
 import { useMe } from "@/features/auth";
-import { formatDate, formatIDR, formatIDRA } from "@/lib/utils";
+import { cn, formatDate, formatIDR, formatIDRA } from "@/lib/utils";
 import { useTransactionList } from "@/features/transactions/hooks/useTransactions";
 import type {
   TransactionType,
@@ -220,7 +220,12 @@ function DashboardPage() {
                 <PopoverTrigger asChild className="md:w-48">
                   <Button
                     variant="ghost"
-                    className="flex-1 justify-start rounded-lg text-muted-foreground gap-2 font-light h-9 md:w-48 border-border border-1 hover:bg-white overflow-hidden"
+                    className={cn(
+                      "flex-1 justify-start rounded-lg gap-2 font-light h-9 md:w-48 border-border border-1 hover:bg-white overflow-hidden",
+                      date?.from && date?.to
+                        ? "text-black"
+                        : "text-muted-foreground"
+                    )}
                   >
                     {date?.from ? (
                       date.to ? (
@@ -273,8 +278,8 @@ function DashboardPage() {
             ) : (
               <Table className="">
                 <TableHeader>
-                  <TableRow className="font-semibold hover:bg-transparent">
-                    <TableHead>Transaction Type</TableHead>
+                  <TableRow className="font-semibold bg-[#F5F5F5] hover:bg-[#F5F5F5]">
+                    <TableHead className="md:pl-8">Transaction Type</TableHead>
                     <TableHead>Amount</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Type</TableHead>
@@ -286,8 +291,11 @@ function DashboardPage() {
                     const status = formatStatus(transaction.status);
                     const amount = formatIDRA(transaction.amount);
                     return (
-                      <TableRow key={transaction.id} className="h-14">
-                        <TableCell>
+                      <TableRow
+                        key={transaction.id}
+                        className="h-14 hover:bg-[#F5F5F5]"
+                      >
+                        <TableCell className="md:pl-8">
                           {formatTransactionType(transaction.type)}
                         </TableCell>
                         <TableCell>

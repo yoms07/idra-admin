@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
+import { PasswordInput } from "@/components/ui/password-input";
 import {
   useResetPassword,
   useVerifyResetToken,
@@ -106,9 +107,8 @@ export function ResetPasswordForm() {
     <form onSubmit={form.handleSubmit(onSubmit)} className="px-6 space-y-5">
       <div className="space-y-2 mt-4">
         <Label htmlFor="newPassword">New Password</Label>
-        <Input
+        <PasswordInput
           id="newPassword"
-          type="password"
           placeholder="Enter new password"
           autoComplete="new-password"
           leftElement={<Lock className="size-4" />}
@@ -123,9 +123,8 @@ export function ResetPasswordForm() {
 
       <div className="space-y-2">
         <Label htmlFor="confirmPassword">Confirm Password</Label>
-        <Input
+        <PasswordInput
           id="confirmPassword"
-          type="password"
           placeholder="Confirm new password"
           autoComplete="new-password"
           leftElement={<Lock className="size-4" />}

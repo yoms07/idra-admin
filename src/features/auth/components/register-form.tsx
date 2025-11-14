@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mail, Lock, User } from "lucide-react";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export function RegisterForm() {
   const form = useFormContext<AuthFormValues>();
@@ -54,14 +55,15 @@ export function RegisterForm() {
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           placeholder="••••••••"
           autoComplete="new-password"
           leftElement={<Lock className="size-4" />}
           value={form.watch("password")}
-          onChange={(e) => form.setValue("password", e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            form.setValue("password", e.target.value)
+          }
         />
         {errors.password && (
           <p className="text-red-600 text-sm">{errors.password.message}</p>
@@ -69,14 +71,15 @@ export function RegisterForm() {
       </div>
       <div className="space-y-2">
         <Label htmlFor="confirm">Confirm password</Label>
-        <Input
+        <PasswordInput
           id="confirm"
-          type="password"
           placeholder="••••••••"
           autoComplete="new-password"
           leftElement={<Lock className="size-4" />}
           value={form.watch("confirmPassword") ?? ""}
-          onChange={(e) => form.setValue("confirmPassword", e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            form.setValue("confirmPassword", e.target.value)
+          }
         />
         {errors.confirmPassword && (
           <p className="text-red-600 text-sm">
