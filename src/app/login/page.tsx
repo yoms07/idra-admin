@@ -4,6 +4,7 @@ import { IDRALogo } from "@/components/icons/idra-logo";
 import { GoogleIcon } from "@/components/icons/google";
 import { Button } from "@/components/ui/button";
 import {
+  AuthFormValues,
   AuthProvider,
   useAuth,
 } from "@/features/auth/components/form-provider";
@@ -12,9 +13,11 @@ import RegisterForm from "@/features/auth/components/register-form";
 import OtpForm from "@/features/auth/components/otp-form";
 import ForgotPasswordForm from "@/features/auth/components/forgot-password-form";
 import { RequireNotAuthenticated } from "@/features/auth/components/auth-wrapper";
+import { useFormContext } from "react-hook-form";
 
 function AuthBody() {
   const { step } = useAuth();
+  const form = useFormContext<AuthFormValues>();
   const title =
     step === "login"
       ? "Welcome back"
@@ -30,7 +33,7 @@ function AuthBody() {
         ? "Please fill your details to create an account."
         : step === "forgot-password"
           ? "Enter your email address and we'll send you a link to reset your password."
-          : "Enter the 6-digit code we sent to your email.";
+          : `We just sent a 6-digit code to ${form.watch("email") || "your email"}`;
 
   return (
     <main

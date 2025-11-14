@@ -5,15 +5,24 @@ import { useFormContext } from "react-hook-form";
 import OtpInput from "react-otp-input";
 import { useAuth } from "./form-provider";
 import type { AuthFormValues } from "./form-provider";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 export function OtpForm() {
   const form = useFormContext<AuthFormValues>();
   const { verifyOtp, loading, switchTo } = useAuth();
-  const email = form.watch("email");
   const otpValue = form.watch("otp") ?? "";
   const errors = form.formState.errors;
+  const [hasAutoVerified, setHasAutoVerified] = React.useState(false);
+
+  React.useEffect(() => {
+    if (otpValue.length === 6 && !loading && !hasAutoVerified) {
+      setHasAutoVerified(true);
+      verifyOtp();
+    }
+    if (otpValue.length < 6) {
+      setHasAutoVerified(false);
+    }
+  }, [otpValue, loading, hasAutoVerified, verifyOtp]);
 
   return (
     <div className="px-6 space-y-5">
@@ -24,7 +33,6 @@ export function OtpForm() {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="otp">One-Time Password</Label>
         <OtpInput
           value={otpValue}
           onChange={(value) => form.setValue("otp", value)}
@@ -32,10 +40,9 @@ export function OtpForm() {
           renderInput={(props) => (
             <input
               {...props}
-              className="!size-12 border border-input bg-background text-center text-sm shadow-xs transition-all outline-none rounded-md focus:border-ring focus:ring-ring/50 focus:ring-[3px] focus:z-10 disabled:cursor-not-allowed disabled:opacity-50"
+              className="!size-14 border border-[#A3A3A3] text-center text-sm transition-all outline-none rounded-lg focus:border-ring focus:ring-ring/50 focus:ring-[3px] focus:z-10 disabled:cursor-not-allowed disabled:opacity-50"
             />
           )}
-          renderSeparator={() => <div className="w-4">•</div>}
           containerStyle={{
             display: "flex",
             gap: "0.5rem",
@@ -44,9 +51,7 @@ export function OtpForm() {
           }}
           inputType="text"
         />
-        <div className="text-xs text-muted-foreground">
-          We sent a code to {email || "your email"}.
-        </div>
+
         {errors.otp && (
           <p className="text-red-600 text-sm">{errors.otp.message}</p>
         )}
