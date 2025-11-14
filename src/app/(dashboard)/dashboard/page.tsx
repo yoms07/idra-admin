@@ -142,7 +142,7 @@ function DashboardPage() {
       <div className="space-y-6 p-4">
         {/* Overview card */}
         <div className="rounded-xl p-5 bg-[#123033] text-white">
-          <div className="flex-col md:flex items-start justify-between">
+          <div className="flex-col md:flex md:flex-row items-start justify-between">
             <div>
               <p className="text-md font-semibold">Hello, {me.data?.name}</p>
               <p className="text-xs mt-2 flex items-center gap-1">
@@ -173,7 +173,7 @@ function DashboardPage() {
         <TransferModal open={transferOpen} onOpenChange={setTransferOpen} />
 
         <div className="space-y-3">
-          <div className="flex-col md:flex items-center justify-between gap-4">
+          <div className="flex-col md:flex md:flex-row items-center justify-between gap-4">
             <h3 className="text-xl font-semibold">Transaction</h3>
             <div className="flex items-center gap-4 w-full max-w-lg mt-2 md:mt-0">
               {/* Transaction Type Select */}
