@@ -247,7 +247,7 @@ export function PaymentSummaryStep() {
               )}
             </div>
 
-            <div>
+            <div className="border-t-1 pt-3">
               <button
                 type="button"
                 onClick={() => setShowGuideIBanking((v) => !v)}
@@ -277,7 +277,7 @@ export function PaymentSummaryStep() {
               )}
             </div>
 
-            <div>
+            <div className="border-t-1 pt-3">
               <button
                 type="button"
                 onClick={() => setShowGuideATM((v) => !v)}
