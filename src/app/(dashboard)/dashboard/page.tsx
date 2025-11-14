@@ -249,6 +249,13 @@ function DashboardPage() {
                     selected={date}
                     onSelect={setDate}
                     buttonVariant="ghost"
+                    classNames={{
+                      day_button:
+                        "data-[range-middle=true]:bg-primary-100 data-[range-middle=true]:text-black",
+                      day: "hello world",
+                      range_start: "bg-primary-100 rounded-l-md",
+                      range_end: "bg-primary-100 rounded-r-md",
+                    }}
                   />
                   {date?.from && (
                     <div className=" border-t">
