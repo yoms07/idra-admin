@@ -33,28 +33,36 @@ function AuthBody() {
           : "Enter the 6-digit code we sent to your email.";
 
   return (
-    <main className="min-h-screen h-screen w-full px-0 py-6 md:p-10">
-      <div className="mx-auto grid grid-cols-1 gap-8 md:grid-cols-2 h-full">
+    <main
+      className="h-screen w-full"
+      style={{
+        background: "url('/images/login-bg.png') no-repeat center center",
+        backgroundSize: "cover",
+      }}
+    >
+      <div className="mx-auto grid grid-cols-1 gap-8 h-full">
         {/* Left: Auth Panel */}
-        <div className="flex flex-col gap-6 rounded-xl py-0 md:py-6 justify-center max-w-xl w-full mx-auto min-h-screen md:h-auto">
-          <div className="px-6 flex flex-col items-center">
-            <IDRALogo />
-            <h2 className="text-4xl leading-none font-semibold text-center mt-4">
-              {title}
-            </h2>
-            <p className="text-[#535862] text-center mt-2 text-md font-light">
-              {subtitle}
-            </p>
-          </div>
-          <div className="px-0 md:px-6 space-y-5">
-            {step === "login" && <LoginForm />}
-            {step === "register" && <RegisterForm />}
-            {step === "otp" && <OtpForm />}
-            {step === "forgot-password" && <ForgotPasswordForm />}
+        <div className="flex flex-col gap-6 rounded-xl py-0 md:py-6 justify-center max-w-md w-full mx-auto min-h-screen md:h-auto">
+          <div className="px-2 py-4 bg-white rounded-lg">
+            <div className="flex flex-col items-center">
+              <IDRALogo />
+              <h2 className="text-4xl leading-none font-semibold text-center mt-4">
+                {title}
+              </h2>
+              <p className="text-[#535862] text-center mt-2 text-md font-light">
+                {subtitle}
+              </p>
+            </div>
+            <div className="space-y-5">
+              {step === "login" && <LoginForm />}
+              {step === "register" && <RegisterForm />}
+              {step === "otp" && <OtpForm />}
+              {step === "forgot-password" && <ForgotPasswordForm />}
+            </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border overflow-hidden bg-muted/40 w-full h-full min-h-0 hidden md:block">
+        {/* <div className="rounded-2xl border overflow-hidden bg-muted/40 w-full h-full min-h-0 hidden md:block">
           <div className="grid h-full w-full place-items-center p-3">
             <img
               src="/images/login-page.png"
@@ -62,7 +70,7 @@ function AuthBody() {
               className="h-full w-auto max-w-full object-cover"
             />
           </div>
-        </div>
+        </div> */}
       </div>
     </main>
   );

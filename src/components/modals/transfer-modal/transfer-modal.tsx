@@ -86,9 +86,9 @@ export function TransferModal({
     renderFooter: ({ goNext }) => {
       const canProceed = !!form.watch("destination");
       return (
-        <div className="flex w-full items-center justify-between">
+        <div className="flex w-full items-center justify-end gap-2">
           <Button
-            variant="outline"
+            variant="outline-secondary"
             onClick={() => {
               form.reset();
               onOpenChange(false);

@@ -179,8 +179,8 @@ export function BankConfirmStep() {
         </Alert>
       )}
 
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={goPrevious}>
+      <div className="flex justify-end gap-2">
+        <Button variant="outline-secondary" onClick={goPrevious}>
           Back
         </Button>
         <Button
