@@ -53,6 +53,16 @@ export const PaymentMethodListResponseSchema = baseResponse(
   z.array(PaymentMethodSchema)
 );
 
+export const CheckFirstTimeRequestSchema = z.object({
+  accountNumber: z.string().min(1, "Account number is required"),
+});
+
+export const CheckFirstTimeResponseSchema = baseResponse(
+  z.object({
+    isFirstTime: z.boolean(),
+  })
+);
+
 export type CreateWithdrawalRequest = z.infer<
   typeof CreateWithdrawalRequestSchema
 >;
@@ -61,3 +71,7 @@ export type CreateWithdrawalResponse = z.infer<
 >["data"];
 export type Withdrawal = z.infer<typeof WithdrawalSchema>;
 export type PaymentMethod = z.infer<typeof PaymentMethodSchema>;
+export type CheckFirstTimeRequest = z.infer<typeof CheckFirstTimeRequestSchema>;
+export type CheckFirstTimeResponse = z.infer<
+  typeof CheckFirstTimeResponseSchema
+>["data"];

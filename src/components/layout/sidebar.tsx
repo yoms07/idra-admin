@@ -37,9 +37,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const navigation = [
-  { name: "home", href: "/dashboard", icon: <Home /> },
-  { name: "Referral", href: "#", icon: <Bell /> },
-  { name: "Terms & Policy", href: "#", icon: <Zap /> },
+  {
+    name: "Home",
+    href: "/dashboard",
+    icon: <Home className="w-full h-full" />,
+  },
+  // { name: "Referral", href: "#", icon: <Bell /> },
+  {
+    name: "Terms & Policy",
+    href: "#",
+    icon: <Zap className="h-full w-full" />,
+  },
 ];
 
 export function AppSidebar() {
@@ -76,10 +84,20 @@ export function AppSidebar() {
                       asChild
                       isActive={isActive}
                       tooltip={item.name}
-                      className="font-semibold py-5"
+                      className="font-semibold h-12"
                     >
-                      <Link href={item.href} className="flex gap-1 hover:gap-2">
-                        {item.icon}
+                      <Link
+                        href={item.href}
+                        className="flex gap-1 hover:gap-2 items-center py-0"
+                      >
+                        <div
+                          style={{
+                            width: "22px",
+                            height: "22px",
+                          }}
+                        >
+                          {item.icon}
+                        </div>
                         <span className="">{item.name}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -94,14 +112,14 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           {/* Settings */}
-          <SidebarMenuItem>
+          {/* <SidebarMenuItem>
             <SidebarMenuButton asChild className="py-5">
               <Link href="#" className="flex gap-1 hover:gap-2">
                 <Settings className="text-muted-foreground" />
                 Settings
               </Link>
             </SidebarMenuButton>
-          </SidebarMenuItem>
+          </SidebarMenuItem> */}
 
           {/* User attachment */}
           <SidebarMenuItem>

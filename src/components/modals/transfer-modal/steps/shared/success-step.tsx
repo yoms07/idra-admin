@@ -15,6 +15,7 @@ import { formatIDR, formatIDRA } from "@/lib/utils";
 import { Copy } from "lucide-react";
 import { useMultiStepModal } from "@/components/modals/multi-step-modal";
 import { useCurrentNetwork } from "../../hooks/useCurrentNetwork";
+import Image from "next/image";
 
 // Truncate address for display
 function truncateAddress(address: string | null): string {
@@ -149,12 +150,10 @@ export function SuccessStep() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="space-y-2 text-center">
-        <h3 className="text-2xl font-semibold">Transferred Details</h3>
-        <div className="h-px bg-border" />
-        <div className="text-3xl font-extrabold mt-4">
+        <div className="text-3xl font-extrabold mt-2">
           -
           {amountNum > 0
             ? amountNum.toLocaleString("id-ID", {
@@ -164,7 +163,7 @@ export function SuccessStep() {
             : "0"}{" "}
           IDRA
         </div>
-        <p className="text-muted-foreground text-sm max-w-md mx-auto">
+        <p className="text-[#404040] text-sm max-w-md mx-auto">
           Crypto transferred out of platform. Please contact the recipient
           platform for your transaction receipt.
         </p>
@@ -172,11 +171,13 @@ export function SuccessStep() {
       </div>
 
       {/* Checkmark icon */}
-      <div className="flex items-center justify-center py-8">
-        <div className="w-32 h-32 rounded-xl bg-red-500 flex items-center justify-center text-white text-6xl shadow-lg">
-          ✓
-        </div>
-      </div>
+      <Image
+        className="mx-auto"
+        src="/images/success-check.png"
+        width={240}
+        height={240}
+        alt="success-check"
+      />
 
       {/* Details rows */}
       <div className="grid grid-cols-1 gap-4">
@@ -259,14 +260,17 @@ export function SuccessStep() {
         <div className="grid grid-cols-2 items-center">
           <div className="text-[#4B5563] text-base">Send Assets</div>
           <div className="font-semibold text-right flex items-center justify-end gap-2">
-            <div className="w-5 h-5 rounded-full bg-[#111827] flex items-center justify-center">
-              <span className="text-white text-xs font-bold">A</span>
-            </div>
+            <Image
+              src="/images/logo-mobile.png"
+              width={20}
+              height={20}
+              alt="idra-coin-logo"
+            />
             <span>
               {amountNum > 0
                 ? amountNum.toLocaleString("id-ID", {
-                    minimumFractionDigits: 3,
-                    maximumFractionDigits: 3,
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
                   })
                 : "0.000"}
             </span>

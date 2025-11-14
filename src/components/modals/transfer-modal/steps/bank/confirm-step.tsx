@@ -6,9 +6,16 @@ import type { TransferFormValues } from "../../transfer-modal";
 import { Button } from "@/components/ui/button";
 import { useMultiStepModal } from "@/components/modals/multi-step-modal";
 import { useBankAccounts } from "@/features/bank-accounts/hooks/useBankAccounts";
-import { useCreateWithdrawal, usePaymentMethods } from "@/features/withdrawal";
+import {
+  useCreateWithdrawal,
+  usePaymentMethods,
+  useCheckFirstTime,
+} from "@/features/withdrawal";
 import { formatIDR, formatIDRA } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 
 export function BankConfirmStep() {
@@ -21,6 +28,17 @@ export function BankConfirmStep() {
 
   const selectedAccount = accounts?.find((a) => a.id === bankAccountId);
   const amountNum = Number(amount ?? 0);
+
+  const { data: firstTimeData, isLoading: isCheckingFirstTime } =
+    useCheckFirstTime(selectedAccount?.accountNumber);
+
+  const isFirstTime = firstTimeData?.isFirstTime ?? false;
+  const [isConfirmed, setIsConfirmed] = React.useState(false);
+
+  // Reset confirmation when account changes
+  React.useEffect(() => {
+    setIsConfirmed(false);
+  }, [selectedAccount?.accountNumber]);
 
   const selectedPaymentMethod = React.useMemo(() => {
     if (!selectedAccount || !paymentMethods) return null;
@@ -49,6 +67,10 @@ export function BankConfirmStep() {
     if (amountNum <= 0) {
       return;
     }
+    // Require checkbox confirmation if it's first time
+    if (isFirstTime && !isConfirmed) {
+      return;
+    }
     try {
       const result = await createWithdrawal.mutateAsync({
         originalAmount: String(amountNum),
@@ -66,6 +88,12 @@ export function BankConfirmStep() {
       console.error("Failed to create withdrawal:", error);
     }
   };
+
+  const canConfirm =
+    selectedAccount &&
+    amountNum > 0 &&
+    (!isFirstTime || isConfirmed) &&
+    !isCheckingFirstTime;
 
   return (
     <div className="space-y-6 font-manrope text-base">
@@ -121,15 +149,49 @@ export function BankConfirmStep() {
         </div>
       </div>
 
+      {/* First time warning */}
+      {isFirstTime && (
+        <Alert className="bg-[#F5F5F5] border-none">
+          <AlertDescription className="text-[#111827]">
+            <div className="space-y-2 flex items-center gap-4">
+              <div className="flex items-center gap-2 mt-3">
+                <Checkbox
+                  id="confirm-first-time"
+                  className="size-5"
+                  checked={isConfirmed}
+                  onCheckedChange={(checked) =>
+                    setIsConfirmed(checked === true)
+                  }
+                />
+              </div>
+              <p
+                className="font-medium text-[#4B5563] text-xs"
+                style={{
+                  lineHeight: "16px",
+                }}
+              >
+                This is the first time you've interacted with this address.{" "}
+                <br />
+                Please check the details carefully before interacting.
+              </p>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="flex justify-between">
         <Button variant="outline" onClick={goPrevious}>
           Back
         </Button>
         <Button
           onClick={onConfirm}
-          disabled={createWithdrawal.isPending || !selectedAccount}
+          disabled={createWithdrawal.isPending || !canConfirm}
         >
-          {createWithdrawal.isPending ? "Processing..." : "Confirm"}
+          {createWithdrawal.isPending
+            ? "Processing..."
+            : isCheckingFirstTime
+              ? "Checking..."
+              : "Confirm"}
         </Button>
       </div>
     </div>

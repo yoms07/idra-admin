@@ -5,10 +5,14 @@ import {
   WithdrawalListResponseSchema,
   WithdrawalResponseSchema,
   PaymentMethodListResponseSchema,
+  CheckFirstTimeRequestSchema,
+  CheckFirstTimeResponseSchema,
   type CreateWithdrawalRequest,
   type CreateWithdrawalResponse,
   type Withdrawal,
   type PaymentMethod,
+  type CheckFirstTimeRequest,
+  type CheckFirstTimeResponse,
 } from "../schema/withdrawal";
 
 export const withdrawalService = {
@@ -39,6 +43,15 @@ export const withdrawalService = {
   async getPaymentMethods(): Promise<PaymentMethod[]> {
     const res = await http.get("/api/wallet/withdrawals-pm");
     const parsed = PaymentMethodListResponseSchema.parse(res.data);
+    return parsed.data;
+  },
+
+  async checkFirstTime(
+    input: CheckFirstTimeRequest
+  ): Promise<CheckFirstTimeResponse> {
+    const body = CheckFirstTimeRequestSchema.parse(input);
+    const res = await http.post("/api/wallet/check-first-time", body);
+    const parsed = CheckFirstTimeResponseSchema.parse(res.data);
     return parsed.data;
   },
 };

@@ -6,6 +6,7 @@ import {
   type CreateWithdrawalResponse,
   type Withdrawal,
   type PaymentMethod,
+  type CheckFirstTimeResponse,
 } from "../schema/withdrawal";
 
 export function useCreateWithdrawal() {
@@ -44,5 +45,14 @@ export function usePaymentMethods() {
   return useQuery<PaymentMethod[]>({
     queryKey: [...withdrawalKeys.all, "payment-methods"],
     queryFn: () => withdrawalService.getPaymentMethods(),
+  });
+}
+
+export function useCheckFirstTime(accountNumber?: string) {
+  return useQuery<CheckFirstTimeResponse>({
+    queryKey: [...withdrawalKeys.all, "check-first-time", accountNumber],
+    queryFn: () =>
+      withdrawalService.checkFirstTime({ accountNumber: accountNumber! }),
+    enabled: !!accountNumber,
   });
 }
