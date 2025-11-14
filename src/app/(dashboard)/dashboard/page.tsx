@@ -182,13 +182,36 @@ function DashboardPage() {
                   <SelectValue placeholder="Transaction Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="deposit">Wallet Deposit</SelectItem>
-                  <SelectItem value="onchain_deposit">
+                  <SelectItem
+                    value="all"
+                    className="focus:bg-primary focus:text-white"
+                  >
+                    All
+                  </SelectItem>
+                  <SelectItem
+                    value="deposit"
+                    className="focus:bg-primary focus:text-white"
+                  >
+                    Wallet Deposit
+                  </SelectItem>
+                  <SelectItem
+                    value="onchain_deposit"
+                    className="focus:bg-primary focus:text-white"
+                  >
                     OnChain Deposit
                   </SelectItem>
-                  <SelectItem value="send">Send On-Chain</SelectItem>
-                  <SelectItem value="withdraw">Withdraw</SelectItem>
+                  <SelectItem
+                    value="send"
+                    className="focus:bg-primary focus:text-white"
+                  >
+                    Send On-Chain
+                  </SelectItem>
+                  <SelectItem
+                    value="withdraw"
+                    className="focus:bg-primary focus:text-white"
+                  >
+                    Withdraw
+                  </SelectItem>
                 </SelectContent>
               </Select>
 
@@ -250,7 +273,7 @@ function DashboardPage() {
             ) : (
               <Table className="">
                 <TableHeader>
-                  <TableRow className="font-semibold">
+                  <TableRow className="font-semibold hover:bg-transparent">
                     <TableHead>Transaction Type</TableHead>
                     <TableHead>Amount</TableHead>
                     <TableHead>Date</TableHead>
