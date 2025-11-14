@@ -43,14 +43,14 @@ export function useWithdrawalList(params?: {
 
 export function usePaymentMethods() {
   return useQuery<PaymentMethod[]>({
-    queryKey: [...withdrawalKeys.all, "payment-methods"],
+    queryKey: withdrawalKeys.paymentMethods(),
     queryFn: () => withdrawalService.getPaymentMethods(),
   });
 }
 
 export function useCheckFirstTime(accountNumber?: string) {
   return useQuery<CheckFirstTimeResponse>({
-    queryKey: [...withdrawalKeys.all, "check-first-time", accountNumber],
+    queryKey: withdrawalKeys.checkFirstTime(accountNumber),
     queryFn: () =>
       withdrawalService.checkFirstTime({ accountNumber: accountNumber! }),
     enabled: !!accountNumber,

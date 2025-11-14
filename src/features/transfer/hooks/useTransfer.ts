@@ -6,6 +6,7 @@ import {
   type CreateTransferResponse,
   type Transfer,
   type SupportedChain,
+  type CheckFirstTimeAddressResponse,
 } from "../schema/transfer";
 
 export function useCreateTransfer() {
@@ -37,5 +38,13 @@ export function useSupportedChains() {
   return useQuery<SupportedChain[]>({
     queryKey: transferKeys.chains(),
     queryFn: () => transferService.getChains(),
+  });
+}
+
+export function useCheckFirstTimeAddress(address?: string) {
+  return useQuery<CheckFirstTimeAddressResponse>({
+    queryKey: transferKeys.checkFirstTimeAddress(address),
+    queryFn: () => transferService.checkFirstTimeAddress({ address: address! }),
+    enabled: !!address,
   });
 }

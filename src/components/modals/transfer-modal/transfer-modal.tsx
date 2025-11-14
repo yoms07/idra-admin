@@ -124,7 +124,11 @@ export function TransferModal({
           title: "Processing",
           content: <OnchainProcessingStep />,
         },
-        { id: "success", title: "Success", content: <SuccessStep /> },
+        {
+          id: "success",
+          title: <h1 className="border-b pb-1">Transfered Details</h1>,
+          content: <SuccessStep />,
+        },
       ];
     }
     if (destination === "bank") {

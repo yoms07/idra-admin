@@ -8,11 +8,15 @@ import { useMultiStepModal } from "@/components/modals/multi-step-modal";
 import {
   useCreateTransfer,
   useSupportedChains,
+  useCheckFirstTimeAddress,
 } from "@/features/transfer/hooks/useTransfer";
-import { Copy, CheckCircle } from "lucide-react";
+import { Copy } from "lucide-react";
 import { formatIDR, formatIDRA } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCurrentNetwork } from "../../hooks/useCurrentNetwork";
+import Image from "next/image";
 
 // Truncate address for display
 function truncateAddress(address: string | null): string {
@@ -34,6 +38,17 @@ export function OnchainConfirmStep() {
   const totalValue = amountNum;
   const idraAmount = amountNum;
 
+  const { data: firstTimeData, isLoading: isCheckingFirstTime } =
+    useCheckFirstTimeAddress(address?.trim());
+
+  const isFirstTime = firstTimeData?.isFirstTime ?? false;
+  const [isConfirmed, setIsConfirmed] = React.useState(false);
+
+  // Reset confirmation when address changes
+  React.useEffect(() => {
+    setIsConfirmed(false);
+  }, [address]);
+
   const handleCopyAddress = async () => {
     if (!address) return;
     await navigator.clipboard.writeText(address);
@@ -43,6 +58,10 @@ export function OnchainConfirmStep() {
 
   const onConfirm = async () => {
     if (!address || !chainId || amountNum <= 0) {
+      return;
+    }
+    // Require checkbox confirmation if it's first time
+    if (isFirstTime && !isConfirmed) {
       return;
     }
     try {
@@ -58,13 +77,26 @@ export function OnchainConfirmStep() {
     }
   };
 
+  const canConfirm =
+    address &&
+    chainId &&
+    amountNum > 0 &&
+    (!isFirstTime || isConfirmed) &&
+    !isCheckingFirstTime;
+
   return (
     <div className="space-y-6 font-manrope text-base">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-[#4B5563]">Send Assets</span>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold">{formatIDRA(idraAmount)}</span>
+          <div className="flex items-center gap-1 font-semibold">
+            <Image
+              src="/images/logo-mobile.png"
+              width={16}
+              height={16}
+              alt="idra-coin-logo"
+            />
+            {amount?.toLocaleString?.("id-ID") ?? amount}
           </div>
         </div>
 
@@ -111,30 +143,49 @@ export function OnchainConfirmStep() {
         </div>
       </div>
 
-      {/* Warning box for first-time address interaction */}
-      {/* <div className="bg-[#F3F4F6] rounded-lg p-4 flex items-start gap-3">
-        <div className="flex-shrink-0 mt-0.5">
-          <div className="w-5 h-5 bg-red-500 rounded flex items-center justify-center">
-            <CheckCircle className="h-3 w-3 text-white" />
-          </div>
-        </div>
-        <p className="text-sm text-[#111827]">
-          This is the first time you've interacted with this address. Please
-          check the details carefully before interacting.
-        </p>
-      </div> */}
+      {/* First time warning */}
+      {isFirstTime && (
+        <Alert className="bg-[#F5F5F5] border-none">
+          <AlertDescription className="text-[#111827]">
+            <div className="space-y-2 flex items-center gap-4">
+              <div className="flex items-center gap-2 mt-3">
+                <Checkbox
+                  id="confirm-first-time"
+                  className="size-5"
+                  checked={isConfirmed}
+                  onCheckedChange={(checked) =>
+                    setIsConfirmed(checked === true)
+                  }
+                />
+              </div>
+              <p
+                className="font-medium text-[#4B5563] text-xs"
+                style={{
+                  lineHeight: "16px",
+                }}
+              >
+                This is the first time you've interacted with this address.{" "}
+                <br />
+                Please check the details carefully before interacting.
+              </p>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
 
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={goPrevious}>
+      <div className="flex justify-end gap-2">
+        <Button variant="outline-secondary" onClick={goPrevious}>
           Back
         </Button>
         <Button
           onClick={onConfirm}
-          disabled={
-            createTransfer.isPending || !address || !chainId || amountNum <= 0
-          }
+          disabled={createTransfer.isPending || !canConfirm}
         >
-          {createTransfer.isPending ? "Loading..." : "Confirm"}
+          {createTransfer.isPending
+            ? "Processing..."
+            : isCheckingFirstTime
+              ? "Checking..."
+              : "Confirm"}
         </Button>
       </div>
     </div>

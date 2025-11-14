@@ -5,10 +5,14 @@ import {
   TransferListResponseSchema,
   TransferResponseSchema,
   SupportedChainsResponseSchema,
+  CheckFirstTimeAddressRequestSchema,
+  CheckFirstTimeAddressResponseSchema,
   type CreateTransferRequest,
   type CreateTransferResponse,
   type Transfer,
   type SupportedChain,
+  type CheckFirstTimeAddressRequest,
+  type CheckFirstTimeAddressResponse,
 } from "../schema/transfer";
 
 export const transferService = {
@@ -37,6 +41,15 @@ export const transferService = {
   async getChains(): Promise<SupportedChain[]> {
     const res = await http.get("/api/wallet/transfer/chains");
     const parsed = SupportedChainsResponseSchema.parse(res.data);
+    return parsed.data;
+  },
+
+  async checkFirstTimeAddress(
+    input: CheckFirstTimeAddressRequest
+  ): Promise<CheckFirstTimeAddressResponse> {
+    const body = CheckFirstTimeAddressRequestSchema.parse(input);
+    const res = await http.post("/api/wallet/check-first-time-address", body);
+    const parsed = CheckFirstTimeAddressResponseSchema.parse(res.data);
     return parsed.data;
   },
 };

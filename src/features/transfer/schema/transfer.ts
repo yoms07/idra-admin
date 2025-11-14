@@ -63,6 +63,17 @@ export const SupportedChainsResponseSchema = baseResponse(
   z.array(SupportedChainSchema)
 );
 
+// Check first time address
+export const CheckFirstTimeAddressRequestSchema = z.object({
+  address: z.string().min(1, "Address is required"),
+});
+
+export const CheckFirstTimeAddressResponseSchema = baseResponse(
+  z.object({
+    isFirstTime: z.boolean(),
+  })
+);
+
 // Types
 export type CreateTransferRequest = z.infer<typeof CreateTransferRequestSchema>;
 export type CreateTransferResponse = z.infer<
@@ -70,3 +81,9 @@ export type CreateTransferResponse = z.infer<
 >["data"];
 export type Transfer = z.infer<typeof TransferSchema>;
 export type SupportedChain = z.infer<typeof SupportedChainSchema>;
+export type CheckFirstTimeAddressRequest = z.infer<
+  typeof CheckFirstTimeAddressRequestSchema
+>;
+export type CheckFirstTimeAddressResponse = z.infer<
+  typeof CheckFirstTimeAddressResponseSchema
+>["data"];

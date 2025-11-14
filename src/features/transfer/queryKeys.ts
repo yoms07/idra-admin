@@ -6,4 +6,6 @@ export const transferKeys = {
   details: () => [...transferKeys.all, "detail"] as const,
   detail: (id: string) => [...transferKeys.details(), { id }] as const,
   chains: () => [...transferKeys.all, "chains"] as const,
+  checkFirstTimeAddress: (address?: string) =>
+    [...transferKeys.all, "check-first-time-address", address] as const,
 };

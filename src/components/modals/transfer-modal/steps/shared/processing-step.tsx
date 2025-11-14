@@ -3,7 +3,6 @@
 import * as React from "react";
 import { useFormContext } from "react-hook-form";
 import type { TransferFormValues } from "../../transfer-modal";
-import { Button } from "@/components/ui/button";
 import { useMultiStepModal } from "@/components/modals/multi-step-modal";
 import { useWithdrawalById } from "@/features/withdrawal";
 import Image from "next/image";
