@@ -17,7 +17,7 @@ export default function ResetPasswordPage() {
       >
         <div className="mx-auto grid grid-cols-1 gap-8 h-full">
           <div className="flex flex-col gap-6 rounded-xl py-0 md:py-6 justify-center max-w-md w-full mx-auto min-h-screen md:h-auto">
-            <div className="px-2 py-4 bg-white rounded-lg">
+            <div className="px-6 py-8 bg-white rounded-lg">
               <div className="flex flex-col items-center">
                 <IDRALogo />
                 <h2 className="text-4xl leading-none font-semibold text-center mt-4">
