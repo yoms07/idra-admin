@@ -35,6 +35,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SolidAvatar } from "../ui/solid-avatar";
 
 const navigation = [
   {
@@ -131,7 +132,7 @@ export function AppSidebar() {
                       <Avatar className="size-5">
                         <AvatarImage src={""} className="size-5" />
                         <AvatarFallback>
-                          <GradientAvatar
+                          <SolidAvatar
                             name={me?.name || ""}
                             className="size-5 text-xs"
                           />
