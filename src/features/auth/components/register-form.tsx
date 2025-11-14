@@ -13,7 +13,6 @@ export function RegisterForm() {
   const form = useFormContext<AuthFormValues>();
   const { submitRegister, loading, switchTo } = useAuth();
   const errors = form.formState.errors;
-  console.log({ errors });
 
   return (
     <div className="px-6 space-y-5">

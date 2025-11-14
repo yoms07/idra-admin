@@ -89,7 +89,6 @@ export const authService = {
     request: GoogleOAuthCallbackRequest
   ): Promise<GoogleOAuthCallbackData> {
     const body = GoogleOAuthCallbackRequestSchema.parse(request);
-    console.log({ body });
     const res = await http.get(
       `/api/auth/oauth/google/callback?code=${body.code}&state=${body.state}`
     );

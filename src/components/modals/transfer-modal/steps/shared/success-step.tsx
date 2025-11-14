@@ -192,7 +192,7 @@ export function SuccessStep() {
             <div className="grid grid-cols-2 items-center">
               <div className="text-[#4B5563] text-base">Account Name</div>
               <div className="font-semibold text-right">
-                {selectedAccount?.accountHolderName || "-"}
+                {selectedAccount?.accountNumber || "-"}
               </div>
             </div>
           </>

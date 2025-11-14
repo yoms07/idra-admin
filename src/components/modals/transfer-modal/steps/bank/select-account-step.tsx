@@ -93,7 +93,7 @@ export function BankSelectStep() {
                   {(accounts || []).map((account) => (
                     <SelectItem key={account.id} value={account.id}>
                       {account.accountHolderName} - {account.bankName}••••{" "}
-                      {account.accountNumberLast4}
+                      {account.accountNumber}
                     </SelectItem>
                   ))}
                   <SelectItem value="add">+ Add new bank account…</SelectItem>

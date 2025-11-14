@@ -34,7 +34,7 @@ function isQRIS(depositPaymentType: string): boolean {
 
 export function ChoosePaymentMethodStep() {
   const form = useFormContext<DepositFormValues>();
-  const { goNext } = useMultiStepModal();
+  const { goNext, goPrevious } = useMultiStepModal();
   const createDeposit = useCreateDeposit();
   const {
     data: paymentMethods,
@@ -216,6 +216,9 @@ export function ChoosePaymentMethodStep() {
         )}
 
         <div className="flex justify-end gap-2">
+          <Button variant="outline-secondary" onClick={goPrevious}>
+            Back
+          </Button>
           <Button
             variant="default"
             onClick={onNext}

@@ -136,15 +136,13 @@ export function MultiStepModal({
               )}
               <div
                 className={cn(
-                  (shouldShowProgressBar || shouldShowProgressStep) &&
-                    stepCount > 1 &&
-                    "mt-3"
+                  (shouldShowProgressBar || shouldShowProgressStep) && "mt-3"
                 )}
               >
-                {shouldShowProgressBar && stepCount > 1 && (
+                {shouldShowProgressBar && (
                   <Progress value={progress} className="h-1.5" />
                 )}
-                {shouldShowProgressStep && stepCount > 1 && (
+                {shouldShowProgressStep && (
                   <div className="text-xs text-muted-foreground mt-1">
                     Step {clampedIndex + 1} of {stepCount}
                   </div>

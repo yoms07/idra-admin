@@ -4,6 +4,7 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { useFormContext } from "react-hook-form";
 import type { DepositFormValues } from "../../deposit-modal";
+import Image from "next/image";
 
 export function SuccessStep() {
   const { reset, watch } = useFormContext<DepositFormValues>();
@@ -23,15 +24,14 @@ export function SuccessStep() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2 -translate-y-3">
       {/* Header */}
       <div className="space-y-2 text-center">
-        <h3 className="text-2xl font-semibold">Transfered Details</h3>
         <div className="h-px bg-border" />
         <div className="text-3xl font-extrabold mt-4">
           +{amount?.toLocaleString?.("id-ID") ?? amount} IDRA
         </div>
-        <p className="text-muted-foreground text-sm max-w-md mx-auto">
+        <p className="text-[#404040] text-sm max-w-md mx-auto">
           Crypto transferred out of platform. Please contact the recipient
           platform for your transaction receipt.
         </p>
@@ -39,11 +39,13 @@ export function SuccessStep() {
       </div>
 
       {/* Lottie placeholder (replace with provided lottie) */}
-      <div className="flex items-center justify-center py-8">
-        <div className="w-32 h-32 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-          ✓
-        </div>
-      </div>
+      <Image
+        className="mx-auto"
+        src="/images/success-check.png"
+        width={240}
+        height={240}
+        alt="success-check"
+      />
 
       {/* Details rows */}
       <div className="grid grid-cols-1 gap-4">

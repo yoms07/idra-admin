@@ -11,10 +11,15 @@ import mBankingGuide from "./mBankingGuide.json";
 import iBankingGuide from "./iBankingGuide.json";
 import atmGuide from "./atmGuide.json";
 import qrisGuide from "./qris.json";
-import { useDepositById, PaymentStatus } from "@/features/deposit";
+import {
+  useDepositById,
+  PaymentStatus,
+  usePaymentMethods,
+} from "@/features/deposit";
 import { ErrorMessage } from "@/components/common/ErrorMessage";
 import { useQueryClient } from "@tanstack/react-query";
 import { authKeys } from "@/features/auth";
+import Image from "next/image";
 
 // Check if payment method is QRIS
 function isQRIS(paymentMethod: string | null | undefined): boolean {
@@ -67,8 +72,19 @@ export function PaymentSummaryStep() {
     paymentInstructions && "bankName" in paymentInstructions
       ? paymentInstructions.bankName
       : undefined;
+  const bankCode =
+    paymentInstructions && "bankCode" in paymentInstructions
+      ? paymentInstructions.bankCode
+      : undefined;
 
   const qc = useQueryClient();
+  const { data: paymentMethods } = usePaymentMethods();
+
+  // Find the matching payment method by bankCode to get the image
+  const matchedPaymentMethod = React.useMemo(() => {
+    if (!bankCode || !paymentMethods) return null;
+    return paymentMethods.find((pm) => pm.bankCode === bankCode) || null;
+  }, [bankCode, paymentMethods]);
 
   const [showGuideMBanking, setShowGuideMBanking] = React.useState(true);
   const [showGuideIBanking, setShowGuideIBanking] = React.useState(false);
@@ -151,8 +167,14 @@ export function PaymentSummaryStep() {
         </div>
         <div className="flex items-center justify-between text-sm">
           <span className="text-[#4B5563] text-base">Receive Assets</span>
-          <span className="font-semibold">
-            {amount?.toLocaleString?.("id-ID") ?? amount} IDRA
+          <span className="font-semibold flex items-center gap-1">
+            <Image
+              src="/images/logo-mobile.png"
+              width={16}
+              height={16}
+              alt="idra-coin-logo"
+            />
+            {amount?.toLocaleString?.("id-ID") ?? amount}
           </span>
         </div>
 
@@ -160,14 +182,21 @@ export function PaymentSummaryStep() {
         {method && !isQRIS(method) && vaAccountNumber && (
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="text-[#4B5563] text-base">Virtual Account</span>
-            <div className="flex items-center gap-2">
-              <span className="font-mono font-medium">
-                {bankName ? `${bankName} ` : ""}
-                {vaAccountNumber}
-              </span>
+            <div className="flex items-center gap-1">
+              {matchedPaymentMethod?.image && (
+                <Image
+                  src={matchedPaymentMethod.image}
+                  alt={matchedPaymentMethod.bankName}
+                  width={28}
+                  height={28}
+                  className="object-contain rounded"
+                />
+              )}
+              <span className="font-mono font-medium">{vaAccountNumber}</span>
               <Button
                 variant="ghost"
                 size="icon"
+                className="p-0 size-6"
                 onClick={() => navigator.clipboard.writeText(vaAccountNumber)}
               >
                 <Copy className="size-4" />
@@ -317,16 +346,21 @@ export function PaymentSummaryStep() {
 
       {error && <ErrorMessage message={error} />}
 
-      <div className="flex justify-between">
+      <div className="flex justify-between gap-2">
         <Button
-          variant="outline"
+          variant="outline-secondary"
           onClick={goPrevious}
           disabled={checkingStatus}
+          className="flex-1"
         >
-          Back
+          Close
         </Button>
-        <Button onClick={onContinue} disabled={checkingStatus}>
-          {checkingStatus ? "Checking payment..." : "I have paid / Continue"}
+        <Button
+          onClick={onContinue}
+          disabled={checkingStatus}
+          className="flex-1"
+        >
+          {checkingStatus ? "Checking payment..." : "Refresh"}
         </Button>
       </div>
     </div>

@@ -9,6 +9,7 @@ import { useBankAccounts } from "@/features/bank-accounts/hooks/useBankAccounts"
 import { useCreateWithdrawal, usePaymentMethods } from "@/features/withdrawal";
 import { formatIDR, formatIDRA } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
 
 export function BankConfirmStep() {
   const form = useFormContext<TransferFormValues>();
@@ -71,8 +72,14 @@ export function BankConfirmStep() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-[#4B5563]">Send Assets</span>
-          <div className="flex items-center gap-2">
-            <span className="font-semibold">{formatIDRA(idraAmount)}</span>
+          <div className="flex items-center gap-1 font-semibold">
+            <Image
+              src="/images/logo-mobile.png"
+              width={16}
+              height={16}
+              alt="idra-coin-logo"
+            />
+            {amount?.toLocaleString?.("id-ID") ?? amount}
           </div>
         </div>
 

@@ -78,7 +78,7 @@ export function DepositModal({
         return (
           <div className="flex w-full items-center justify-end gap-2">
             <Button
-              variant="secondary"
+              variant="outline-secondary"
               onClick={() => {
                 form.reset();
                 onOpenChange(false);
@@ -112,6 +112,7 @@ export function DepositModal({
           renderFooter: () => null,
           footer: null,
           showProgressBar: false,
+          title: <h1 className="border-b pb-1">Transfered Details</h1>,
         },
       ];
     }
@@ -132,6 +133,7 @@ export function DepositModal({
   return (
     <FormProvider {...form}>
       <MultiStepModal
+        showProgressStep={false}
         key={`deposit-${instance}`}
         open={open}
         onOpenChange={(o) => {

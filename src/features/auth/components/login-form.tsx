@@ -16,7 +16,6 @@ export function LoginForm() {
   const form = useFormContext<AuthFormValues>();
   const { submitLogin, loading, switchTo } = useAuth();
   const errors = form.formState.errors;
-  console.log({ errors });
 
   const handleGoogleLogin = () => {
     const apiBaseUrl = getEnv().NEXT_PUBLIC_API_BASE_URL;

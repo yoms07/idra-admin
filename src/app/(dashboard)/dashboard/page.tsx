@@ -222,6 +222,17 @@ function DashboardPage() {
                     onSelect={setDate}
                     buttonVariant="ghost"
                   />
+                  {date?.from && (
+                    <div className=" border-t">
+                      <Button
+                        variant="ghost"
+                        className="w-full text-sm"
+                        onClick={() => setDate(undefined)}
+                      >
+                        Clear filter
+                      </Button>
+                    </div>
+                  )}
                 </PopoverContent>
               </Popover>
             </div>

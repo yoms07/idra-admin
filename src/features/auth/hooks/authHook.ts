@@ -43,7 +43,6 @@ export function useMe() {
 
 export function useIsAuthenticated() {
   const { data: user, isLoading } = useMe();
-  console.log({ user });
   return {
     isAuthenticated: !!user,
     isLoading,

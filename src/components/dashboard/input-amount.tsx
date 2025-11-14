@@ -21,8 +21,24 @@ export function InputAmount({
   className,
   disabled,
 }: InputAmountProps) {
-  const display =
-    value === null || value === undefined || value === "" ? "" : String(value);
+  // Format number with thousand separators
+  const formatWithSeparator = (num: number): string => {
+    if (num === null || num === undefined) return "";
+    return num.toLocaleString("en-US", {
+      maximumFractionDigits: 0,
+      useGrouping: true,
+    });
+  };
+
+  // Remove separators and parse to number
+  const parseInputValue = (input: string): number | null => {
+    const cleaned = input.replace(/,/g, "");
+    if (cleaned === "") return null;
+    const num = Number(cleaned);
+    return Number.isFinite(num) ? num : null;
+  };
+
+  const display = formatWithSeparator(Number(value));
 
   return (
     <div
@@ -37,12 +53,12 @@ export function InputAmount({
         <AutosizeInput
           value={display}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            const v = e.target.value;
-            if (v === "") return onChange(null);
-            const num = Number(v);
-            onChange(Number.isFinite(num) ? num : null);
+            const inputValue = e.target.value;
+            const parsed = parseInputValue(inputValue);
+            onChange(parsed);
           }}
           placeholder="0"
+          disabled={disabled}
           inputClassName={cn(
             "bg-transparent outline-none min-w-16",
             "text-3xl leading-none tracking-tight text-foreground",
