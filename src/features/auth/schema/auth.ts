@@ -143,6 +143,44 @@ export const LogoutDataSchema = z.object({
 });
 export const LogoutResponseSchema = baseResponse(LogoutDataSchema);
 
+// Forgot Password Request
+export const ForgotPasswordRequestSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+export const ForgotPasswordDataSchema = z.object({
+  sent: z.boolean(),
+});
+export const ForgotPasswordResponseSchema = baseResponse(
+  ForgotPasswordDataSchema
+);
+
+// Verify Reset Token Request
+export const VerifyResetTokenRequestSchema = z.object({
+  token: z.string().min(1, "Token is required"),
+});
+
+export const VerifyResetTokenDataSchema = z.object({
+  valid: z.boolean(),
+  email: z.string().email(),
+});
+export const VerifyResetTokenResponseSchema = baseResponse(
+  VerifyResetTokenDataSchema
+);
+
+// Reset Password Request
+export const ResetPasswordRequestSchema = z.object({
+  token: z.string().min(1, "Token is required"),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export const ResetPasswordDataSchema = z.object({
+  success: z.boolean(),
+});
+export const ResetPasswordResponseSchema = baseResponse(
+  ResetPasswordDataSchema
+);
+
 // Type exports
 export type NonceRequest = z.infer<typeof NonceRequestSchema>;
 export type NonceResponse = z.infer<typeof NonceResponseSchema>;
@@ -183,3 +221,18 @@ export type VerifyLoginOtpResponse = z.infer<
 >;
 export type LogoutData = z.infer<typeof LogoutDataSchema>;
 export type LogoutResponse = z.infer<typeof LogoutResponseSchema>;
+export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordRequestSchema>;
+export type ForgotPasswordData = z.infer<typeof ForgotPasswordDataSchema>;
+export type ForgotPasswordResponse = z.infer<
+  typeof ForgotPasswordResponseSchema
+>;
+export type VerifyResetTokenRequest = z.infer<
+  typeof VerifyResetTokenRequestSchema
+>;
+export type VerifyResetTokenData = z.infer<typeof VerifyResetTokenDataSchema>;
+export type VerifyResetTokenResponse = z.infer<
+  typeof VerifyResetTokenResponseSchema
+>;
+export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequestSchema>;
+export type ResetPasswordData = z.infer<typeof ResetPasswordDataSchema>;
+export type ResetPasswordResponse = z.infer<typeof ResetPasswordResponseSchema>;

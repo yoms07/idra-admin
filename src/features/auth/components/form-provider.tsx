@@ -8,6 +8,7 @@ import {
   useRegister,
   useVerifyLoginOtp,
   useVerifyRegisterOtp,
+  useForgotPassword,
 } from "../hooks/authHook";
 import {
   AuthError,
@@ -72,12 +73,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const registerMutation = useRegister();
   const verifyLoginOtpMutation = useVerifyLoginOtp();
   const verifyRegisterOtpMutation = useVerifyRegisterOtp();
+  const forgotPasswordMutation = useForgotPassword();
 
   const loading =
     loginMutation.isPending ||
     registerMutation.isPending ||
     verifyLoginOtpMutation.isPending ||
-    verifyRegisterOtpMutation.isPending;
+    verifyRegisterOtpMutation.isPending ||
+    forgotPasswordMutation.isPending;
 
   const switchTo = (target: AuthStep) => {
     setStep(target);
@@ -238,8 +241,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const submitForgotPassword = async () => {
     const valid = await form.trigger("email");
     if (!valid) return;
-    // TODO: call forgot password API
-    // This endpoint is not in the auth.module, so leaving as placeholder
+
+    try {
+      await forgotPasswordMutation.mutateAsync({
+        email: form.getValues().email,
+      });
+      toast.success(
+        "If an account exists, a password reset link has been sent to your email."
+      );
+    } catch (error) {
+      // Always show success message for security (don't reveal if email exists)
+      toast.success(
+        "If an account exists, a password reset link has been sent to your email."
+      );
+    }
   };
 
   const value: AuthContextValue = {

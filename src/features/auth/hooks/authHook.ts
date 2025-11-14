@@ -9,6 +9,9 @@ import {
   type RegisterRequest,
   type LoginRequest,
   type VerifyOtpRequest,
+  type ForgotPasswordRequest,
+  type VerifyResetTokenRequest,
+  type ResetPasswordRequest,
 } from "../schema/auth";
 import { qc } from "@/state/query/queryClient";
 
@@ -100,5 +103,28 @@ export function useLogout() {
     onSuccess: () => {
       qc.removeQueries({ queryKey: authKeys.all });
     },
+  });
+}
+
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (request: ForgotPasswordRequest) =>
+      authService.forgotPassword(request),
+  });
+}
+
+export function useVerifyResetToken(token?: string) {
+  return useQuery({
+    queryKey: authKeys.verifyResetToken(token),
+    queryFn: () => authService.verifyResetToken({ token: token! }),
+    enabled: !!token,
+    retry: false,
+  });
+}
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: (request: ResetPasswordRequest) =>
+      authService.resetPassword(request),
   });
 }

@@ -15,6 +15,12 @@ import {
   VerifyRegisterOtpResponseSchema,
   VerifyLoginOtpResponseSchema,
   LogoutResponseSchema,
+  ForgotPasswordRequestSchema,
+  ForgotPasswordResponseSchema,
+  VerifyResetTokenRequestSchema,
+  VerifyResetTokenResponseSchema,
+  ResetPasswordRequestSchema,
+  ResetPasswordResponseSchema,
   type NonceRequest,
   type VerifyRequest,
   type GoogleOAuthCallbackRequest,
@@ -31,6 +37,12 @@ import {
   VerifyRegisterOtpData,
   VerifyLoginOtpData,
   LogoutData,
+  type ForgotPasswordRequest,
+  type ForgotPasswordData,
+  type VerifyResetTokenRequest,
+  type VerifyResetTokenData,
+  type ResetPasswordRequest,
+  type ResetPasswordData,
 } from "../schema/auth";
 import { http } from "@/lib/http/client";
 import { SiweMessage } from "siwe";
@@ -167,6 +179,45 @@ export const authService = {
         } catch (_) {}
       }
       return parsedResponse.data;
+    } catch (error) {
+      throw parseAuthError(error);
+    }
+  },
+
+  async forgotPassword(
+    request: ForgotPasswordRequest
+  ): Promise<ForgotPasswordData> {
+    try {
+      const body = ForgotPasswordRequestSchema.parse(request);
+      const res = await http.post("/api/auth/forgot-password", body);
+      const parsed = ForgotPasswordResponseSchema.parse(res.data);
+      return parsed.data;
+    } catch (error) {
+      throw parseAuthError(error);
+    }
+  },
+
+  async verifyResetToken(
+    request: VerifyResetTokenRequest
+  ): Promise<VerifyResetTokenData> {
+    try {
+      const body = VerifyResetTokenRequestSchema.parse(request);
+      const res = await http.post("/api/auth/verify-reset-token", body);
+      const parsed = VerifyResetTokenResponseSchema.parse(res.data);
+      return parsed.data;
+    } catch (error) {
+      throw parseAuthError(error);
+    }
+  },
+
+  async resetPassword(
+    request: ResetPasswordRequest
+  ): Promise<ResetPasswordData> {
+    try {
+      const body = ResetPasswordRequestSchema.parse(request);
+      const res = await http.post("/api/auth/reset-password", body);
+      const parsed = ResetPasswordResponseSchema.parse(res.data);
+      return parsed.data;
     } catch (error) {
       throw parseAuthError(error);
     }
