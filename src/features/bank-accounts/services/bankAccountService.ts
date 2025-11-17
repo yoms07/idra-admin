@@ -9,6 +9,8 @@ import {
   type BankAccount,
 } from "../schema/bankAccount";
 
+const eWalletBankCodes = ["ovo", "gopay", "shopeepay", "dana"];
+
 export const bankAccountService = {
   async listBanks(): Promise<SupportedBank[]> {
     const res = await http.get("/api/bank-accounts/banks");
@@ -30,5 +32,9 @@ export const bankAccountService = {
   },
   async deleteAccount(id: string): Promise<void> {
     await http.delete(`/api/bank-accounts/${id}`);
+  },
+
+  isEWallet(bankCode: string): boolean {
+    return eWalletBankCodes.includes(bankCode.toLowerCase());
   },
 };

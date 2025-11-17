@@ -24,8 +24,7 @@ import {
 } from "@/features/bank-accounts/hooks/useBankAccounts";
 import { Loader } from "@/components/common/Loader";
 import { ErrorMessage } from "@/components/common/ErrorMessage";
-
-const eWalletBankCodes = ["ovo", "gopay", "shopeepay", "dana"];
+import { bankAccountService } from "@/features/bank-accounts/services/bankAccountService";
 
 export function AddBankAccountStep() {
   const form = useFormContext<TransferFormValues>();
@@ -130,11 +129,11 @@ export function AddBankAccountStep() {
     if (!paymentMethods) return [];
     if (paymentMethodType === "bank") {
       return paymentMethods.filter(
-        (pm) => !eWalletBankCodes.includes(pm.bankCode.toLowerCase())
+        (pm) => !bankAccountService.isEWallet(pm.bankCode)
       );
     } else if (paymentMethodType === "e-wallet") {
       return paymentMethods.filter((pm) =>
-        eWalletBankCodes.includes(pm.bankCode.toLowerCase())
+        bankAccountService.isEWallet(pm.bankCode)
       );
     }
     return [];
