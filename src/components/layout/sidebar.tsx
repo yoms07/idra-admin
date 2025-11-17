@@ -23,6 +23,7 @@ import {
   Bell,
   Zap,
   LogOut,
+  User,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { IDRALogoLightMode } from "../icons/idra-logo-light-mode";
@@ -55,13 +56,15 @@ export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: me } = useMe();
-  const { reset } = useAppStore();
   const { mutateAsync: logout } = useLogout();
 
   const handleLogout = async () => {
-    reset();
     await logout();
     router.push("/login");
+  };
+
+  const handleProfile = async () => {
+    router.push("/profile");
   };
 
   return (
@@ -85,7 +88,7 @@ export function AppSidebar() {
                       asChild
                       isActive={isActive}
                       tooltip={item.name}
-                      className="font-semibold h-12"
+                      className="font-semibold h-12 border-1 border-transparent hover:bg-sidebar hover:border-primary hover:border-1 hover:text-primary duration-300 transition-all"
                     >
                       <Link
                         href={item.href}
@@ -126,25 +129,32 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="py-5 w-full">
+                <SidebarMenuButton className="py-5 w-full border-1 border-transparent hover:bg-sidebar hover:border-primary hover:border-1 hover:text-primary duration-300 transition-all cursor-pointer">
                   <div className="flex gap-1 justify-between items-center w-full">
                     <span className="flex items-center gap-1.5">
-                      <Avatar className="size-5">
-                        <AvatarImage src={""} className="size-5" />
+                      <Avatar className="size-6">
+                        <AvatarImage src={""} className="size-6" />
                         <AvatarFallback>
                           <SolidAvatar
                             name={me?.name || ""}
-                            className="size-5 text-xs"
+                            className="size-6 text-xs"
                           />
                         </AvatarFallback>
                       </Avatar>
-                      <span>{me?.name}</span>
+                      <span className="text-base">{me?.name}</span>
                     </span>
                     <ChevronDown className="text-muted-foreground" />
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem
+                  onClick={handleProfile}
+                  className="cursor-pointer !hover:bg-primary"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleLogout}
                   className="cursor-pointer !hover:bg-primary"

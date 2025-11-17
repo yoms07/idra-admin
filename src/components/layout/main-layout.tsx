@@ -23,13 +23,15 @@ import {
 import { useXellarAccount, useProfileModal } from "@xellar/kit";
 import { SolidAvatar } from "../ui/solid-avatar";
 import { useRouter } from "next/navigation";
+import NotificationModal from "@/features/notification/components/notification-modal";
+import { useState } from "react";
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
-  const { reset, notifications } = useAppStore();
+  const { reset } = useAppStore();
   const router = useRouter();
   const { open: openProfileModal } = useProfileModal();
   const me = useMe();
@@ -41,6 +43,8 @@ export function MainLayout({ children }: MainLayoutProps) {
     router.push("/login");
   };
 
+  const [notificationOpen, setNotificationOpen] = useState(false);
+
   return (
     <SidebarProvider>
       <div className="flex h-screen bg-background w-full">
@@ -51,41 +55,15 @@ export function MainLayout({ children }: MainLayoutProps) {
             <SidebarTrigger className="-ml-1" />
             <div className="flex-1" />
             <div className="flex items-center gap-2 ">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    aria-label="Notifications"
-                    className="bg-transparent rounded-xl !border-[#D4D4D8] shadow-none border-2"
-                  >
-                    <Bell className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-72 p-2">
-                  {!notifications || notifications.length === 0 ? (
-                    <div className="text-sm text-muted-foreground py-4 text-center">
-                      No notifications
-                    </div>
-                  ) : (
-                    <div className="max-h-64 overflow-auto">
-                      {notifications.map((n) => (
-                        <div
-                          key={n.id}
-                          className="p-2 rounded-md hover:bg-muted/60 cursor-default"
-                        >
-                          <div className="text-sm font-medium truncate">
-                            {n.title}
-                          </div>
-                          <div className="text-xs text-muted-foreground truncate">
-                            {n.message}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label="Notifications"
+                className="bg-transparent rounded-xl !border-[#D4D4D8] shadow-none border-2"
+                onClick={() => setNotificationOpen(true)}
+              >
+                <Bell className="h-4 w-4" />
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild className="md:hidden">
                   <SidebarMenuButton className="py-5 w-full">
@@ -123,6 +101,10 @@ export function MainLayout({ children }: MainLayoutProps) {
 
           {/* Mobile Navigation */}
           <MobileNav />
+          <NotificationModal
+            open={notificationOpen}
+            onOpenChange={setNotificationOpen}
+          />
         </SidebarInset>
       </div>
     </SidebarProvider>
