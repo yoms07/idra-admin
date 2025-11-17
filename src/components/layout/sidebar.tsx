@@ -14,22 +14,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import {
-  Home,
-  Send,
-  Clock,
-  Settings,
-  ChevronDown,
-  Bell,
-  Zap,
-  LogOut,
-  User,
-} from "lucide-react";
+import { Home, ChevronDown, Zap, LogOut, User } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { IDRALogoLightMode } from "../icons/idra-logo-light-mode";
 import { useMe, useLogout } from "@/features/auth";
 import { AvatarImage } from "@radix-ui/react-avatar";
-import { GradientAvatar } from "../ui/gradient-avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
