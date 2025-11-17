@@ -32,31 +32,40 @@ import TransferModal from "@/components/modals/transfer-modal/transfer-modal";
 import { RequireAuthentication } from "@/features/auth/components/auth-wrapper";
 import { useMe } from "@/features/auth";
 import { cn, formatDate, formatIDR, formatIDRA } from "@/lib/utils";
-import { useTransactionList } from "@/features/transactions/hooks/useTransactions";
+import { useInfiniteTransactionList } from "@/features/transactions/hooks/useTransactions";
 import type {
   TransactionType,
   UnifiedTransaction,
 } from "@/features/transactions/schema/transaction";
 import { Loader } from "@/components/common/Loader";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 
 function DashboardPage() {
+  const PAGE_LIMIT = 10;
   const me = useMe();
   const [date, setDate] = React.useState<DateRange | undefined>();
   const [depositOpen, setDepositOpen] = React.useState(false);
   const [transferOpen, setTransferOpen] = React.useState(false);
   const [selectedType, setSelectedType] = React.useState<string>("all");
+  const [currentPageIndex, setCurrentPageIndex] = React.useState(0);
 
-  // Build query params from filters
+  // Build query params from filters so React Query can reuse cached pages.
   const queryParams = React.useMemo(() => {
     const params: {
-      page?: number;
       limit?: number;
       type?: TransactionType;
       startDate?: string;
       endDate?: string;
     } = {
-      page: 1,
-      limit: 10,
+      limit: PAGE_LIMIT,
     };
 
     // Add type filter
@@ -77,9 +86,86 @@ function DashboardPage() {
     }
 
     return params;
-  }, [selectedType, date]);
+  }, [selectedType, date, PAGE_LIMIT]);
 
-  const { data: transactionsData, isLoading } = useTransactionList(queryParams);
+  const {
+    data: transactionsPages,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteTransactionList(queryParams);
+
+  // Reset pagination whenever filters change so users always start on the first page.
+  React.useEffect(() => {
+    setCurrentPageIndex(0);
+  }, [selectedType, date?.from?.getTime(), date?.to?.getTime()]);
+
+  const totalFetchedPages = transactionsPages?.pages.length ?? 0;
+  const effectivePageIndex =
+    totalFetchedPages === 0
+      ? 0
+      : Math.min(currentPageIndex, totalFetchedPages - 1);
+  const currentPage =
+    totalFetchedPages > 0
+      ? transactionsPages?.pages[effectivePageIndex]
+      : undefined;
+  const currentTransactions = currentPage?.data ?? [];
+  const canGoToPrevious = effectivePageIndex > 0;
+  const canGoToNext =
+    effectivePageIndex < totalFetchedPages - 1 || Boolean(hasNextPage);
+
+  const goToPage = (index: number) => {
+    setCurrentPageIndex(index);
+  };
+
+  const handlePreviousPage = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
+    event.preventDefault();
+    if (!canGoToPrevious) {
+      return;
+    }
+    setCurrentPageIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const getPaginationSummary = React.useCallback(() => {
+    if (!currentPage?.pagination) {
+      return "No transaction data to display";
+    }
+
+    const { page, limit, total } = currentPage.pagination;
+
+    const start = (page - 1) * limit + 1;
+    const end = Math.min(page * limit, total);
+
+    return `Showing ${start} to ${end} of ${total} transactions`;
+  }, [currentPage?.pagination]);
+
+  const handleNextPage = async (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
+    event.preventDefault();
+    if (!canGoToNext || isFetchingNextPage) {
+      return;
+    }
+
+    const nextIndex = effectivePageIndex + 1;
+
+    if (nextIndex < totalFetchedPages) {
+      setCurrentPageIndex(nextIndex);
+      return;
+    }
+
+    if (hasNextPage) {
+      try {
+        await fetchNextPage();
+        setCurrentPageIndex((prev) => prev + 1);
+      } catch (error) {
+        // Keep cursor in place if fetching fails; errors are surfaced by React Query elsewhere.
+      }
+    }
+  };
 
   // Format transaction for table display
   const formatTransactionType = (type: TransactionType): string => {
@@ -134,8 +220,6 @@ function DashboardPage() {
         return status;
     }
   };
-
-  const transactions = transactionsData?.data || [];
 
   return (
     <MainLayout>
@@ -278,65 +362,118 @@ function DashboardPage() {
               <div className="flex items-center justify-center py-12">
                 <Loader />
               </div>
-            ) : transactions.length === 0 ? (
+            ) : currentTransactions.length === 0 ? (
               <div className="flex items-center justify-center py-12 text-muted-foreground">
                 No transactions found
               </div>
             ) : (
-              <Table className="">
-                <TableHeader>
-                  <TableRow className="font-semibold bg-[#F5F5F5] hover:bg-[#F5F5F5]">
-                    <TableHead className="md:pl-8">Transaction Type</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {transactions.map((transaction) => {
-                    const status = formatStatus(transaction.status);
-                    const amount = formatIDRA(transaction.amount);
-                    return (
-                      <TableRow
-                        key={transaction.id}
-                        className="h-14 hover:bg-[#F5F5F5]"
-                      >
-                        <TableCell className="md:pl-8">
-                          {formatTransactionType(transaction.type)}
-                        </TableCell>
-                        <TableCell>
-                          {amount.split(" ")[0]}{" "}
-                          <span className="text-muted-foreground">
-                            {amount.split(" ")[1]}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          {formatDate(transaction.createdAt)}
-                        </TableCell>
-                        <TableCell>
-                          {formatTransactionMethod(transaction)}
-                        </TableCell>
-                        <TableCell>
-                          {status === "Success" ? (
-                            <Badge className="bg-success-100 text-success-700 border-transparent">
-                              Success
-                            </Badge>
-                          ) : status === "In Progress" ? (
-                            <Badge className="bg-warning-100 text-warning-700 border-transparent">
-                              In Progress
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-red-100 text-red-700 border-transparent">
-                              {status}
-                            </Badge>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+              <>
+                <Table className="overflow-hidden">
+                  <TableHeader className="overflow-hidden">
+                    <TableRow className="bg-[#F5F5F5] hover:bg-[#F5F5F5] font-bold rounded-full overflow-hidden">
+                      <TableHead className="md:pl-8">
+                        Transaction Type
+                      </TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {currentTransactions.map((transaction) => {
+                      const status = formatStatus(transaction.status);
+                      const amount = formatIDRA(transaction.amount);
+                      return (
+                        <TableRow
+                          key={transaction.id}
+                          className="h-14 hover:bg-[#F5F5F5]"
+                        >
+                          <TableCell className="md:pl-8">
+                            {formatTransactionType(transaction.type)}
+                          </TableCell>
+                          <TableCell>
+                            {amount.split(" ")[0]}{" "}
+                            <span className="text-muted-foreground">
+                              {amount.split(" ")[1]}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            {formatDate(transaction.createdAt)}
+                          </TableCell>
+                          <TableCell>
+                            {formatTransactionMethod(transaction)}
+                          </TableCell>
+                          <TableCell>
+                            {status === "Success" ? (
+                              <Badge className="bg-success-100 text-success-700 border-transparent">
+                                Success
+                              </Badge>
+                            ) : status === "In Progress" ? (
+                              <Badge className="bg-warning-100 text-warning-700 border-transparent">
+                                In Progress
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-red-100 text-red-700 border-transparent">
+                                {status}
+                              </Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+                <div className="flex flex-col gap-3 border-t px-6 py-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+                  <p>{getPaginationSummary()}</p>
+                  <Pagination className="justify-end">
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          href="#"
+                          onClick={handlePreviousPage}
+                          className={
+                            canGoToPrevious
+                              ? "cursor-pointer"
+                              : "pointer-events-none opacity-50"
+                          }
+                        />
+                      </PaginationItem>
+                      {transactionsPages?.pages.map((page, index) => (
+                        <PaginationItem key={page.pagination.page}>
+                          <PaginationLink
+                            href="#"
+                            isActive={index === effectivePageIndex}
+                            onClick={(event) => {
+                              event.preventDefault();
+                              goToPage(index);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            {page.pagination.page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))}
+                      {hasNextPage && (
+                        <PaginationItem>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      )}
+                      <PaginationItem>
+                        <PaginationNext
+                          href="#"
+                          onClick={handleNextPage}
+                          className={
+                            canGoToNext
+                              ? "cursor-pointer"
+                              : "pointer-events-none opacity-50"
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              </>
             )}
           </div>
         </div>
