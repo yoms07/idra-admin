@@ -9,4 +9,6 @@ export const userKeys = {
     [...userKeys.adminUsers(), "list", params] as const,
   adminUsersInfiniteList: (params?: Omit<AdminUserListParams, "page">) =>
     [...userKeys.adminUsers(), "infinite", params] as const,
+  adminUserChainBalances: (userId: string) =>
+    [...userKeys.adminUsers(), "chain-balances", userId] as const,
 };

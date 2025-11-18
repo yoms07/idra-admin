@@ -22,6 +22,7 @@ import {
   User,
   Users,
   FileText,
+  Logs,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { IDRALogoLightMode } from "../icons/idra-logo-light-mode";
@@ -60,6 +61,11 @@ const adminNavigation = [
     name: "Transactions",
     href: "/admin/transactions",
     icon: <FileText className="w-full h-full" />,
+  },
+  {
+    name: "Audit Logs",
+    href: "/admin/audit-logs",
+    icon: <Logs className="w-full h-full" />,
   },
 ];
 
@@ -125,6 +131,7 @@ export function AppSidebar() {
 
         {me?.role === RoleEnum.enum.ADMIN && (
           <SidebarGroup>
+            <h1 className="text-center mb-2">----- Admin ------</h1>
             <SidebarGroupContent>
               <SidebarMenu>
                 {adminNavigation.map((item) => {

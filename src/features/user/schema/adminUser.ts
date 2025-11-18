@@ -61,6 +61,27 @@ export const PullIdraResponseSchema = baseResponse(
   })
 );
 
+// Chain Balance schema
+export const ChainBalanceSchema = z.object({
+  id: z.string().nullable(),
+  chainId: z.number(),
+  chainName: z.string(),
+  chainSlug: z.string(),
+  onchainBalance: z.string(),
+  lastSyncedAt: z.string().nullable(),
+  createdAt: z.string().nullable(),
+  updatedAt: z.string().nullable(),
+});
+
+// User Chain Balances Response
+export const UserChainBalancesResponseSchema = baseResponse(
+  z.object({
+    userId: z.string(),
+    chainBalances: z.array(ChainBalanceSchema),
+    totalChains: z.number(),
+  })
+);
+
 // Admin User List Params
 export interface AdminUserListParams {
   page?: number;
@@ -93,3 +114,7 @@ export type SyncOnchainBalanceResponse = z.infer<
   typeof SyncOnchainBalanceResponseSchema
 >;
 export type PullIdraResponse = z.infer<typeof PullIdraResponseSchema>;
+export type ChainBalance = z.infer<typeof ChainBalanceSchema>;
+export type UserChainBalancesResponse = z.infer<
+  typeof UserChainBalancesResponseSchema
+>;

@@ -312,8 +312,6 @@ function AdminTransactionsPage() {
                       <TableHead className="md:pl-8">User</TableHead>
                       <TableHead>Type</TableHead>
                       <TableHead>Amount</TableHead>
-                      <TableHead>User Balance</TableHead>
-                      <TableHead>Onchain Balance</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Payment Status</TableHead>
                       <TableHead>Created At</TableHead>
@@ -342,20 +340,6 @@ function AdminTransactionsPage() {
                         </TableCell>
                         <TableCell>
                           {formatIDRA(parseFloat(transaction.amount))}
-                        </TableCell>
-                        <TableCell>
-                          {transaction.userBalance ? (
-                            formatIDRA(parseFloat(transaction.userBalance))
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {transaction.onchainBalance ? (
-                            formatIDRA(parseFloat(transaction.onchainBalance))
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
                         </TableCell>
                         <TableCell>
                           {getStatusBadge(transaction.status)}

@@ -12,14 +12,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/common/Loader";
-import {
-  useInfiniteAdminUserList,
-  useVerifyUser,
-  useUnverifyUser,
-} from "@/features/user/hooks/useUser";
-import { formatDate, formatIDRA } from "@/lib/utils";
+import { useInfiniteAdminAuditLogList } from "@/features/audit-logs/hooks/useAuditLogs";
+import { formatDate } from "@/lib/utils";
 import { useState, useEffect, useMemo } from "react";
-import { UserChainBalancesModal } from "@/features/user/components/user-chain-balances-modal";
 import {
   Select,
   SelectContent,
@@ -27,8 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -38,84 +31,69 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { RequireAdmin } from "@/features/auth/components/auth-wrapper";
-import { type Role, RoleEnum } from "@/features/user/schema/user";
+import { MetadataDetailModal } from "@/features/audit-logs/components/metadata-detail-modal";
+import { Eye } from "lucide-react";
 
-function AdminUsersPage() {
+function AdminAuditLogsPage() {
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [limit] = useState(20);
-  const [roleFilter, setRoleFilter] = useState<string>("all");
-  const [verifiedFilter, setVerifiedFilter] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [selectedUserName, setSelectedUserName] = useState<string>("");
-  const [chainBalancesModalOpen, setChainBalancesModalOpen] = useState(false);
+  const [actionFilter, setActionFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedMetadata, setSelectedMetadata] = useState<Record<
+    string,
+    any
+  > | null>(null);
+  const [metadataModalOpen, setMetadataModalOpen] = useState(false);
 
   const queryParams = useMemo(() => {
     const params: {
       limit?: number;
-      role?: Role;
-      isVerified?: boolean;
-      search?: string;
+      action?: string;
+      status?: "success" | "failed";
     } = {
       limit,
     };
 
-    if (roleFilter !== "all") {
-      params.role = roleFilter as Role;
+    if (actionFilter !== "all") {
+      params.action = actionFilter;
     }
 
-    if (verifiedFilter !== "all") {
-      params.isVerified = verifiedFilter === "verified";
-    }
-
-    if (searchQuery) {
-      params.search = searchQuery;
+    if (statusFilter !== "all") {
+      params.status = statusFilter as "success" | "failed";
     }
 
     return params;
-  }, [limit, roleFilter, verifiedFilter, searchQuery]);
+  }, [limit, actionFilter, statusFilter]);
 
   const {
-    data: usersPages,
+    data: auditLogsPages,
     isLoading,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteAdminUserList(queryParams);
+    error,
+  } = useInfiniteAdminAuditLogList(queryParams);
+  console.log({ error });
 
   useEffect(() => {
     setCurrentPageIndex(0);
-  }, [roleFilter, verifiedFilter, searchQuery]);
+  }, [actionFilter, statusFilter]);
 
-  const { mutateAsync: verifyUser, isPending: isVerifying } = useVerifyUser();
-  const { mutateAsync: unverifyUser, isPending: isUnverifying } =
-    useUnverifyUser();
-
-  const handleToggleVerification = async (
-    userId: string,
-    currentStatus: boolean
-  ) => {
-    if (currentStatus) {
-      await unverifyUser(userId);
-    } else {
-      await verifyUser(userId);
-    }
+  const handleViewMetadata = (metadata: Record<string, any>) => {
+    setSelectedMetadata(metadata);
+    setMetadataModalOpen(true);
   };
 
-  const handleViewChainBalances = (userId: string, userName: string) => {
-    setSelectedUserId(userId);
-    setSelectedUserName(userName);
-    setChainBalancesModalOpen(true);
-  };
-
-  const totalFetchedPages = usersPages?.pages.length ?? 0;
+  const totalFetchedPages = auditLogsPages?.pages.length ?? 0;
   const effectivePageIndex =
     totalFetchedPages === 0
       ? 0
       : Math.min(currentPageIndex, totalFetchedPages - 1);
   const currentPage =
-    totalFetchedPages > 0 ? usersPages?.pages[effectivePageIndex] : undefined;
-  const users = currentPage?.data ?? [];
+    totalFetchedPages > 0
+      ? auditLogsPages?.pages[effectivePageIndex]
+      : undefined;
+  const auditLogs = currentPage?.data ?? [];
   const pagination = currentPage?.pagination;
   const canGoToPrevious = effectivePageIndex > 0;
   const canGoToNext =
@@ -155,44 +133,51 @@ function AdminUsersPage() {
     }
   };
 
+  const getActionBadgeVariant = (action: string) => {
+    if (action.includes("verify") || action.includes("sync")) {
+      return "default";
+    }
+    if (action.includes("pull")) {
+      return "outline";
+    }
+    return "outline";
+  };
+
+  const formatAction = (action: string) => {
+    return action
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6 p-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <h1 className="text-2xl font-semibold">Users</h1>
+          <h1 className="text-2xl font-semibold">Audit Logs</h1>
         </div>
 
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by email or name..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPageIndex(0);
-              }}
-              className="pl-9"
-            />
-          </div>
-          <Select value={roleFilter} onValueChange={setRoleFilter}>
+          <Select value={actionFilter} onValueChange={setActionFilter}>
             <SelectTrigger className="w-full md:w-48">
-              <SelectValue placeholder="Role" />
+              <SelectValue placeholder="Action" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="USER">User</SelectItem>
-              <SelectItem value="ADMIN">Admin</SelectItem>
+              <SelectItem value="all">All Actions</SelectItem>
+              <SelectItem value="pull_idra">Pull IDRA</SelectItem>
+              <SelectItem value="sync_balance">Sync Balance</SelectItem>
+              <SelectItem value="verify_user">Verify User</SelectItem>
+              <SelectItem value="unverify_user">Unverify User</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={verifiedFilter} onValueChange={setVerifiedFilter}>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-full md:w-48">
-              <SelectValue placeholder="Verification" />
+              <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="verified">Verified</SelectItem>
-              <SelectItem value="unverified">Unverified</SelectItem>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="success">Success</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -202,81 +187,74 @@ function AdminUsersPage() {
             <div className="flex items-center justify-center py-12">
               <Loader />
             </div>
-          ) : users.length === 0 ? (
+          ) : auditLogs.length === 0 ? (
             <div className="flex items-center justify-center py-12 text-muted-foreground">
-              No users found
+              No audit logs found
             </div>
           ) : (
             <>
               <Table>
                 <TableHeader>
                   <TableRow className="bg-[#F5F5F5] hover:bg-[#F5F5F5]">
-                    <TableHead className="md:pl-8">Email</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Role</TableHead>
+                    <TableHead className="md:pl-8">Admin</TableHead>
+                    <TableHead>Action</TableHead>
+                    <TableHead>Resource</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Balance</TableHead>
                     <TableHead>Created At</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.id} className="h-14 hover:bg-[#F5F5F5]">
-                      <TableCell className="md:pl-8">{user.email}</TableCell>
-                      <TableCell>{user.name}</TableCell>
+                  {auditLogs.map((log) => (
+                    <TableRow key={log.id} className="h-14 hover:bg-[#F5F5F5]">
+                      <TableCell className="md:pl-8">
+                        <div>
+                          <p className="text-sm font-semibold text-[#0F172A]">
+                            {log.adminUser.name}
+                          </p>
+                          <p className="text-xs text-[#475467]">
+                            {log.adminUser.email}
+                          </p>
+                        </div>
+                      </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={
-                            user.role === RoleEnum.enum.ADMIN
-                              ? "default"
-                              : "outline"
-                          }
-                        >
-                          {user.role}
+                        <Badge variant={getActionBadgeVariant(log.action)}>
+                          {formatAction(log.action)}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {user.isVerified ? (
+                        <div>
+                          <p className="text-sm text-[#0F172A]">
+                            {log.resourceType}
+                          </p>
+                          <p className="text-xs text-[#475467]">
+                            {log.resourceId}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {log.status === "success" ? (
                           <Badge className="bg-success-100 text-success-700 border-transparent">
-                            Verified
+                            Success
                           </Badge>
                         ) : (
-                          <Badge className="bg-warning-100 text-warning-700 border-transparent">
-                            Unverified
+                          <Badge className="bg-destructive-100 text-destructive-700 border-transparent">
+                            Failed
                           </Badge>
                         )}
                       </TableCell>
                       <TableCell>
-                        {formatIDRA(parseFloat(user.offchainBalance))}
-                      </TableCell>
-                      <TableCell>
-                        {formatDate(new Date(user.createdAt))}
+                        {formatDate(new Date(log.createdAt))}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              handleViewChainBalances(user.id, user.name)
-                            }
-                          >
-                            View Onchain
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant={
-                              user.isVerified ? "destructive" : "default"
-                            }
-                            onClick={() =>
-                              handleToggleVerification(user.id, user.isVerified)
-                            }
-                            disabled={isVerifying || isUnverifying}
-                          >
-                            {user.isVerified ? "Unverify" : "Verify"}
-                          </Button>
-                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleViewMetadata(log.metadata)}
+                        >
+                          <Eye className="size-4 mr-2" />
+                          View Detail
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -290,7 +268,7 @@ function AdminUsersPage() {
                       pagination.page * pagination.limit,
                       pagination.total
                     )}{" "}
-                    of {pagination.total} users
+                    of {pagination.total} audit logs
                   </p>
                   <Pagination className="justify-end">
                     <PaginationContent>
@@ -368,12 +346,11 @@ function AdminUsersPage() {
         </div>
       </div>
 
-      {selectedUserId && (
-        <UserChainBalancesModal
-          open={chainBalancesModalOpen}
-          onOpenChange={setChainBalancesModalOpen}
-          userId={selectedUserId}
-          userName={selectedUserName}
+      {selectedMetadata && (
+        <MetadataDetailModal
+          open={metadataModalOpen}
+          onOpenChange={setMetadataModalOpen}
+          metadata={selectedMetadata}
         />
       )}
     </MainLayout>
@@ -383,7 +360,7 @@ function AdminUsersPage() {
 export default function () {
   return (
     <RequireAdmin>
-      <AdminUsersPage />
+      <AdminAuditLogsPage />
     </RequireAdmin>
   );
 }

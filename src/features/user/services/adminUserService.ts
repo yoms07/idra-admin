@@ -4,6 +4,7 @@ import {
   VerifyUserResponseSchema,
   SyncOnchainBalanceResponseSchema,
   PullIdraResponseSchema,
+  UserChainBalancesResponseSchema,
   type AdminUserListParams,
   type AdminUserListResponse,
   type VerifyUserResponse,
@@ -11,6 +12,7 @@ import {
   type SyncOnchainBalanceResponse,
   type PullIdraParams,
   type PullIdraResponse,
+  type UserChainBalancesResponse,
 } from "../schema/adminUser";
 
 export const adminUserService = {
@@ -45,6 +47,16 @@ export const adminUserService = {
   async pullIdra(params: PullIdraParams): Promise<PullIdraResponse> {
     const res = await http.post("/api/admin/wallet/pull-idra", params);
     const parsed = PullIdraResponseSchema.parse(res.data);
+    return parsed;
+  },
+
+  async getUserChainBalances(
+    userId: string
+  ): Promise<UserChainBalancesResponse> {
+    const res = await http.get(
+      `/api/admin/wallet/user/${userId}/chain-balances`
+    );
+    const parsed = UserChainBalancesResponseSchema.parse(res.data);
     return parsed;
   },
 };

@@ -71,3 +71,41 @@ export function useUnverifyUser() {
     },
   });
 }
+
+export function useUserChainBalances(userId: string | undefined) {
+  return useQuery({
+    queryKey: userKeys.adminUserChainBalances(userId ?? ""),
+    queryFn: () => adminUserService.getUserChainBalances(userId!),
+    enabled: Boolean(userId),
+  });
+}
+
+export function useSyncOnchainBalance() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (params: { userId: string; chainId: number }) =>
+      adminUserService.syncOnchainBalance(params),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({
+        queryKey: userKeys.adminUserChainBalances(variables.userId),
+      });
+    },
+  });
+}
+
+export function usePullIdra() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (params: {
+      userId: string;
+      chainId: number;
+      amount: string;
+      recipientAddress: string;
+    }) => adminUserService.pullIdra(params),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({
+        queryKey: userKeys.adminUserChainBalances(variables.userId),
+      });
+    },
+  });
+}
