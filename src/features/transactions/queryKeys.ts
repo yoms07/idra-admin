@@ -1,4 +1,4 @@
-import type { AdminTransactionListParams } from "../schema/adminTransaction";
+import { AdminTransactionListParams } from "./schema/adminTransaction";
 
 export const transactionKeys = {
   all: ["transactions"] as const,
