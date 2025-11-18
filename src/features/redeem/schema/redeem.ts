@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { PaginationSchema, Currency } from "@/features/mint/schema/mint";
-import { baseResponse } from "@/features/auth";
+import { baseResponse } from "@/lib/response";
 
 export enum RedeemStatus {
   PENDING = "pending",

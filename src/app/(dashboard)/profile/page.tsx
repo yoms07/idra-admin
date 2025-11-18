@@ -22,6 +22,7 @@ import { bankAccountService } from "@/features/bank-accounts/services/bankAccoun
 import { useState } from "react";
 import AddBankAccountModal from "@/features/bank-accounts/components/add-bank-account-modal";
 import { TransactionsTable } from "@/features/transactions/components/transactions-table";
+import { UnverifiedUserAlert } from "@/components/common/unverified-user-alert";
 
 const ProfileContent = () => {
   const me = useMe();
@@ -34,9 +35,12 @@ const ProfileContent = () => {
     await deleteBankAccount(id);
   };
 
+  const isVerified = me?.data?.isVerified ?? false;
+
   return (
     <MainLayout>
       <div className="space-y-6 px-4 py-6 md:px-8">
+        {!isVerified && <UnverifiedUserAlert />}
         <section className="rounded-xl bg-white p-6 md:p-8 shadow-[0px_12px_40px_rgba(15,23,42,0.04)]">
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-4">

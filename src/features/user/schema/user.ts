@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { baseResponse } from "@/features/auth/schema/auth";
+import { baseResponse } from "@/lib/response";
+
+// Role enum
+export const RoleEnum = z.enum(["USER", "ADMIN"]);
+export type Role = z.infer<typeof RoleEnum>;
 
 // Wallet addresses schema
 export const WalletAddressesSchema = z.object({

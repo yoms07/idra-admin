@@ -1,10 +1,6 @@
 import { z } from "zod";
-
-// Base API response wrapper
-export const baseResponse = <T extends z.ZodTypeAny>(data: T) =>
-  z.object({ data });
-
-export type BaseResponse<T> = { data: T };
+import { RoleEnum } from "@/features/user/schema/user";
+import { baseResponse } from "@/lib/response";
 
 export const NonceRequestSchema = z.object({
   walletAddress: z
@@ -46,6 +42,8 @@ export const MeDataSchema = z.object({
   name: z.string(),
   email: z.string(),
   offchainBalance: z.string(),
+  role: RoleEnum.optional().default("USER"),
+  isVerified: z.boolean().optional().default(false),
 });
 export const MeResponseSchema = baseResponse(MeDataSchema);
 

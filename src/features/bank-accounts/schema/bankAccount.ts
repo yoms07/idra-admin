@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { baseResponse } from "@/features/auth/schema/auth";
+import { baseResponse } from "@/lib/response";
 
 export const SupportedBankSchema = z.object({
   currency: z.string(),

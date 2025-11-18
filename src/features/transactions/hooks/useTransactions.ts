@@ -10,6 +10,11 @@ import {
   type TransactionListResponse,
   type TransactionStatsResponse,
 } from "../schema/transaction";
+import { adminTransactionService } from "../services/adminTransactionService";
+import type {
+  AdminTransactionListParams,
+  AdminTransactionListResponse,
+} from "../schema/adminTransaction";
 
 export function useTransaction(id?: string) {
   return useQuery({
@@ -71,5 +76,36 @@ export function useTransactionStats() {
   return useQuery<TransactionStatsResponse>({
     queryKey: transactionKeys.stats(),
     queryFn: () => transactionService.getStats(),
+  });
+}
+
+export function useInfiniteAdminTransactionList(
+  params?: Omit<AdminTransactionListParams, "page">
+) {
+  return useInfiniteQuery<
+    AdminTransactionListResponse,
+    Error,
+    InfiniteData<AdminTransactionListResponse>,
+    ReturnType<typeof transactionKeys.adminTransactionsInfiniteList>
+  >({
+    queryKey: transactionKeys.adminTransactionsInfiniteList(params),
+    queryFn: ({ pageParam = 1 }) =>
+      adminTransactionService.listTransactions({
+        ...params,
+        page: pageParam as number,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const {
+        pagination: { page, totalPages },
+      } = lastPage;
+      return page >= totalPages ? undefined : page + 1;
+    },
+    getPreviousPageParam: (firstPage) => {
+      const {
+        pagination: { page },
+      } = firstPage;
+      return page <= 1 ? undefined : page - 1;
+    },
   });
 }

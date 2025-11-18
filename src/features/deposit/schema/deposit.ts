@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { baseResponse } from "@/features/auth/schema/auth";
+import { baseResponse } from "@/lib/response";
 
 export enum PaymentStatus {
   WAITING_PAYMENT = "waiting_payment",

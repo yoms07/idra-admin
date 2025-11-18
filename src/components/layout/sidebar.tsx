@@ -14,10 +14,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Home, ChevronDown, Zap, LogOut, User } from "lucide-react";
+import {
+  Home,
+  ChevronDown,
+  Zap,
+  LogOut,
+  User,
+  Users,
+  FileText,
+} from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { IDRALogoLightMode } from "../icons/idra-logo-light-mode";
 import { useMe, useLogout } from "@/features/auth";
+import { RoleEnum } from "@/features/user/schema/user";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import {
   DropdownMenu,
@@ -38,6 +47,19 @@ const navigation = [
     name: "Terms & Policy",
     href: "#",
     icon: <Zap className="h-full w-full" />,
+  },
+];
+
+const adminNavigation = [
+  {
+    name: "Users",
+    href: "/admin/users",
+    icon: <Users className="w-full h-full" />,
+  },
+  {
+    name: "Transactions",
+    href: "/admin/transactions",
+    icon: <FileText className="w-full h-full" />,
   },
 ];
 
@@ -100,6 +122,43 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {me?.role === RoleEnum.enum.ADMIN && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminNavigation.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <SidebarMenuItem key={item.name}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        tooltip={item.name}
+                        className="font-semibold h-12 border-1 border-transparent hover:bg-sidebar hover:border-primary hover:border-1 hover:text-primary duration-300 transition-all"
+                      >
+                        <Link
+                          href={item.href}
+                          className="flex gap-1 hover:gap-2 items-center py-0"
+                        >
+                          <div
+                            style={{
+                              width: "22px",
+                              height: "22px",
+                            }}
+                          >
+                            {item.icon}
+                          </div>
+                          <span className="">{item.name}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter>
