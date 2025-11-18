@@ -1,6 +1,5 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Cookies from "js-cookie";
 import { authKeys } from "../queryKeys";
 import { authService } from "../services/authService";
 import {
@@ -14,6 +13,7 @@ import {
   type ResetPasswordRequest,
 } from "../schema/auth";
 import { qc } from "@/state/query/queryClient";
+import { clearAuthTokens } from "../utils/tokens";
 
 export function useGetNonce() {
   return useMutation({
@@ -98,7 +98,7 @@ export function useLogout() {
       } catch (error) {
         // Continue with cleanup even if logout request fails
       }
-      Cookies.remove("at");
+      clearAuthTokens();
     },
     onSuccess: () => {
       qc.removeQueries({ queryKey: authKeys.all });

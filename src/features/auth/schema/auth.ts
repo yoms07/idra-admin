@@ -67,13 +67,6 @@ export const GoogleOAuthUserSchema = z.object({
 });
 
 // Google OAuth callback response schema
-export const GoogleOAuthCallbackDataSchema = z.object({
-  token: z.string(),
-  user: GoogleOAuthUserSchema,
-});
-export const GoogleOAuthCallbackResponseSchema = baseResponse(
-  GoogleOAuthCallbackDataSchema
-);
 
 // Register request schema
 export const RegisterRequestSchema = z.object({
@@ -119,9 +112,16 @@ export const OtpVerifyUserSchema = z.object({
 });
 
 // Verify OTP response schema (for register)
-export const VerifyRegisterOtpDataSchema = z.object({
-  token: z.string(),
+export const TokenPairSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+  refreshTokenExpiresAt: z.string(),
   user: OtpVerifyUserSchema,
+});
+
+export const GoogleOAuthCallbackResponseSchema = baseResponse(TokenPairSchema);
+
+export const VerifyRegisterOtpDataSchema = TokenPairSchema.extend({
   valid: z.boolean(),
 });
 export const VerifyRegisterOtpResponseSchema = baseResponse(
@@ -129,17 +129,20 @@ export const VerifyRegisterOtpResponseSchema = baseResponse(
 );
 
 // Verify OTP response schema (for login)
-export const VerifyLoginOtpDataSchema = z.object({
-  token: z.string(),
-  user: OtpVerifyUserSchema,
-});
+export const VerifyLoginOtpDataSchema = TokenPairSchema;
 export const VerifyLoginOtpResponseSchema = baseResponse(
   VerifyLoginOtpDataSchema
 );
 
+export const RefreshRequestSchema = z.object({
+  refreshToken: z.string(),
+});
+export const RefreshDataSchema = TokenPairSchema;
+export const RefreshResponseSchema = baseResponse(RefreshDataSchema);
+
 // Logout response schema
 export const LogoutDataSchema = z.object({
-  message: z.string(),
+  success: z.boolean(),
 });
 export const LogoutResponseSchema = baseResponse(LogoutDataSchema);
 
@@ -194,9 +197,6 @@ export type AuthUser = z.infer<typeof MeDataSchema>;
 export type GoogleOAuthCallbackRequest = z.infer<
   typeof GoogleOAuthCallbackRequestSchema
 >;
-export type GoogleOAuthCallbackData = z.infer<
-  typeof GoogleOAuthCallbackDataSchema
->;
 export type GoogleOAuthCallbackResponse = z.infer<
   typeof GoogleOAuthCallbackResponseSchema
 >;
@@ -219,6 +219,10 @@ export type VerifyLoginOtpData = z.infer<typeof VerifyLoginOtpDataSchema>;
 export type VerifyLoginOtpResponse = z.infer<
   typeof VerifyLoginOtpResponseSchema
 >;
+export type TokenPairData = z.infer<typeof TokenPairSchema>;
+export type RefreshRequest = z.infer<typeof RefreshRequestSchema>;
+export type RefreshData = z.infer<typeof RefreshDataSchema>;
+export type RefreshResponse = z.infer<typeof RefreshResponseSchema>;
 export type LogoutData = z.infer<typeof LogoutDataSchema>;
 export type LogoutResponse = z.infer<typeof LogoutResponseSchema>;
 export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordRequestSchema>;

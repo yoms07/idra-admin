@@ -21,6 +21,7 @@ import { MoreVertical, Plus } from "lucide-react";
 import { bankAccountService } from "@/features/bank-accounts/services/bankAccountService";
 import { useState } from "react";
 import AddBankAccountModal from "@/features/bank-accounts/components/add-bank-account-modal";
+import { TransactionsTable } from "@/features/transactions/components/transactions-table";
 
 const ProfileContent = () => {
   const me = useMe();
@@ -154,15 +155,7 @@ const ProfileContent = () => {
             </TabsContent>
 
             <TabsContent value="history" className="mt-4 space-y-6">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <h3 className="text-2xl font-semibold text-[#0F172A]">
-                  Transaction
-                </h3>
-              </div>
-
-              <div className="rounded-2xl border border-dashed border-[#E4E7EC] bg-white p-8 text-center text-sm text-[#98A2B3]">
-                You have not added any bank accounts yet.
-              </div>
+              <TransactionsTable title="History Transaction" />
             </TabsContent>
           </Tabs>
           <AddBankAccountModal

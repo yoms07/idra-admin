@@ -174,7 +174,7 @@ function TabsTrigger({
   }, [value, registerTrigger]);
 
   return (
-    <MotionHighlightItem value={value} className="">
+    <MotionHighlightItem value={value} className="flex-1 flex items-center">
       <motion.button
         ref={localRef}
         data-slot="tabs-trigger"

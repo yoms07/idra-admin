@@ -183,12 +183,12 @@ export function NotificationModal({
               setTabValue(value as NotificationTabValue)
             }
           >
-            <TabsList className="h-12 w-full justify-between rounded-xl border-1 border-primary-100 bg-[#FFF5F5] text-sm font-semibold">
+            <TabsList className="h-12 w-full justify-center rounded-xl border-1 border-primary-100 bg-[#FFF5F5] text-sm font-semibold">
               {NOTIFICATION_TABS.map((tab) => (
                 <TabsTrigger
                   key={tab.value}
                   value={tab.value}
-                  className="rounded-xl px-4 py-2 font-bold text-primary data-[state=active]:bg-primary data-[state=active]:text-white"
+                  className="rounded-xl flex-1 px-4 py-2 font-bold text-primary data-[state=active]:bg-primary data-[state=active]:text-white"
                 >
                   {tab.label}
                 </TabsTrigger>

@@ -14,6 +14,7 @@ import {
   VerifyOtpRequestSchema,
   VerifyRegisterOtpResponseSchema,
   VerifyLoginOtpResponseSchema,
+  RefreshResponseSchema,
   LogoutResponseSchema,
   ForgotPasswordRequestSchema,
   ForgotPasswordResponseSchema,
@@ -31,11 +32,11 @@ import {
   NonceResponseSchema,
   VerifyData,
   MeData,
-  GoogleOAuthCallbackData,
   RegisterData,
   LoginData,
   VerifyRegisterOtpData,
   VerifyLoginOtpData,
+  RefreshData,
   LogoutData,
   type ForgotPasswordRequest,
   type ForgotPasswordData,
@@ -43,11 +44,16 @@ import {
   type VerifyResetTokenData,
   type ResetPasswordRequest,
   type ResetPasswordData,
+  TokenPairData,
 } from "../schema/auth";
 import { http } from "@/lib/http/client";
 import { SiweMessage } from "siwe";
-import Cookies from "js-cookie";
 import { parseAuthError } from "../errors";
+import {
+  clearAuthTokens,
+  getRefreshToken,
+  storeAuthTokens,
+} from "../utils/tokens";
 
 export const authService = {
   async getNonce(request: NonceRequest): Promise<NonceData> {
@@ -79,11 +85,7 @@ export const authService = {
     const body = VerifyRequestSchema.parse(request);
     const res = await http.post("/api/auth/verify", body);
     const parsedVerify = VerifyResponseSchema.parse(res.data);
-    if (typeof window !== "undefined") {
-      try {
-        Cookies.set("at", parsedVerify.data.token);
-      } catch (_) {}
-    }
+    storeAuthTokens(parsedVerify.data.token);
     return parsedVerify.data;
   },
 
@@ -99,17 +101,13 @@ export const authService = {
 
   async googleOAuthCallback(
     request: GoogleOAuthCallbackRequest
-  ): Promise<GoogleOAuthCallbackData> {
+  ): Promise<TokenPairData> {
     const body = GoogleOAuthCallbackRequestSchema.parse(request);
     const res = await http.get(
       `/api/auth/oauth/google/callback?code=${body.code}&state=${body.state}`
     );
+    console.log({ data: res.data });
     const parsedResponse = GoogleOAuthCallbackResponseSchema.parse(res.data);
-    if (typeof window !== "undefined") {
-      try {
-        Cookies.set("at", parsedResponse.data.token);
-      } catch (_) {}
-    }
     return parsedResponse.data;
   },
 
@@ -142,11 +140,11 @@ export const authService = {
       const body = VerifyOtpRequestSchema.parse(request);
       const res = await http.post("/api/auth/register/verify-otp", body);
       const parsedResponse = VerifyRegisterOtpResponseSchema.parse(res.data);
-      if (typeof window !== "undefined") {
-        try {
-          Cookies.set("at", parsedResponse.data.token);
-        } catch (_) {}
-      }
+      storeAuthTokens(
+        parsedResponse.data.accessToken,
+        parsedResponse.data.refreshToken,
+        parsedResponse.data.refreshTokenExpiresAt
+      );
       return parsedResponse.data;
     } catch (error) {
       throw parseAuthError(error);
@@ -158,11 +156,11 @@ export const authService = {
       const body = VerifyOtpRequestSchema.parse(request);
       const res = await http.post("/api/auth/login/verify-otp", body);
       const parsedResponse = VerifyLoginOtpResponseSchema.parse(res.data);
-      if (typeof window !== "undefined") {
-        try {
-          Cookies.set("at", parsedResponse.data.token);
-        } catch (_) {}
-      }
+      storeAuthTokens(
+        parsedResponse.data.accessToken,
+        parsedResponse.data.refreshToken,
+        parsedResponse.data.refreshTokenExpiresAt
+      );
       return parsedResponse.data;
     } catch (error) {
       throw parseAuthError(error);
@@ -171,17 +169,32 @@ export const authService = {
 
   async logout(): Promise<LogoutData> {
     try {
-      const res = await http.post("/api/auth/logout");
+      const refreshToken = getRefreshToken();
+      const res = await http.post("/api/auth/logout", {
+        refreshToken,
+      });
       const parsedResponse = LogoutResponseSchema.parse(res.data);
-      if (typeof window !== "undefined") {
-        try {
-          Cookies.remove("at");
-        } catch (_) {}
-      }
+      clearAuthTokens();
       return parsedResponse.data;
     } catch (error) {
+      clearAuthTokens();
       throw parseAuthError(error);
     }
+  },
+
+  async refreshTokens(token?: string): Promise<RefreshData> {
+    const refreshToken = token ?? getRefreshToken();
+    if (!refreshToken) {
+      throw new Error("Missing refresh token");
+    }
+    const res = await http.post("/api/auth/refresh", { refreshToken });
+    const parsed = RefreshResponseSchema.parse(res.data);
+    storeAuthTokens(
+      parsed.data.accessToken,
+      parsed.data.refreshToken,
+      parsed.data.refreshTokenExpiresAt
+    );
+    return parsed.data;
   },
 
   async forgotPassword(
