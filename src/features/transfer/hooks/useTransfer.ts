@@ -4,6 +4,8 @@ import { transferKeys } from "../queryKeys";
 import {
   type CreateTransferRequest,
   type CreateTransferResponse,
+  type ConfirmTransferRequest,
+  type ConfirmTransferResponse,
   type Transfer,
   type SupportedChain,
   type CheckFirstTimeAddressResponse,
@@ -15,6 +17,21 @@ export function useCreateTransfer() {
     mutationFn: (input) => transferService.create(input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: transferKeys.lists() });
+    },
+  });
+}
+
+export function useConfirmTransfer() {
+  const qc = useQueryClient();
+  return useMutation<ConfirmTransferResponse, unknown, ConfirmTransferRequest>({
+    mutationFn: (input) => transferService.confirm(input),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: transferKeys.lists() });
+      if (variables.transferId) {
+        qc.invalidateQueries({
+          queryKey: transferKeys.detail(variables.transferId),
+        });
+      }
     },
   });
 }

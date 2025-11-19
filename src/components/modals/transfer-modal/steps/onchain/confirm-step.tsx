@@ -71,7 +71,19 @@ export function OnchainConfirmStep() {
         chainId,
       });
       form.setValue("transferId", result.transferId);
-      goNext();
+      form.setValue("withdrawalId", null);
+      form.setValue("otp", null);
+      form.setValue("otpId", result.otp?.id ?? null);
+
+      if (result.requiresOtp) {
+        if (!result.otp?.id) {
+          throw new Error("Missing OTP reference from server");
+        }
+        goNext();
+      } else {
+        goNext();
+        goNext();
+      }
     } catch (error) {
       console.error("Failed to create transfer:", error);
     }

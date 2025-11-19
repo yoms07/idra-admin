@@ -7,8 +7,12 @@ import {
   SupportedChainsResponseSchema,
   CheckFirstTimeAddressRequestSchema,
   CheckFirstTimeAddressResponseSchema,
+  ConfirmTransferRequestSchema,
+  ConfirmTransferResponseSchema,
   type CreateTransferRequest,
   type CreateTransferResponse,
+  type ConfirmTransferRequest,
+  type ConfirmTransferResponse,
   type Transfer,
   type SupportedChain,
   type CheckFirstTimeAddressRequest,
@@ -20,6 +24,15 @@ export const transferService = {
     const body = CreateTransferRequestSchema.parse(input);
     const res = await http.post("/api/wallet/transfers", body);
     const parsed = CreateTransferResponseSchema.parse(res.data);
+    return parsed.data;
+  },
+
+  async confirm(
+    input: ConfirmTransferRequest
+  ): Promise<ConfirmTransferResponse> {
+    const body = ConfirmTransferRequestSchema.parse(input);
+    const res = await http.post("/api/wallet/transfers/confirm", body);
+    const parsed = ConfirmTransferResponseSchema.parse(res.data);
     return parsed.data;
   },
 

@@ -93,6 +93,7 @@ export function TransactionsTable({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    error,
   } = useInfiniteTransactionList(queryParams);
 
   React.useEffect(() => {
@@ -193,6 +194,8 @@ export function TransactionsTable({
         return "In Progress";
       case "failed":
         return "Failed";
+      case "awaiting_otp":
+        return "Waiting OTP Confirmation";
       default:
         return status;
     }

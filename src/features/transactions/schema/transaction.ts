@@ -26,6 +26,7 @@ export const TransactionStatusSchema = z.enum([
   "failed",
   "cancelled",
   "expired",
+  "awaiting_otp",
 ]);
 
 // Recipient bank schema for withdraw transactions

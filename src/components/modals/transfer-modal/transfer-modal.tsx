@@ -12,7 +12,8 @@ import { ChooseDestinationStep } from "./steps/choose-destination-step";
 import { OnchainInputStep } from "./steps/onchain/input-step";
 import { OnchainConfirmStep } from "./steps/onchain/confirm-step";
 import { OnchainProcessingStep } from "./steps/onchain/processing-step";
-import { OtpStep } from "./steps/shared/otp-step";
+import { OnchainOtpStep } from "./steps/onchain/otp-step";
+import { BankOtpStep } from "./steps/bank/otp-step";
 import { ProcessingStep } from "./steps/shared/processing-step";
 import { SuccessStep } from "./steps/shared/success-step";
 import { BankSelectStep } from "./steps/bank/select-account-step";
@@ -35,6 +36,7 @@ export type TransferFormValues = {
   newAccountHolderName?: string | null;
   // OTP
   otp?: string | null;
+  otpId?: string | null;
   // Withdrawal ID after creation
   withdrawalId?: string | null;
   // Transfer ID after creation
@@ -65,6 +67,7 @@ export function TransferModal({
       newAccountNumber: null,
       newAccountHolderName: null,
       otp: null,
+      otpId: null,
       withdrawalId: null,
       transferId: null,
     },
@@ -118,7 +121,7 @@ export function TransferModal({
           title: "Are you sure want to transfer your Assets?",
           content: <OnchainConfirmStep />,
         },
-        { id: "otp", title: "Verify OTP", content: <OtpStep /> },
+        { id: "otp", title: "Verify OTP", content: <OnchainOtpStep /> },
         {
           id: "processing",
           title: "Processing",
@@ -154,7 +157,7 @@ export function TransferModal({
             title: "Are you sure want to transfer your Assets?",
             content: <BankConfirmStep />,
           },
-          { id: "otp", title: "Verify OTP", content: <OtpStep /> },
+          { id: "otp", title: "Verify OTP", content: <BankOtpStep /> },
           {
             id: "processing",
             title: "Processing",

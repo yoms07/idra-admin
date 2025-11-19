@@ -4,6 +4,8 @@ import { withdrawalKeys } from "../queryKeys";
 import {
   type CreateWithdrawalRequest,
   type CreateWithdrawalResponse,
+  type ConfirmWithdrawalRequest,
+  type ConfirmWithdrawalResponse,
   type Withdrawal,
   type PaymentMethod,
   type CheckFirstTimeResponse,
@@ -19,6 +21,25 @@ export function useCreateWithdrawal() {
     mutationFn: (input) => withdrawalService.create(input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: withdrawalKeys.lists() });
+    },
+  });
+}
+
+export function useConfirmWithdrawal() {
+  const qc = useQueryClient();
+  return useMutation<
+    ConfirmWithdrawalResponse,
+    unknown,
+    ConfirmWithdrawalRequest
+  >({
+    mutationFn: (input) => withdrawalService.confirm(input),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: withdrawalKeys.lists() });
+      if (variables.withdrawalId) {
+        qc.invalidateQueries({
+          queryKey: withdrawalKeys.detail(variables.withdrawalId),
+        });
+      }
     },
   });
 }

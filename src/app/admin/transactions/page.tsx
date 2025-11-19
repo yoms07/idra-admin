@@ -14,6 +14,7 @@ import { Loader } from "@/components/common/Loader";
 import { useInfiniteAdminTransactionList } from "@/features/transactions/hooks/useTransactions";
 import { formatDate, formatIDRA } from "@/lib/utils";
 import { useState, useEffect, useMemo } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   Select,
   SelectContent,
@@ -41,11 +42,6 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DateRange } from "react-day-picker";
-import type {
-  TransactionType,
-  TransactionStatus,
-} from "@/features/transactions/schema/transaction";
-
 function AdminTransactionsPage() {
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [limit] = useState(20);
@@ -53,6 +49,8 @@ function AdminTransactionsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [emailFilter, setEmailFilter] = useState("");
   const [date, setDate] = useState<DateRange | undefined>();
+
+  const debouncedEmailFilter = useDebounce(emailFilter, 300);
 
   const queryParams = useMemo(() => {
     const params: {
@@ -82,8 +80,8 @@ function AdminTransactionsPage() {
         | "failed";
     }
 
-    if (emailFilter) {
-      params.email = emailFilter;
+    if (debouncedEmailFilter) {
+      params.email = debouncedEmailFilter;
     }
 
     if (date?.from) {
@@ -95,7 +93,7 @@ function AdminTransactionsPage() {
     }
 
     return params;
-  }, [limit, typeFilter, statusFilter, emailFilter, date]);
+  }, [limit, typeFilter, statusFilter, debouncedEmailFilter, date]);
 
   const {
     data: transactionsPages,
@@ -107,7 +105,7 @@ function AdminTransactionsPage() {
 
   useEffect(() => {
     setCurrentPageIndex(0);
-  }, [typeFilter, statusFilter, emailFilter, date]);
+  }, [typeFilter, statusFilter, debouncedEmailFilter, date]);
 
   const totalFetchedPages = transactionsPages?.pages.length ?? 0;
   const effectivePageIndex =

@@ -7,8 +7,12 @@ import {
   PaymentMethodListResponseSchema,
   CheckFirstTimeRequestSchema,
   CheckFirstTimeResponseSchema,
+  ConfirmWithdrawalRequestSchema,
+  ConfirmWithdrawalResponseSchema,
   type CreateWithdrawalRequest,
   type CreateWithdrawalResponse,
+  type ConfirmWithdrawalRequest,
+  type ConfirmWithdrawalResponse,
   type Withdrawal,
   type PaymentMethod,
   type CheckFirstTimeRequest,
@@ -22,6 +26,15 @@ export const withdrawalService = {
     const body = CreateWithdrawalRequestSchema.parse(input);
     const res = await http.post("/api/wallet/withdrawals", body);
     const parsed = CreateWithdrawalResponseSchema.parse(res.data);
+    return parsed.data;
+  },
+
+  async confirm(
+    input: ConfirmWithdrawalRequest
+  ): Promise<ConfirmWithdrawalResponse> {
+    const body = ConfirmWithdrawalRequestSchema.parse(input);
+    const res = await http.post("/api/wallet/withdrawals/confirm", body);
+    const parsed = ConfirmWithdrawalResponseSchema.parse(res.data);
     return parsed.data;
   },
 

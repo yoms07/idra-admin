@@ -14,10 +14,26 @@ export const CreateWithdrawalRequestSchema = z.object({
   recipient: CreateWithdrawalRecipientSchema,
 });
 
+export const WithdrawalOtpMetaSchema = z.object({
+  id: z.string(),
+  expiresInMinutes: z.number(),
+  maxAttempts: z.number(),
+  sent: z.boolean(),
+});
+
+export const WithdrawalSummarySchema = z.object({
+  originalAmount: z.string(),
+  totalDebit: z.string(),
+  pgFee: z.string(),
+  platformFee: z.string(),
+});
+
 export const CreateWithdrawalResponseSchema = baseResponse(
   z.object({
     withdrawalId: z.string(),
-    newBalance: z.string(),
+    requiresOtp: z.boolean().default(true),
+    otp: WithdrawalOtpMetaSchema.optional(),
+    summary: WithdrawalSummarySchema.optional(),
   })
 );
 
@@ -39,6 +55,20 @@ export const WithdrawalListResponseSchema = baseResponse(
   z.array(WithdrawalSchema)
 );
 
+export const ConfirmWithdrawalRequestSchema = z.object({
+  withdrawalId: z.string().min(1, "Withdrawal ID is required"),
+  otpId: z.string().min(1, "OTP ID is required"),
+  code: z.string().min(4, "OTP code is required"),
+});
+
+export const ConfirmWithdrawalResponseSchema = baseResponse(
+  z.object({
+    withdrawalId: z.string(),
+    newBalance: z.string(),
+    status: WithdrawalSchema.shape.status,
+  })
+);
+
 export const PaymentMethodSchema = z.object({
   bankName: z.string(),
   bankCode: z.string(),
@@ -47,6 +77,20 @@ export const PaymentMethodSchema = z.object({
   maxAmount: z.number(),
   feeFlat: z.number(),
   feePercentage: z.number(),
+});
+
+export const WithdrawalOtpErrorResponseSchema = z.object({
+  error: z
+    .object({
+      code: z.string().optional(),
+      message: z.string().optional(),
+      details: z
+        .object({
+          remainingAttempts: z.number().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
 });
 
 export const PaymentMethodListResponseSchema = baseResponse(
@@ -69,6 +113,15 @@ export type CreateWithdrawalRequest = z.infer<
 export type CreateWithdrawalResponse = z.infer<
   typeof CreateWithdrawalResponseSchema
 >["data"];
+export type ConfirmWithdrawalRequest = z.infer<
+  typeof ConfirmWithdrawalRequestSchema
+>;
+export type ConfirmWithdrawalResponse = z.infer<
+  typeof ConfirmWithdrawalResponseSchema
+>["data"];
+export type WithdrawalOtpErrorResponse = z.infer<
+  typeof WithdrawalOtpErrorResponseSchema
+>;
 export type Withdrawal = z.infer<typeof WithdrawalSchema>;
 export type PaymentMethod = z.infer<typeof PaymentMethodSchema>;
 export type CheckFirstTimeRequest = z.infer<typeof CheckFirstTimeRequestSchema>;
