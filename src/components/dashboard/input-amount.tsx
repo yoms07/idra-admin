@@ -61,8 +61,8 @@ export function InputAmount({
           disabled={disabled}
           inputClassName={cn(
             "bg-transparent outline-none min-w-16",
-            "text-3xl leading-none tracking-tight text-foreground",
-            "placeholder:text-muted-foreground"
+            "text-3xl leading-none tracking-tight",
+            display === "0" ? "text-[#737373]" : "text-foreground"
           )}
         />
         <span className="text-[#111827] text-base whitespace-nowrap">

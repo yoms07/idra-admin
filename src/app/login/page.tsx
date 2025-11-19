@@ -56,7 +56,7 @@ function AuthBody() {
                 {subtitle}
               </p>
             </div>
-            <div className="space-y-5">
+            <div className="space-y-5 mt-6">
               {step === "login" && <LoginForm />}
               {step === "register" && <RegisterForm />}
               {step === "otp" && <OtpForm />}

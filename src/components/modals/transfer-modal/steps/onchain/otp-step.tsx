@@ -101,8 +101,12 @@ export function OnchainOtpStep() {
           <p className="text-sm text-destructive">{errorMessage}</p>
         )}
       </div>
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={goPrevious} disabled={isSubmitting}>
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="outline-secondary"
+          onClick={goPrevious}
+          disabled={isSubmitting}
+        >
           Back
         </Button>
         <Button onClick={submit} disabled={isDisabled}>

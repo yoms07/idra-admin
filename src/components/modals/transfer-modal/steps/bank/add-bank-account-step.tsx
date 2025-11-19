@@ -296,8 +296,8 @@ export function AddBankAccountStep() {
           <ErrorMessage message={form.formState.errors.root.message} />
         )}
 
-        <div className="flex justify-between">
-          <Button variant="outline" onClick={goPrevious}>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline-secondary" onClick={goPrevious}>
             Back
           </Button>
           <Button

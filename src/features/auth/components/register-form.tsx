@@ -88,7 +88,7 @@ export function RegisterForm() {
         )}
       </div>
       <Button className="w-full" disabled={loading} onClick={submitRegister}>
-        {loading ? "Creating account..." : "Create account"}
+        {loading ? "Creating account..." : "Create Account"}
       </Button>
       <div className="text-center text-sm text-[#535862]">
         Already have an account?{" "}

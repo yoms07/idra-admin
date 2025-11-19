@@ -216,26 +216,51 @@ export function TransactionsTable({
       {showFilters && (
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
           <h3 className="text-xl font-semibold">{title}</h3>
-          <div className="mt-2 flex w-full max-w-lg items-center gap-4 md:mt-0">
+          <div className="mt-2 flex items-center gap-4 md:mt-0">
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger className="h-12 rounded-lg text-black md:w-48">
                 <SelectValue placeholder="Transaction Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="deposit">Wallet Deposit</SelectItem>
-                <SelectItem value="onchain_deposit">OnChain Deposit</SelectItem>
-                <SelectItem value="send">Send On-Chain</SelectItem>
-                <SelectItem value="withdraw">Withdraw</SelectItem>
+                <SelectItem
+                  value="all"
+                  className="focus:bg-primary focus:text-white"
+                >
+                  All
+                </SelectItem>
+                <SelectItem
+                  value="deposit"
+                  className="focus:bg-primary focus:text-white"
+                >
+                  Wallet Deposit
+                </SelectItem>
+                <SelectItem
+                  value="onchain_deposit"
+                  className="focus:bg-primary focus:text-white"
+                >
+                  OnChain Deposit
+                </SelectItem>
+                <SelectItem
+                  value="send"
+                  className="focus:bg-primary focus:text-white"
+                >
+                  Send On-Chain
+                </SelectItem>
+                <SelectItem
+                  value="withdraw"
+                  className="focus:bg-primary focus:text-white"
+                >
+                  Withdraw
+                </SelectItem>
               </SelectContent>
             </Select>
 
             <Popover>
-              <PopoverTrigger asChild className="md:w-48">
+              <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
                   className={cn(
-                    "flex-1 justify-start gap-2 overflow-hidden rounded-lg border border-border font-light text-sm md:w-48",
+                    "w-fit flex-1 justify-start gap-2 overflow-hidden rounded-lg border border-border font-light text-sm",
                     date?.from && date?.to
                       ? "text-black"
                       : "text-muted-foreground"
@@ -262,6 +287,13 @@ export function TransactionsTable({
                   numberOfMonths={2}
                   selected={date}
                   onSelect={setDate}
+                  classNames={{
+                    day_button:
+                      "data-[range-middle=true]:bg-primary-100 data-[range-middle=true]:text-black",
+                    day: "hello world",
+                    range_start: "bg-primary-100 rounded-l-md",
+                    range_end: "bg-primary-100 rounded-r-md",
+                  }}
                 />
                 {date?.from && (
                   <div className="border-t">
@@ -292,13 +324,15 @@ export function TransactionsTable({
         ) : (
           <>
             <Table className="overflow-hidden">
-              <TableHeader>
-                <TableRow className="rounded-full bg-[#F5F5F5] font-bold">
-                  <TableHead className="md:pl-8">Transaction Type</TableHead>
+              <TableHeader className="overflow-hidden">
+                <TableRow className="rounded-full overflow-hidden bg-[#E5E5E5] font-bold hover:bg-[#E5E5E5]">
+                  <TableHead className="md:pl-8 rounded-tl-xl">
+                    Transaction Type
+                  </TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead className="rounded-tr-xl">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

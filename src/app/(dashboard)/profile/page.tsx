@@ -81,7 +81,7 @@ const ProfileContent = () => {
                 <TabsTrigger
                   key={tab.value}
                   value={tab.value}
-                  className="data-[state=active]:bg-primary data-[state=active]:border-b-primary data-[state=active]:border-b-1 rounded-none border-b-1"
+                  className="data-[state=active]:bg-primary data-[state=active]:border-b-primary data-[state=active]:border-b-1 rounded-none border-b-1 text-base"
                 >
                   {tab.label}
                 </TabsTrigger>

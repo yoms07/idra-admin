@@ -83,7 +83,7 @@ export function LoginForm() {
       </div>
 
       <Button className="w-full" disabled={loading} onClick={submitLogin}>
-        {loading ? "Signing in..." : "Sign in"}
+        {loading ? "Signing in..." : "Sign In"}
       </Button>
       <Button
         variant="secondary"
@@ -92,7 +92,7 @@ export function LoginForm() {
         disabled={loading}
       >
         <GoogleIcon />
-        Sign in with Google
+        Sign In with Google
       </Button>
 
       <div className="text-center text-sm text-[#535862]">
