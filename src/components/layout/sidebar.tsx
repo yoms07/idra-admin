@@ -23,6 +23,7 @@ import {
   Users,
   FileText,
   Logs,
+  Droplets,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { IDRALogoLightMode } from "../icons/idra-logo-light-mode";
@@ -66,6 +67,11 @@ const adminNavigation = [
     name: "Audit Logs",
     href: "/admin/audit-logs",
     icon: <Logs className="w-full h-full" />,
+  },
+  {
+    name: "Liquidity",
+    href: "/admin/liquidity",
+    icon: <Droplets className="w-full h-full" />,
   },
 ];
 

@@ -69,7 +69,7 @@ export function UserChainBalancesModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="w-[1560px] max-h-[85vh] overflow-y-auto !max-w-5xl">
         <DialogHeader>
           <DialogTitle>Onchain Balances - {userName}</DialogTitle>
           <DialogDescription>

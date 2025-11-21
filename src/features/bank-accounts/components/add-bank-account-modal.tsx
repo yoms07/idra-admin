@@ -300,7 +300,7 @@ export function AddBankAccountModal({
           )}
 
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={closeAndReset}>
+            <Button variant="outline-secondary" onClick={closeAndReset}>
               Cancel
             </Button>
             <Button

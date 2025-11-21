@@ -169,7 +169,7 @@ export function NotificationModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm overflow-hidden rounded-lg border-none p-0 sm:max-w-sm">
+      <DialogContent className="max-w-sm overflow-y-scroll max-h-[85vh] rounded-lg border-none p-0 sm:max-w-sm">
         <div className="flex flex-col gap-6 rounded-lg bg-white p-6 sm:max-w-sm">
           <DialogHeader className="gap-2 text-center">
             <DialogTitle className="text-xl font-semibold">
