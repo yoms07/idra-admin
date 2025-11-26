@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { PaymentMethod as MintPaymentMethod } from "@/features/mint/schema/mint";
 
 // User schema
 export const UserSchema = z.object({
@@ -64,15 +63,6 @@ export const NotificationSchema = z.object({
   actionUrl: z.string().optional(),
 });
 
-// Form validation schemas
-export const MintFormSchema = z.object({
-  idraAmount: z.string().min(1, "Amount is required"),
-  paymentMethod: z.enum(MintPaymentMethod),
-  walletAddress: z
-    .string()
-    .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid wallet address"),
-});
-
 export const RedeemFormSchema = z.object({
   idraAmount: z.string().min(1, "Amount is required"),
   bankAccountId: z.string().min(1, "Bank account is required"),
@@ -113,7 +103,6 @@ export type TransactionType = z.infer<typeof TransactionTypeSchema>;
 export type TransactionStatus = z.infer<typeof TransactionStatusSchema>;
 export type BankAccount = z.infer<typeof BankAccountSchema>;
 export type Notification = z.infer<typeof NotificationSchema>;
-export type MintForm = z.infer<typeof MintFormSchema>;
 export type RedeemForm = z.infer<typeof RedeemFormSchema>;
 export type SendForm = z.infer<typeof SendFormSchema>;
 export type BankAccountForm = z.infer<typeof BankAccountFormSchema>;
