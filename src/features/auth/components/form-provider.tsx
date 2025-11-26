@@ -207,7 +207,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       }
 
-      router.push("/dashboard");
+      router.push("/admin/users");
     } catch (error) {
       if (!(error instanceof AuthError)) {
         form.setError("otp", {

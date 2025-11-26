@@ -13,12 +13,12 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
-import InputText from "@/components/dashboard/input-text";
-import InputAmount from "@/components/dashboard/input-amount";
+import { Input } from "@/components/ui/input";
 import { usePullIdra } from "../hooks/useUser";
 import { toast } from "sonner";
 import { isValidEthereumAddress } from "@/lib/utils";
@@ -118,9 +118,9 @@ export function PullIdraModal({
               name="recipientAddress"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Recipient Address</FormLabel>
                   <FormControl>
-                    <InputText
-                      label="Recipient Address"
+                    <Input
                       value={field.value ?? ""}
                       onChange={field.onChange}
                       placeholder="0x..."
@@ -137,12 +137,22 @@ export function PullIdraModal({
               name="amount"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Amount (IDRA)</FormLabel>
                   <FormControl>
-                    <InputAmount
-                      label="Amount"
-                      value={field.value ?? null}
-                      onChange={field.onChange}
-                      currency="IDRA"
+                    <Input
+                      type="number"
+                      min="0"
+                      value={field.value ?? ""}
+                      onChange={(event) => {
+                        const raw = event.target.value;
+                        if (raw === "") {
+                          field.onChange(null);
+                          return;
+                        }
+                        const parsed = Number(raw);
+                        field.onChange(Number.isFinite(parsed) ? parsed : null);
+                      }}
+                      placeholder="0"
                       disabled={isPending}
                     />
                   </FormControl>

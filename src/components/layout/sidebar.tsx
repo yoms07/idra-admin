@@ -2,7 +2,6 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAppStore } from "@/state/stores/appStore";
 import {
   Sidebar,
   SidebarContent,
@@ -15,11 +14,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
-  Home,
   ChevronDown,
-  Zap,
   LogOut,
-  User,
   Users,
   FileText,
   Logs,
@@ -28,7 +24,6 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { IDRALogoLightMode } from "../icons/idra-logo-light-mode";
 import { useMe, useLogout } from "@/features/auth";
-import { RoleEnum } from "@/features/user/schema/user";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import {
   DropdownMenu,
@@ -37,20 +32,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SolidAvatar } from "../ui/solid-avatar";
-
-const navigation = [
-  {
-    name: "Home",
-    href: "/dashboard",
-    icon: <Home className="w-full h-full" />,
-  },
-  // { name: "Referral", href: "#", icon: <Bell /> },
-  {
-    name: "Terms & Policy",
-    href: "#",
-    icon: <Zap className="h-full w-full" />,
-  },
-];
 
 const adminNavigation = [
   {
@@ -86,16 +67,12 @@ export function AppSidebar() {
     router.push("/login");
   };
 
-  const handleProfile = async () => {
-    router.push("/profile");
-  };
-
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 text-3xl pt-2 text-black font-bold cursor-pointer">
+        <div className="flex items-center gap-2 px-2 text-3xl pt-2 text-black font-bold">
           <IDRALogoLightMode />
-          IDRA
+          IDRA Admin
         </div>
       </SidebarHeader>
 
@@ -103,7 +80,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigation.map((item) => {
+              {adminNavigation.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <SidebarMenuItem key={item.name}>
@@ -134,44 +111,6 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        {me?.role === RoleEnum.enum.ADMIN && (
-          <SidebarGroup>
-            <h1 className="text-center mb-2">----- Admin ------</h1>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {adminNavigation.map((item) => {
-                  const isActive = pathname === item.href;
-                  return (
-                    <SidebarMenuItem key={item.name}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        tooltip={item.name}
-                        className="font-semibold h-12 border-1 border-transparent hover:bg-sidebar hover:border-primary hover:border-1 hover:text-primary duration-300 transition-all"
-                      >
-                        <Link
-                          href={item.href}
-                          className="flex gap-1 hover:gap-2 items-center py-0"
-                        >
-                          <div
-                            style={{
-                              width: "22px",
-                              height: "22px",
-                            }}
-                          >
-                            {item.icon}
-                          </div>
-                          <span className="">{item.name}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
 
       <SidebarFooter>
@@ -209,13 +148,6 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem
-                  onClick={handleProfile}
-                  className="cursor-pointer !hover:bg-primary"
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleLogout}
                   className="cursor-pointer !hover:bg-primary"

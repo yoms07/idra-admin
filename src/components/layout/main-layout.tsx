@@ -1,8 +1,6 @@
 "use client";
 
 import { AppSidebar } from "./sidebar";
-import { MobileNav } from "./mobile-nav";
-import Link from "next/link";
 import { useAppStore } from "@/state/stores/appStore";
 import { useLogout, useMe } from "@/features/auth/hooks/authHook";
 import { Button } from "@/components/ui/button";
@@ -13,14 +11,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, ChevronDown, LogOut, UserRound } from "lucide-react";
+import { Bell, LogOut } from "lucide-react";
 import {
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { useXellarAccount, useProfileModal } from "@xellar/kit";
 import { SolidAvatar } from "../ui/solid-avatar";
 import { useRouter } from "next/navigation";
 import NotificationModal from "@/features/notification/components/notification-modal";
@@ -33,7 +30,6 @@ interface MainLayoutProps {
 export function MainLayout({ children }: MainLayoutProps) {
   const { reset } = useAppStore();
   const router = useRouter();
-  const { open: openProfileModal } = useProfileModal();
   const me = useMe();
   const { mutateAsync: logout } = useLogout();
 
@@ -99,8 +95,6 @@ export function MainLayout({ children }: MainLayoutProps) {
             {children}
           </main>
 
-          {/* Mobile Navigation */}
-          <MobileNav />
           <NotificationModal
             open={notificationOpen}
             onOpenChange={setNotificationOpen}

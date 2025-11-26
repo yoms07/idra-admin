@@ -1,81 +1,79 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useIsAuthenticated, useMe } from "../hooks/authHook";
+import { useEffect, type ReactNode } from "react";
+import { useIsAuthenticated, useLogout, useMe } from "../hooks/authHook";
 import { Loader } from "@/components/common/Loader";
 import { RoleEnum } from "@/features/user/schema/user";
+import { Button } from "@/components/ui/button";
 
-export function RequireAuthentication({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const ADMIN_HOME_PATH = "/admin/users";
+const LOGIN_PATH = "/login";
+
+function FullscreenLoader() {
+  return (
+    <div className="min-h-screen min-w-screen flex items-center justify-center">
+      <Loader className="size-40" />
+    </div>
+  );
+}
+
+export function RequireAuthentication({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useIsAuthenticated();
   const router = useRouter();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen min-w-screen flex items-center justify-center">
-        <Loader className="size-40" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace(LOGIN_PATH);
+    }
+  }, [isLoading, isAuthenticated, router]);
 
-  if (!isAuthenticated) {
-    router.push("/login");
+  if (isLoading || !isAuthenticated) {
+    return <FullscreenLoader />;
   }
 
   return <>{children}</>;
 }
 
-export function RequireNotAuthenticated({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function RequireNotAuthenticated({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useIsAuthenticated();
   const router = useRouter();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen min-w-screen flex items-center justify-center">
-        <Loader className="size-40" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace(ADMIN_HOME_PATH);
+    }
+  }, [isLoading, isAuthenticated, router]);
 
-  if (isAuthenticated) {
-    router.push("/dashboard");
+  if (isLoading || isAuthenticated) {
+    return <FullscreenLoader />;
   }
 
   return <>{children}</>;
 }
 
-export function RequireAdmin({ children }: { children: React.ReactNode }) {
+export function RequireAdmin({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading: isAuthLoading } = useIsAuthenticated();
   const { data: me, isLoading: isMeLoading } = useMe();
   const router = useRouter();
+  const { mutateAsync: logout } = useLogout();
 
-  const isLoading = isAuthLoading || isMeLoading;
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen min-w-screen flex items-center justify-center">
-        <Loader className="size-40" />
-      </div>
-    );
+  if (isAuthLoading || isMeLoading || !isAuthenticated) {
+    return <FullscreenLoader />;
   }
 
-  if (!isAuthenticated) {
-    router.push("/login");
-    return null;
-  }
+  const handleLogout = async () => {
+    await logout();
+    router.push(LOGIN_PATH);
+  };
 
   if (me?.role !== RoleEnum.enum.ADMIN) {
-    router.push("/dashboard");
     return (
       <div className="min-h-screen min-w-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-muted-foreground">Access denied. Admin only.</p>
+          <Button variant="default" onClick={handleLogout}>
+            Logout
+          </Button>
         </div>
       </div>
     );

@@ -39,15 +39,15 @@ const figTree = Figtree({
 });
 
 export const metadata: Metadata = {
-  title: "IDRA | Indonesia Stable Coin",
+  title: "IDRA Admin Dashboard",
   description:
-    "Welcome to $IDRA, Indonesia's premier Rupiah Stable Coin. The stability you trust, now unleashed with the speed and power of Web3. Instant global transactions, 1:1 secured, and always on 24/7.",
+    "Internal console for monitoring users, transactions, liquidity, and audit logs across the IDRA network.",
   openGraph: {
-    title: "IDRA | Indonesia Stable Coin",
+    title: "IDRA Admin Dashboard",
     description:
-      "Welcome to $IDRA, Indonesia's premier Rupiah Stable Coin. The stability you trust, now unleashed with the speed and power of Web3. Instant global transactions, 1:1 secured, and always on 24/7.",
-    url: "https://idra-dashboard.vercel.app/",
-    siteName: "IDRA | Indonesia Stable Coin",
+      "Internal console for monitoring users, transactions, liquidity, and audit logs across the IDRA network.",
+    url: "https://idra-admin.vercel.app/",
+    siteName: "IDRA Admin Dashboard",
     images: "/images/logo-mobile.png",
   },
 };
