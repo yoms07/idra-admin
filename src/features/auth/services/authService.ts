@@ -104,7 +104,7 @@ export const authService = {
   ): Promise<TokenPairData> {
     const body = GoogleOAuthCallbackRequestSchema.parse(request);
     const res = await http.get(
-      `/api/auth/oauth/google/callback?code=${body.code}&state=${body.state}`
+      `/api/auth/oauth/admin/google/callback?code=${body.code}&state=${body.state}`
     );
     console.log({ data: res.data });
     const parsedResponse = GoogleOAuthCallbackResponseSchema.parse(res.data);

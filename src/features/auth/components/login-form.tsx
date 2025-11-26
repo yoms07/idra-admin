@@ -20,7 +20,7 @@ export function LoginForm() {
 
   const handleGoogleLogin = () => {
     const apiBaseUrl = getEnv().NEXT_PUBLIC_API_BASE_URL;
-    const googleOAuthUrl = `${apiBaseUrl}/api/auth/oauth/google`;
+    const googleOAuthUrl = `${apiBaseUrl}/api/auth/oauth/admin/google`;
     window.location.href = googleOAuthUrl;
   };
 
