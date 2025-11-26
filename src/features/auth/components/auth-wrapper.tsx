@@ -57,7 +57,7 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { mutateAsync: logout } = useLogout();
 
-  if (isAuthLoading || isMeLoading || !isAuthenticated) {
+  if (isAuthLoading || isMeLoading) {
     return <FullscreenLoader />;
   }
 
