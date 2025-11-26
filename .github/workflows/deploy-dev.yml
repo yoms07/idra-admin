@@ -1,0 +1,23 @@
+name: IDRA Auto Deploy (Development)
+
+on:
+  push:
+    branches: [ "develop", "dev" ]
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+    - name: Deploy development application
+      run: |
+        sudo su - root -c "
+          cd /root/idra-admin-dev
+          git pull
+          source /root/.bashrc
+          source /root/.profile
+          export PATH=/root/.nvm/versions/node/v25.2.0/bin:\$PATH
+          /root/.nvm/versions/node/v25.2.0/bin/pnpm install
+          /root/.nvm/versions/node/v25.2.0/bin/pnpm run build
+          /root/.nvm/versions/node/v25.2.0/bin/pm2 reload dev.ecosystem.config.js
+          /root/.nvm/versions/node/v25.2.0/bin/pm2 save
+        "
