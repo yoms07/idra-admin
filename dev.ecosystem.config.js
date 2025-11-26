@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'admin.idra.to',
+      name: 'admin.idra.to-dev',
       script: './node_modules/next/dist/bin/next',
       args: 'start',
       cwd: './',
@@ -11,7 +11,7 @@ module.exports = {
       kill_timeout: 3000,
       env: {
         NODE_ENV: 'production',
-        PORT: 4002,
+        PORT: 4003,
       },
     },
   ],
